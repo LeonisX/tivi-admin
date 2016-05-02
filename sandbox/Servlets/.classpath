@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/cos.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/activation.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/javax.mail.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/mysql-connector-java-5.1.35-bin.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/jsoup-1.8.3.jar" sourcepath="/media/leonis/D/EclipseWorkspace/ExternalLibs/jsoup-1.8.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/media/leonis/D/EclipseWorkspace/ExternalLibs/jsoup-1.8.3-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/commons-codec-1.10.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/commons-lang3-3.4.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/cssparser-0.9.16.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/htmlunit-2.18.jar" sourcepath="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18-src.zip"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/htmlunit-core-js-2.17.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/httpclient-4.5.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/httpcore-4.4.1.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/httpmime-4.5.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/jetty-io-9.2.12.v20150709.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/jetty-util-9.2.12.v20150709.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/nekohtml-1.9.22.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/sac-1.3.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/serializer-2.7.2.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/websocket-api-9.2.12.v20150709.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/websocket-client-9.2.12.v20150709.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/websocket-common-9.2.12.v20150709.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/xalan-2.7.2.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/xercesImpl-2.11.0.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/htmlunit-2.18/lib/xml-apis-1.4.01.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/jsp-api.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/servlet-api.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/jstl-1.2.jar"/>
+	<classpathentry kind="lib" path="/media/leonis/D/EclipseWorkspace/ExternalLibs/commons-httpclient-3.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

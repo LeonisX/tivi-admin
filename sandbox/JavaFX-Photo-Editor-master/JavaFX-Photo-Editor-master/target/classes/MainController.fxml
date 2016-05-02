@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="no.haagensoftware.photoalbum.controllers.MainController">
+   <left>
+      <ListView fx:id="photoListView" maxWidth="300.0" minWidth="300.0" prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER" />
+   </left>
+   <center>
+      <VBox fx:id="vBox" style="´: ´´;">
+         <children>
+            <Label fx:id="photoNameLabel" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-background-color: rgba(0, 0, 0, 0.7);" textAlignment="CENTER" textFill="WHITE">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Label>
+            <ImageView fx:id="imageView" fitHeight="259.0" fitWidth="301.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS">
+               <viewport>
+                  <Rectangle2D />
+               </viewport>
+            </ImageView>
+            <HBox fx:id="brightnessBox" prefHeight="25.0" prefWidth="301.0" VBox.vgrow="NEVER">
+               <children>
+                  <Label prefHeight="16.0" prefWidth="100.0" text="Brightness" />
+                  <Slider fx:id="brightnessSlider" blockIncrement="0.1" majorTickUnit="0.25" max="2.0" maxWidth="1.7976931348623157E308" minorTickCount="0" showTickMarks="true" value="1.0" HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
+            <HBox fx:id="saturationBox" prefHeight="25.0" prefWidth="301.0" VBox.vgrow="NEVER">
+               <children>
+                  <Label prefHeight="16.0" prefWidth="100.0" text="Saturation" />
+                  <Slider fx:id="saturationSlider" blockIncrement="0.1" majorTickUnit="0.25" max="1.0" minorTickCount="1" showTickMarks="true" HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
+            <HBox fx:id="sepiaBox" prefHeight="25.0" prefWidth="200.0">
+               <children>
+                  <Label prefWidth="100.0" text="Sepia" />
+                  <Slider fx:id="sepiaSlider" blockIncrement="0.1" majorTickUnit="0.25" max="1.0" minorTickCount="0" showTickMarks="true" HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
+            <HBox fx:id="buttonBox" prefHeight="25.0" prefWidth="200.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#normalAction" text="Normal" />
+                  <Button mnemonicParsing="false" onAction="#brightAction" text="Bright" />
+                  <Button mnemonicParsing="false" onAction="#dimAction" text="Dim" />
+                  <Button mnemonicParsing="false" onAction="#oldSchoolLook" text="Old School" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>

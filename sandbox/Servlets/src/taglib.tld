@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+    version="2.0">
+  <tlib-version>1.0</tlib-version>
+  <short-name>My tags</short-name>
+  
+    <tag>
+        <description>Выводит: Первый JSP тэг!</description>
+        <name>simple</name>
+        <tag-class>tags.WelcomeTagHandler</tag-class>
+        <body-content>empty</body-content>
+    </tag>
+    
+    <tag>
+        <description>Выводит: Приветствую, + имя из параметра</description>
+        <name>attr</name>
+        <tag-class>tags.WelcomeTagHandler2</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+        	<name>firstName</name>
+        	<required>true</required>
+        	<rtexprvalue>true</rtexprvalue>
+       	</attribute>
+    </tag>
+    
+    <tag>
+        <description>Проходит массив гостей и выводит их на странице</description>
+        <name>guestlist</name>
+        <tag-class>tags.GuestBookTag</tag-class>
+        <tei-class>tags.GuestBookTagExtraInfo</tei-class>
+        <body-content>JSP</body-content>
+    </tag>
+</taglib>

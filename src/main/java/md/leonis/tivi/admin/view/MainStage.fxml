@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.MainStageController">
+   <left>
+      <Accordion prefHeight="400.0" prefWidth="195.0" BorderPane.alignment="CENTER">
+        <panes>
+          <TitledPane animated="false" text="Новости">
+               <content>
+                  <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0">
+                     <children>
+                        <Button mnemonicParsing="false" text="Button" />
+                        <Button mnemonicParsing="false" text="Button" />
+                        <Button mnemonicParsing="false" text="Button" />
+                     </children>
+                  </VBox>
+               </content>
+            </TitledPane>
+          <TitledPane animated="false" text="Видео">
+               <content>
+                  <VBox prefHeight="200.0" prefWidth="100.0">
+                     <children>
+                        <Hyperlink fx:id="settingsHyperlink" text="Настройки" />
+                        <Hyperlink fx:id="allVideoHyperlink" text="Все видео" />
+                        <Hyperlink fx:id="categoriesHyperlink" text="Категории" />
+                        <Hyperlink fx:id="addVideoHyperlink" onAction="#addVideo" text="Добавить видео" />
+                        <Hyperlink fx:id="addCategoryHyperlink" text="Добавить категорию" />
+                        <Hyperlink fx:id="inaccesibleHyperlink" text="Недоступные" />
+                        <Hyperlink fx:id="tagsHyperlink" text="Ключевые слова" />
+                        <Hyperlink fx:id="commentsHyperlink" text="Комментарии" />
+                     </children>
+                  </VBox>
+               </content></TitledPane>
+        </panes>
+      </Accordion>
+   </left>
+</BorderPane>
