@@ -1,33 +1,16 @@
-package md.leonis.tivi.admin.view;
+package md.leonis.tivi.admin.view.video;
 
 import helloworld.HelloWorldFXML;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 
-import java.io.IOException;
+public class AddVideoController {
+    @FXML
+    private Button nextButton;
 
-public class MainStageController {
     @FXML
-    private Accordion accordion;
-    @FXML
-    private Hyperlink settingsHyperlink;
-    @FXML
-    private Hyperlink allVideoHyperlink;
-    @FXML
-    private Hyperlink addVideoHyperlink;
-    @FXML
-    private Hyperlink categoriesHyperlink;
-    @FXML
-    private Hyperlink addCategoryHyperlink;
-    @FXML
-    private Hyperlink inaccesibleHyperlink;
-    @FXML
-    private Hyperlink tagsHyperlink;
-    @FXML
-    private Hyperlink commentsHyperlink;
+    private TextField urlTextField;
 
     // Reference to the main application.
     private HelloWorldFXML mainApp;
@@ -36,7 +19,7 @@ public class MainStageController {
      * The constructor.
      * The constructor is called before the initialize() method.
      */
-    public MainStageController() {
+    public AddVideoController() {
     }
 
     /**
@@ -45,16 +28,19 @@ public class MainStageController {
      */
     @FXML
     private void initialize() {
-        accordion.setExpandedPane(accordion.getPanes().get(1));
         // Initialize the person table with the two columns.
         //firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
         //lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
     }
 
     @FXML
-    private void addVideo() {
-        mainApp.showAddVideo();
+    private void processVideo() {
+        mainApp.parseUrl(urlTextField.getText());
+        mainApp.parsePage();
+        mainApp.showProcessVideo();
     }
+
+    public String getUrl() { return urlTextField.getText(); }
 
     /**
      * Is called by the main application to give a reference back to itself.
