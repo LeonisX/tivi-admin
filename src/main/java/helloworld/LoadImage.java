@@ -20,6 +20,7 @@ public class LoadImage extends Application {
 
         Group root = new Group();
 
+        //http://shpargalkablog.ru/2013/06/youtube.html
         String imageSource = "https://i1.ytimg.com/vi/Tuy1UQjZYCQ/0.jpg";
 
         Image image = new Image(imageSource);
