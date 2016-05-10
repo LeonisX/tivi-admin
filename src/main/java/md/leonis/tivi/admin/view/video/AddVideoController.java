@@ -1,9 +1,10 @@
 package md.leonis.tivi.admin.view.video;
 
-import helloworld.HelloWorldFXML;
+import helloworld.MainApp;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import md.leonis.tivi.admin.utils.VideoUtils;
 
 public class AddVideoController {
     @FXML
@@ -13,7 +14,7 @@ public class AddVideoController {
     private TextField urlTextField;
 
     // Reference to the main application.
-    private HelloWorldFXML mainApp;
+    private MainApp mainApp;
 
     /**
      * The constructor.
@@ -35,8 +36,8 @@ public class AddVideoController {
 
     @FXML
     private void processVideo() {
-        mainApp.parseUrl(urlTextField.getText());
-        mainApp.parsePage();
+        VideoUtils.parseUrl(urlTextField.getText(), mainApp.addVideo);
+        VideoUtils.parsePage(mainApp.addVideo);
         mainApp.showProcessVideo();
     }
 
@@ -47,7 +48,7 @@ public class AddVideoController {
      *
      * @param mainApp
      */
-    public void setMainApp(HelloWorldFXML mainApp) {
+    public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
 
         // Add observable list data to the table

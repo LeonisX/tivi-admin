@@ -1,13 +1,9 @@
 package md.leonis.tivi.admin.view;
 
-import helloworld.HelloWorldFXML;
+import helloworld.MainApp;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Hyperlink;
-import javafx.scene.layout.AnchorPane;
-
-import java.io.IOException;
 
 public class MainStageController {
     @FXML
@@ -30,7 +26,7 @@ public class MainStageController {
     private Hyperlink commentsHyperlink;
 
     // Reference to the main application.
-    private HelloWorldFXML mainApp;
+    private MainApp mainApp;
 
     /**
      * The constructor.
@@ -61,7 +57,7 @@ public class MainStageController {
      *
      * @param mainApp
      */
-    public void setMainApp(HelloWorldFXML mainApp) {
+    public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
 
         // Add observable list data to the table
