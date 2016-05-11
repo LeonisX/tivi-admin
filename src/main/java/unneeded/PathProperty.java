@@ -1,4 +1,4 @@
-package md.leonis.tivi.admin.utils;
+package unneeded;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -6,6 +6,19 @@ import java.lang.invoke.MethodType;
 import java.util.Arrays;
 
 import javafx.beans.property.ObjectPropertyBase;
+
+//https://ugate.wordpress.com/2012/06/06/javafx-pojo-bindings/
+
+//Example:
+/*PathProperty prop = new PathProperty(mainApp.addVideo, "title", String.class);
+        PathProperty prop2 = new PathProperty(mainApp.addVideo, "cpu", String.class);
+        PathProperty prop3 = new PathProperty(mainApp.addVideo, "year", Integer.class);
+        PathProperty prop4 = new PathProperty(mainApp.addVideo, "category", String.class);
+        //PathProperty prop5= new PathProperty(mainApp.addVideo, "text", String.class);
+        Bindings.bindBidirectional(title.textProperty(), prop);
+        Bindings.bindBidirectional(cpu.textProperty(), prop2);
+        Bindings.bindBidirectional(year.textProperty(), prop3, new IntegerStringConverter());
+        Bindings.bindBidirectional(category.valueProperty(), prop4);*/
 
 public class PathProperty<B, T> extends ObjectPropertyBase<T> {
 

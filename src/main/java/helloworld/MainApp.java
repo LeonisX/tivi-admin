@@ -43,7 +43,7 @@ public class MainApp extends Application {
             controller.setMainApp(this);
 
             // Show the scene containing the root layout.
-            Scene scene = new Scene(rootLayout, 800, 600);
+            Scene scene = new Scene(rootLayout, 1024, 768);
             primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException e) {

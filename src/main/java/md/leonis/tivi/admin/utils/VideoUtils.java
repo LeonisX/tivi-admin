@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 public class VideoUtils {
     public static void parseUrl(String url, Video video) {
         video.setUrl(url);
-        video.setUrl("https://www.youtube.com/watch?v=TUAy0WKsqOs");
+        video.setUrl("https://www.youtube.com/watch?v=3q7QIdI6O-8");
         video.setYid(getYoutubeVideoId(video.getUrl()));
         System.out.println(video.getYid());
     }
@@ -27,7 +27,7 @@ public class VideoUtils {
             URL aURL = new URL(video.getUrl());
 
             video.setTitle(doc.getElementById("eow-title").text());
-            video.setDescription(doc.getElementById("eow-description").text());
+            video.setText(doc.getElementById("eow-description").html());
             video.setAuthor(div.select("a.yt-uix-sessionlink").get(1).text());
             video.setAuthorUrl(aURL.getProtocol() +"://" + aURL.getAuthority() + div.select("a.yt-uix-sessionlink").get(1).attr("href"));
             // TODO проверять, есть ли такой тайтл в базе

@@ -1,19 +1,17 @@
 package md.leonis.tivi.admin.view.video;
 
 import helloworld.MainApp;
-import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.paint.Color;
+import javafx.scene.web.HTMLEditor;
+import javafx.util.Callback;
 import javafx.util.converter.IntegerStringConverter;
-import javafx.util.converter.NumberStringConverter;
 import md.leonis.tivi.admin.model.Video;
-import md.leonis.tivi.admin.utils.PathProperty;
+import unneeded.PathProperty;
 import md.leonis.tivi.admin.utils.VideoUtils;
 
 import java.util.*;
@@ -48,6 +46,9 @@ public class AddVideo2Controller {
 
     @FXML
     private TextArea fullText;
+
+    @FXML
+    private HTMLEditor textHtml;
 
     @FXML
     private TextField author;
@@ -115,37 +116,78 @@ public class AddVideo2Controller {
      */
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
-        PathProperty prop = new PathProperty(mainApp.addVideo, "title", String.class);
-        PathProperty prop2 = new PathProperty(mainApp.addVideo, "cpu", String.class);
-        PathProperty prop3 = new PathProperty(mainApp.addVideo, "year", Integer.class);
-        PathProperty prop4 = new PathProperty(mainApp.addVideo, "category", String.class);
-        Bindings.bindBidirectional(title.textProperty(), prop);
-        Bindings.bindBidirectional(cpu.textProperty(), prop2);
-        Bindings.bindBidirectional(year.textProperty(), prop3, new IntegerStringConverter());
-        Bindings.bindBidirectional(category.valueProperty(), prop4);
+        Video video = mainApp.addVideo;
+
+        title.setText(video.title);
+        cpu.setText(video.cpu);
+        year.setText(video.year.toString());
+        category.setValue(video.category.toString());
+
+        textHtml.setHtmlText(mainApp.addVideo.text);
 
         List<String> list = new ArrayList<>();
         ObservableList<String> oList = FXCollections.observableList(list);
-        list.add("One");
-        list.add("Two");
+        list.add("One High");
+        list.add("Two Low");
         list.add("Three");
 
         category.setItems(oList);
         //category.setValue("Выберите одну категорию");
         category.setPromptText("123");
 
+        // TODO experiment
+/*        category.setButtonCell(new ListCell(){
+
+            @Override
+            protected void updateItem(Object item, boolean empty) {
+                super.updateItem(item, empty);
+                if(empty || item==null){
+                    // styled like -fx-prompt-text-fill:
+                    setStyle("-fx-text-fill: derive(-fx-control-inner-background,-30%)");
+                } else {
+                    //setStyle("-fx-text-fill: -fx-text-inner-color");
+                    System.out.println(item.toString());
+                    if (item.toString().equals("Two")) setStyle("-fx-font-size: 32px");
+                    setText(item.toString());
+                }
+            }
+
+        });*/
+
+        category.setCellFactory(
+                new Callback<ListView<String>, ListCell<String>>() {
+                    @Override public ListCell<String> call(ListView<String> param) {
+                        final ListCell<String> cell = new ListCell<String>() {
+                            {
+                                super.setPrefWidth(100);
+                            }
+                            @Override public void updateItem(String item, boolean empty) {
+                                super.updateItem(item, empty);
+                                if (item != null) {
+                                    setText(item);
+                                    if (item.contains("High")) {
+                                        setTextFill(Color.RED);
+                                    }
+                                    else if (item.contains("Low")){
+                                        setStyle("-fx-background-color: lavender;  -fx-margin-left: 10px;");
+                                        setTextFill(Color.GREEN);
+                                    }
+                                    else {
+                                        setTextFill(Color.BLACK);
+                                    }
+                                }
+                                else {
+                                    setText(null);
+                                }
+                            }
+                        };
+                        return cell;
+                    }
+                });
+
         System.out.println(category.getValue());
         System.out.println(category.getSelectionModel().getSelectedIndex());
         System.out.println(category.getSelectionModel().getSelectedItem());
-
-        // эксперименты с String, Integer, Combobox завершились успешно.
-        // надо подумать что делать с датами, логическими значениями
-        // по категориям - хранить именно строку и потом сопоставлять её с индексами из списка категорий
-
-
-
-        //Bindings.bindBidirectional(title.textProperty(), mainApp.addVideo.title);
-        //Bindings.bindBidirectional(cpu.textProperty(), mainApp.addVideo.cpu);
 
         // Add observable list data to the table
         //personTable.setItems(mainApp.getPersonData());

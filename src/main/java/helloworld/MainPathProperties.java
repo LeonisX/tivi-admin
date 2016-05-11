@@ -4,7 +4,7 @@ import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import md.leonis.tivi.admin.utils.PathProperty;
+import unneeded.PathProperty;
 
 
 public class MainPathProperties extends Application {

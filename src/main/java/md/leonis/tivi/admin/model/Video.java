@@ -12,11 +12,11 @@ public class Video {
     public String category = "";
     public StringProperty description = new SimpleStringProperty("");
     public StringProperty keywords = new SimpleStringProperty("");
-    public int year = -1;
+    public Integer year = -1;
     public StringProperty url = new SimpleStringProperty("");
     public StringProperty originUrl = new SimpleStringProperty("");
     public StringProperty yid = new SimpleStringProperty("");
-    public StringProperty text = new SimpleStringProperty("");
+    public String text = "";
     public StringProperty fullText = new SimpleStringProperty("");
     public StringProperty author = new SimpleStringProperty("");
     public StringProperty authorUrl = new SimpleStringProperty("");
@@ -116,11 +116,11 @@ public class Video {
     }
 
     public String getText() {
-        return text.get();
+        return text;
     }
 
     public void setText(String text) {
-        this.text.set(text);
+        this.text = text;
     }
 
     public String getFullText() {
