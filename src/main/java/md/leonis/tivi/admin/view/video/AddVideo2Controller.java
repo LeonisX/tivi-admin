@@ -10,6 +10,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.web.HTMLEditor;
 import javafx.util.Callback;
 import javafx.util.converter.IntegerStringConverter;
+import md.leonis.tivi.admin.model.Category;
 import md.leonis.tivi.admin.model.Video;
 import unneeded.PathProperty;
 import md.leonis.tivi.admin.utils.VideoUtils;
@@ -114,6 +115,12 @@ public class AddVideo2Controller {
      *
      * @param mainApp
      */
+
+    private int getParentId(String catname) {
+        for (Category category: mainApp.categories) if (category.getCatname().equals(catname)) return category.getParentid();
+        return -1;
+    }
+
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
         Video video = mainApp.addVideo;
@@ -126,10 +133,23 @@ public class AddVideo2Controller {
         textHtml.setHtmlText(mainApp.addVideo.text);
 
         List<String> list = new ArrayList<>();
+
+        for (Category category: mainApp.categories) if (category.getParentid() == 0) list.add(category.getCatname());
+        for (Category category: mainApp.categories) if (category.getParentid() != 0) {
+            //find parent
+            String name = "";
+            for (Category cat: mainApp.categories) if (cat.getCatid() == category.getParentid()) name = cat.getCatname();
+            if (name.isEmpty()) continue;
+            //find parent pos
+            Integer k = list.indexOf(name);
+            //add
+            list.add(k + 1, category.getCatname());
+        }
+
         ObservableList<String> oList = FXCollections.observableList(list);
-        list.add("One High");
-        list.add("Two Low");
-        list.add("Three");
+        //list.add("One High");
+        //list.add("Two Low");
+        //list.add("Three");
 
         category.setItems(oList);
         //category.setValue("Выберите одну категорию");
@@ -165,18 +185,15 @@ public class AddVideo2Controller {
                                 super.updateItem(item, empty);
                                 if (item != null) {
                                     setText(item);
-                                    if (item.contains("High")) {
-                                        setTextFill(Color.RED);
-                                    }
-                                    else if (item.contains("Low")){
-                                        setStyle("-fx-background-color: lavender;  -fx-margin-left: 10px;");
-                                        setTextFill(Color.GREEN);
+                                    if (getParentId(item) == 0){
+                                        setStyle("-fx-background-color: lavender;");
+                                        //setTextFill(Color.GREEN);
                                     }
                                     else {
-                                        setTextFill(Color.BLACK);
+                                        setStyle("-fx-padding: 5px 10px;");
+                                        //setTextFill(Color.BLACK);
                                     }
-                                }
-                                else {
+                                } else {
                                     setText(null);
                                 }
                             }

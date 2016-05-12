@@ -522,13 +522,33 @@ INSERT INTO danny_video ( downid, catid, public, stpublic, unpublic, cpu, locurl
 INSERT INTO danny_video ( downid, catid, public, stpublic, unpublic, cpu, locurl, exturl, extsize, descript, keywords, title, textshort, textmore, textnotice, mirrorsname, mirrorsurl, relisdown, authdown, sitedown, maildown, image, image_thumb, image_align, image_alt, hits, trans, lastdown, rating, totalrating, act, acc, listid, comments, tags) VALUES ( '528', '25', '1462799280', '0', '0', 'Privet_Arcade_6', 'iH8maXqI5n0', '', '', '', '', 'Привет ARCADE! #6 Аркадные игры', 'Встречайте новый Привет ARCADE! где вас ждет тройка разно жанровых аркадных игр !Super Chase - Criminal Termination 0:43Prehistoric Isle 2 3:04Rival Schools: United by Fate 5:14', '', '', '', '', '', '', '', '', '', '', '', '', '4', '0', '0', '0', '0', 'yes', 'all', '0', '0', '');
 INSERT INTO danny_video ( downid, catid, public, stpublic, unpublic, cpu, locurl, exturl, extsize, descript, keywords, title, textshort, textmore, textnotice, mirrorsname, mirrorsurl, relisdown, authdown, sitedown, maildown, image, image_thumb, image_align, image_alt, hits, trans, lastdown, rating, totalrating, act, acc, listid, comments, tags) VALUES ( '529', '25', '1462799400', '0', '0', 'Privet_Arcade_8', 'wKwy5cbGIGM', '', '', '', '', 'ПРИВЕТ ARCADE! #8 Аркадные игры компании KONAMI', 'Замечательная компания Konami сделала поистине колоссальный вклад в развитие аркадных игр. Восьмой выпуск ПРИВЕТ ARCADE! познакомит вас как с аркадными эксклюзивами так и с мультиплатформенными проектами этой прекрасной игровой студии!Pooyan - 0:46Vendetta - 2:44Gradius - 4:45X-Men - 6:28Bells & Whistles - 8:38', '', '', '', '', '', '', '', '', '', '', '', '', '5', '0', '0', '0', '0', 'yes', 'all', '0', '0', '');
 INSERT INTO danny_video ( downid, catid, public, stpublic, unpublic, cpu, locurl, exturl, extsize, descript, keywords, title, textshort, textmore, textnotice, mirrorsname, mirrorsurl, relisdown, authdown, sitedown, maildown, image, image_thumb, image_align, image_alt, hits, trans, lastdown, rating, totalrating, act, acc, listid, comments, tags) VALUES ( '530', '25', '1462799460', '0', '0', 'Privet_Arcade_9', 'hxVnPB8te-g', '', '', '', '', 'Привет ARCADE! #9 - Сравниваем консольные и аркадные игры', 'Девятый Привет ARCADE! вспомнит и сравнит три консольные и аркадные игры с одинаковыми названиями, но несколько разными по реализации и геймплею. Да - в 90-е умели делать отличные игры!----------------------------------------­-----------------------Содержание:0:00 Приветствие0:36 Sunset Riders3:05 Contra4:48 Bucky O\'Hare 7:24 Смотрите другие видео на канале Gaming за 30', '123', '', '', '', '', '', '', '', '', '', '', '', '17', '0', '0', '0', '0', 'yes', 'all', '0', '0', '');
+
+
+
+
+
 INSERT INTO danny_video_cat ( catid, parentid, catcpu, catname, catdesc, posit, icon, access, sort, ord, rss, total) VALUES ( '1', '3', 'dendy_new_reality', 'Dendy - Новая Реальность', 'Передача о 8-ми и 16-ти битках (1994-1995 года), транслировавшаяся на телеканале 2x2. Заказчиком выступала фирма Dendy, производством занималось агентство Sorec Video, а вёл передачу Сергей Супонев. Авторские права принадлежат их владельцам.', '1', 'images/video/dnr.png', 'all', 'public', 'desc', 'yes', '33');
+
+
 INSERT INTO danny_video_cat ( catid, parentid, catcpu, catname, catdesc, posit, icon, access, sort, ord, rss, total) VALUES ( '3', '0', 'entertainment', 'TV передачи', '', '0', 'images/systems/ent.png', 'all', 'public', 'asc', 'yes', '166');
+
+
 INSERT INTO danny_video_cat ( catid, parentid, catcpu, catname, catdesc, posit, icon, access, sort, ord, rss, total) VALUES ( '4', '0', 'discovery', 'Образовательные каналы', 'Всевозможные серьёзные передачи про игры', '5', 'images/systems/news.png', 'all', 'public', 'asc', 'yes', '213');
+
+
+
 INSERT INTO danny_video_cat ( catid, parentid, catcpu, catname, catdesc, posit, icon, access, sort, ord, rss, total) VALUES ( '9', '0', 'gold_games', 'Золотой фонд', 'Видео прохождения самых лучших игр всех времён.', '2', 'images/video/gold_games.png', 'all', 'public', 'asc', 'yes', '26');
+
+
 INSERT INTO danny_video_cat ( catid, parentid, catcpu, catname, catdesc, posit, icon, access, sort, ord, rss, total) VALUES ( '5', '3', 'new_reality', 'Новая Реальность', 'Передача о 8-ми и 16-ти битках (1995-1996 года), транслировавшаяся на телеканале ОРТ. Заказчиком выступала фирма Dendy, производила студия Класс, а вёл передачу Сергей Супонев. Авторские права принадлежат их владельцам.', '2', 'images/video/nr.png', 'all', 'public', 'desc', 'yes', '29');
+
+
 INSERT INTO danny_video_cat ( catid, parentid, catcpu, catname, catdesc, posit, icon, access, sort, ord, rss, total) VALUES ( '6', '11', 'emugamer_tv', 'EmuGamer TV', 'Передача о ретро-играх. В основном это обзоры хитов прежних лет, сделанные на весьма приличном уровне.', '30', 'images/video/egt.png', 'all', 'public', 'desc', 'yes', '38');
+
+
 INSERT INTO danny_video_cat ( catid, parentid, catcpu, catname, catdesc, posit, icon, access, sort, ord, rss, total) VALUES ( '10', '9', 'nes', 'NES - Dendy', 'Записи прохождений игр NES / Famicom / Dendy', '0', 'images/systems/nes.png', 'all', 'public', 'desc', 'yes', '9');
+
+
 INSERT INTO danny_video_cat ( catid, parentid, catcpu, catname, catdesc, posit, icon, access, sort, ord, rss, total) VALUES ( '8', '3', 'ot_vinta', 'От винта!', 'Телевизионная передача, посвящённая компьютерным играм, выходившая на российском TV с 20 мая 1995 по 25 октября 1998 года. Авторы и ведущие: Борис Репетур aka Бонус, Антон Зайцев aka Гамовер и Сергей Чихачев, который периодически появлялся в различных образах, а также комментировал игровой процесс. Авторские права принадлежат журналу Игромания igromania.ru. Все выпуски были найдены на дисках Видеомания, сопровождающих журнал в разные годы. Я ни в коем случае не претендую на авторство и выкладываю передачу только лишь потому, что её нельзя уже найти в свободной продаже.', '3', 'images/video/ot_vinta64.png', 'all', 'public', 'desc', 'yes', '99');
 INSERT INTO danny_video_cat ( catid, parentid, catcpu, catname, catdesc, posit, icon, access, sort, ord, rss, total) VALUES ( '11', '0', 'online_view', 'Online передачи', 'Различные онлайновые передачи', '1', 'images/video/online.png', 'all', 'public', 'asc', 'yes', '114');
 INSERT INTO danny_video_cat ( catid, parentid, catcpu, catname, catdesc, posit, icon, access, sort, ord, rss, total) VALUES ( '12', '11', 're_start', 'RE-START', 'Авторская новостная передача про 3-4 новинки для современных игровых платформ от StarKiller\\\'a. Очень актуальная.', '50', 'images/video/restart.png', 'all', 'public', 'desc', 'yes', '2');
