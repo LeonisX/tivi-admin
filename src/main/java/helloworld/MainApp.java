@@ -1,5 +1,6 @@
 package helloworld;
 
+import com.google.gson.reflect.TypeToken;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -7,17 +8,22 @@ import javafx.stage.Stage;
 import javafx.scene.*;
 import javafx.fxml.*;
 import md.leonis.tivi.admin.model.*;
+import md.leonis.tivi.admin.utils.JsonUtils;
 import md.leonis.tivi.admin.view.MainStageController;
 import md.leonis.tivi.admin.view.video.AddVideo2Controller;
 import md.leonis.tivi.admin.view.video.AddVideoController;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainApp extends Application {
 
-    public List<Category> categories = new ArrayList<Category>();
+    public List<Category> categories = new ArrayList<>();
 
     public Video addVideo = new Video();
 
@@ -37,30 +43,6 @@ public class MainApp extends Application {
     }
 
     private void initRootLayout() {
-        categories.add( new Category(1, 3, "dendy_new_reality", "Dendy - Новая Реальность", "Передача о 8-ми и 16-ти битках (1994-1995 года), транслировавшаяся на телеканале 2x2. Заказчиком выступала фирма Dendy, производством занималось агентство Sorec Video, а вёл передачу Сергей Супонев. Авторские права принадлежат их владельцам.",
-                1, "images/video/dnr.png", Access.all, "public", Order.desc, YesNo.yes, 33)
-        );
-        categories.add( new Category(3, 0, "entertainment", "TV передачи", "",
-                0, "images/video/ent.png", Access.all, "public", Order.asc, YesNo.yes, 166)
-        );
-        categories.add( new Category(3, 0, "discovery", "Образовательные каналы", "Всевозможные серьёзные передачи про игры",
-                5, "images/systems/news.png", Access.all, "public", Order.asc, YesNo.yes, 213)
-        );
-        categories.add( new Category(9, 0, "gold_games", "Золотой фонд", "Видео прохождения самых лучших игр всех времён.",
-                2, "images/video/gold_games.png", Access.all, "public", Order.asc, YesNo.yes, 26)
-        );
-        categories.add( new Category(5, 3, "new_reality", "Новая Реальность", "Передача о 8-ми и 16-ти битках (1995-1996 года), транслировавшаяся на телеканале ОРТ. Заказчиком выступала фирма Dendy, производила студия Класс, а вёл передачу Сергей Супонев. Авторские права принадлежат их владельцам.",
-                2, "images/video/nr.png", Access.all, "public", Order.desc, YesNo.yes, 29)
-        );
-        categories.add( new Category(6, 11, "emugamer_tv", "EmuGamer TV", "Передача о ретро-играх. В основном это обзоры хитов прежних лет, сделанные на весьма приличном уровне.",
-                2, "images/video/egt.png", Access.all, "public", Order.desc, YesNo.yes, 38)
-        );
-        categories.add( new Category(10, 9, "nes", "NES - Dendy", "Записи прохождений игр NES / Famicom / Dendy",
-                0, "images/systems/nes.png", Access.all, "public", Order.desc, YesNo.yes, 9)
-        );
-
-        categories.sort((o1, o2) -> o1.getPosit().compareTo(o2.getPosit()));
-        categories.sort((o1, o2) -> o1.getParentid().compareTo(o2.getParentid()));
 
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -95,6 +77,7 @@ public class MainApp extends Application {
 
     public void showProcessVideo() {
         try {
+            categories = readVideoCategories();
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("/md/leonis/tivi/admin/view/video/AddVideo2.fxml"));
             Parent addVideo2 = loader.load();
@@ -107,4 +90,41 @@ public class MainApp extends Application {
         }
     }
 
+    private String readFromUrl(String urlAddress) throws IOException {
+        StringBuilder  stringBuilder = new StringBuilder();
+        URL url = new URL(urlAddress);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+        con.setRequestProperty("AuthToken", "_da token");
+
+        int responseCode = con.getResponseCode();
+        System.out.println("\nSending 'GET' request to URL : " + url);
+        System.out.println("Response Code : " + responseCode);
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        try {
+            while((inputLine = reader.readLine()) != null) {
+                stringBuilder.append(inputLine);
+            }
+            return stringBuilder.toString();
+        } finally {
+            try {
+                reader.close();
+            } catch (IOException e) {
+                System.out.println("Can't close reader...");
+            }
+        }
+    }
+
+    private List<Category> readVideoCategories() {
+        List<Category> videoCategories = new ArrayList<>();
+        try {
+            String jsonString = readFromUrl("http://wap.tv-games.ru/cat.php");
+            videoCategories = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<Category>>(){}.getType());
+        } catch (IOException e) {
+            System.out.println("Error in readVideoCategories");
+        }
+        return videoCategories;
+    }
 }

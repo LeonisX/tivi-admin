@@ -1,18 +1,13 @@
 package md.leonis.tivi.admin.view.video;
 
 import helloworld.MainApp;
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.paint.Color;
 import javafx.scene.web.HTMLEditor;
-import javafx.util.Callback;
-import javafx.util.converter.IntegerStringConverter;
 import md.leonis.tivi.admin.model.Category;
 import md.leonis.tivi.admin.model.Video;
-import unneeded.PathProperty;
 import md.leonis.tivi.admin.utils.VideoUtils;
 
 import java.util.*;
@@ -84,42 +79,22 @@ public class AddVideo2Controller {
     // Reference to the main application.
     private MainApp mainApp;
 
-    /**
-     * The constructor.
-     * The constructor is called before the initialize() method.
-     */
-    public AddVideo2Controller() {
-    }
-
-    /**
-     * Initializes the controller class. This method is automatically called
-     * after the fxml file has been loaded.
-     */
-    @FXML
-    private void initialize() {
-        // Initialize the person table with the two columns.
-        //firstNameColumn.setCellValueFactory(cellData -> cellData.getValue().firstNameProperty());
-        //lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
-    }
+    private List<String> catList = null;
+    private List<Integer> catIds = null;
 
     @FXML
     private void processVideo() {
         mainApp.addVideo = new Video();
-        //VideoUtils.parseUrl(urlTextField.getText(), mainApp.addVideo);
         VideoUtils.parsePage(mainApp.addVideo);
         mainApp.showProcessVideo();
     }
 
-    /**
-     * Is called by the main application to give a reference back to itself.
-     *
-     * @param mainApp
-     */
 
     private int getParentId(String catname) {
         for (Category category: mainApp.categories) if (category.getCatname().equals(catname)) return category.getParentid();
         return -1;
     }
+
 
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
@@ -128,92 +103,57 @@ public class AddVideo2Controller {
         title.setText(video.title);
         cpu.setText(video.cpu);
         year.setText(video.year.toString());
-        category.setValue(video.category.toString());
+        category.setValue(video.category);
 
         textHtml.setHtmlText(mainApp.addVideo.text);
 
-        List<String> list = new ArrayList<>();
+        catList = new ArrayList<>();
+        catIds = new ArrayList<>();
 
-        for (Category category: mainApp.categories) if (category.getParentid() == 0) list.add(category.getCatname());
-        for (Category category: mainApp.categories) if (category.getParentid() != 0) {
-            //find parent
+        mainApp.categories.sort((o1, o2) -> o1.getPosit().compareTo(o2.getPosit()));
+        mainApp.categories.sort((o1, o2) -> o1.getParentid().compareTo(o2.getParentid()));
+
+        for (Category category: mainApp.categories) {
             String name = "";
-            for (Category cat: mainApp.categories) if (cat.getCatid() == category.getParentid()) name = cat.getCatname();
-            if (name.isEmpty()) continue;
-            //find parent pos
-            Integer k = list.indexOf(name);
-            //add
-            list.add(k + 1, category.getCatname());
+            for (Category cat: mainApp.categories) if (cat.getCatid().equals(category.getParentid())) name = cat.getCatname();
+            Integer k = name.isEmpty() ? (catList.size() - 1) : catList.indexOf(name);
+            catList.add(k + 1, category.getCatname());
+            catIds.add(k + 1, category.getCatid());
         }
 
-        ObservableList<String> oList = FXCollections.observableList(list);
-        //list.add("One High");
-        //list.add("Two Low");
-        //list.add("Three");
+        ObservableList<String> oList = FXCollections.observableList(catList);
 
         category.setItems(oList);
-        //category.setValue("Выберите одну категорию");
-        category.setPromptText("123");
+        category.setValue("Выберите категорию");
 
-        // TODO experiment
-/*        category.setButtonCell(new ListCell(){
-
-            @Override
-            protected void updateItem(Object item, boolean empty) {
-                super.updateItem(item, empty);
-                if(empty || item==null){
-                    // styled like -fx-prompt-text-fill:
-                    setStyle("-fx-text-fill: derive(-fx-control-inner-background,-30%)");
-                } else {
-                    //setStyle("-fx-text-fill: -fx-text-inner-color");
-                    System.out.println(item.toString());
-                    if (item.toString().equals("Two")) setStyle("-fx-font-size: 32px");
-                    setText(item.toString());
-                }
-            }
-
-        });*/
-
-        category.setCellFactory(
-                new Callback<ListView<String>, ListCell<String>>() {
-                    @Override public ListCell<String> call(ListView<String> param) {
-                        final ListCell<String> cell = new ListCell<String>() {
-                            {
-                                super.setPrefWidth(100);
+        category.setCellFactory((ListView<String> param) ->
+                new ListCell<String>() {
+                    @Override
+                    public void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item != null) {
+                            setText(item);
+                            if (getParentId(item) == 0) {
+                                setStyle("-fx-background-color: lavender;");
+                            } else {
+                                setStyle("-fx-padding: 5px 10px;");
                             }
-                            @Override public void updateItem(String item, boolean empty) {
-                                super.updateItem(item, empty);
-                                if (item != null) {
-                                    setText(item);
-                                    if (getParentId(item) == 0){
-                                        setStyle("-fx-background-color: lavender;");
-                                        //setTextFill(Color.GREEN);
-                                    }
-                                    else {
-                                        setStyle("-fx-padding: 5px 10px;");
-                                        //setTextFill(Color.BLACK);
-                                    }
-                                } else {
-                                    setText(null);
-                                }
-                            }
-                        };
-                        return cell;
+                        } else {
+                            setText(null);
+                        }
                     }
-                });
+                }
 
-        System.out.println(category.getValue());
-        System.out.println(category.getSelectionModel().getSelectedIndex());
-        System.out.println(category.getSelectionModel().getSelectedItem());
-
-        // Add observable list data to the table
-        //personTable.setItems(mainApp.getPersonData());
+        );
     }
 
     public void next() {
-        System.out.println(mainApp.addVideo);
-        System.out.println(category.getSelectionModel().getSelectedIndex());
-        System.out.println(category.getSelectionModel().getSelectedItem());
+        int index = category.getSelectionModel().getSelectedIndex();
+        if (index != -1) {
+            System.out.println(catIds.get(index));
+            System.out.println(catList.get(index));
+        }
+        // Check all values
     }
 
 }

@@ -11,3 +11,4 @@ scalaVersion := "2.11.8"
 //unmanagedJars in Compile += Attributed.blank(file(System.getenv("JAVA_HOME") + "/jre/lib/ext/jfxrt.jar"))
 
 libraryDependencies += "org.jsoup" % "jsoup" % "1.9.1"
+libraryDependencies += "com.google.code.gson" % "gson" % "2.6.2"
