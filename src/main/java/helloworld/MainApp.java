@@ -120,7 +120,7 @@ public class MainApp extends Application {
     private List<Category> readVideoCategories() {
         List<Category> videoCategories = new ArrayList<>();
         try {
-            String jsonString = readFromUrl("http://wap.tv-games.ru/cat.php");
+            String jsonString = readFromUrl("http://wap.tv-games.ru/video.php?to=cat");
             videoCategories = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<Category>>(){}.getType());
         } catch (IOException e) {
             System.out.println("Error in readVideoCategories");
