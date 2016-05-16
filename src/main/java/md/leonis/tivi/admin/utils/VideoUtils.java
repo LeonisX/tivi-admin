@@ -29,7 +29,7 @@ public class VideoUtils {
             video.setTitle(doc.getElementById("eow-title").text());
             video.setText(doc.getElementById("eow-description").html());
             video.setAuthor(div.select("a.yt-uix-sessionlink").get(1).text());
-            video.setAuthorUrl(aURL.getProtocol() +"://" + aURL.getAuthority() + div.select("a.yt-uix-sessionlink").get(1).attr("href"));
+            video.setAuthorSite(aURL.getProtocol() +"://" + aURL.getAuthority() + div.select("a.yt-uix-sessionlink").get(1).attr("href"));
             // TODO проверять, есть ли такой тайтл в базе
             // TODO резать длинные названия
             video.setCpu(Translit.toTranslit(video.getTitle()).toLowerCase().replace(' ', '_').replaceAll("[^\\w\\s]","").replace("__", "_"));

@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.web.HTMLEditor;
 import md.leonis.tivi.admin.model.Category;
 import md.leonis.tivi.admin.model.Video;
+import md.leonis.tivi.admin.model.YesNo;
 import md.leonis.tivi.admin.utils.VideoUtils;
 
 import java.time.Instant;
@@ -36,16 +37,13 @@ public class AddVideo2Controller {
     private TextField keywords;
 
     @FXML
-    private TextField year;
+    private TextField age;
 
     @FXML
-    private TextField originalUrl;
+    private TextField mirror;
 
     @FXML
     private TextArea text;
-
-    @FXML
-    private TextArea fullText;
 
     @FXML
     private HTMLEditor textHtml;
@@ -58,9 +56,6 @@ public class AddVideo2Controller {
 
     @FXML
     private TextField authorEmail;
-
-    @FXML
-    private TextField loads;
 
     @FXML
     private TextField views;
@@ -103,29 +98,26 @@ public class AddVideo2Controller {
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
         Video video = mainApp.addVideo;
-        title.setText(video.title);
-        cpu.setText(video.cpu);
-        year.setText(video.year);
+        title.setText(video.getTitle());
+        cpu.setText(video.getCpu());
+        age.setText(video.getAge());
         System.out.println(data.getValue());
-        LocalDate insertDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(video.data), ZoneId.systemDefault()).toLocalDate();
+        LocalDate insertDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(video.getDate()), ZoneId.systemDefault()).toLocalDate();
         System.out.println(insertDate);
         if (data.getValue() == null || data.getValue().isBefore(insertDate)) data.setValue(insertDate);
-        category.setValue(video.category);
         keywords.setText((video.getKeywords()));
         description.setText(video.getDescription());
-        year.setText(video.getYear());
-        originalUrl.setText(video.getOriginUrl());
+        age.setText(video.getAge());
+        mirror.setText(video.getMirror());
         text.setText(video.getText());
-        fullText.setText(video.getFullText());
         author.setText(video.getAuthor());
         authorEmail.setText(video.getAuthorEmail());
-        authorSite.setText(video.getAuthorUrl());
-        loads.setText(Integer.toString(video.getLoads()));
+        authorSite.setText(video.getAuthorSite());
         views.setText(Integer.toString(video.getViews()));
-        state.setSelected(video.getState());
+        state.setSelected(video.getActive() == YesNo.yes);
 
 
-        if (textHtml != null) textHtml.setHtmlText(mainApp.addVideo.text);
+        if (textHtml != null) textHtml.setHtmlText(mainApp.addVideo.getText());
 
         catList = new ArrayList<>();
         catIds = new ArrayList<>();
@@ -144,7 +136,14 @@ public class AddVideo2Controller {
         ObservableList<String> oList = FXCollections.observableList(catList);
 
         category.setItems(oList);
-        category.setValue("Выберите категорию");
+
+        String catName = "";
+        if (video.getCategoryId() != 0) {
+            for (Category cat: mainApp.categories) if (cat.getCatid() == video.getCategoryId()) catName = cat.getCatname();
+        }
+
+        catName = (catName.isEmpty()) ? "Выберите категорию" : catName;
+        category.setValue(catName);
 
         category.setCellFactory((ListView<String> param) ->
                 new ListCell<String>() {
