@@ -59,3 +59,16 @@
   * В верху количество на страницу, категории
 
 Этого уже много, большее, например, редактирование категорий пока не планирую
+
+Изучить:
+
+https://javagraphics.java.net/
+http://javagraphics.blogspot.md/2014/02/images-color-palette-reduction.html
+
+https://www.idrsolutions.com/jdeli/download
+https://blog.idrsolutions.com/2015/07/how-to-generate-smaller-png-files-in-java/
+https://blog.idrsolutions.com/2015/04/how-to-write-jpeg-images-in-java/
+https://blog.idrsolutions.com/2015/04/how-to-write-out-png-images-in-java-2/
+
+http://www.java2s.com/Code/Java/2D-Graphics-GUI/Providesusefulmethodsforconvertingimagesfromonecolourdepthtoanother.htm
+

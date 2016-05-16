@@ -5,106 +5,132 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<GridPane alignment="CENTER" hgap="5.0" vgap="5.0" xmlns="http://javafx.com/javafx/8.0.91" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.video.AddVideo2Controller">
-  <columnConstraints>
-    <ColumnConstraints hgrow="SOMETIMES" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" />
-    <ColumnConstraints hgrow="SOMETIMES" />
-  </columnConstraints>
-  <rowConstraints>
+<GridPane alignment="CENTER" hgap="5.0" minWidth="850.0" vgap="5.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.video.AddVideo2Controller">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="170.0" minWidth="170.0" prefWidth="170.0" />
+      <ColumnConstraints hgrow="SOMETIMES" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="130.0" minWidth="10.0" prefWidth="130.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="200.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="150.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="200.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-  </rowConstraints>
-   <padding>
-      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
-   </padding>
-   <children>
-      <Label text="Название:" GridPane.rowIndex="1" />
-      <Label text="ЧПУ замена:" GridPane.rowIndex="2" />
-      <Label text="Дата публикации:" GridPane.rowIndex="3" />
-      <Label text="Мета-описание:" GridPane.rowIndex="5" />
-      <Label text="Ключевые слова:" GridPane.rowIndex="6" />
-      <Label text="Возрастной ценз:" GridPane.rowIndex="7" />
-      <Label text="URL оригинала (если есть):" GridPane.rowIndex="8" />
-      <Label text="Вводный текст:" GridPane.rowIndex="9" />
-      <Label text="Полный текст (не надо):" GridPane.rowIndex="11" />
-      <Label text="Имя автора:" GridPane.rowIndex="12" />
-      <Label text="Атрибуты видео:">
-         <font>
-            <Font size="18.0" />
-         </font></Label>
-      <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1">
-         <children>
-            <Button fx:id="reloadButton" mnemonicParsing="false" text="Перезагрузить данные" />
-            <Button fx:id="helpButton" mnemonicParsing="false" text="Справка" />
-         </children>
-      </HBox>
-      <Label text="Сайт автора:" GridPane.rowIndex="13" />
-      <Label text="e-mail автора:" GridPane.rowIndex="14" />
-      <Label text="Статистика просмотров:" GridPane.rowIndex="15" />
-      <Label text="Статистика загрузок:" GridPane.rowIndex="16" />
-      <Label text="Состояние:" GridPane.rowIndex="17" />
-      <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="18">
-         <children>
-            <Button fx:id="cancelButton" mnemonicParsing="false" text="Отмена" />
-            <Button fx:id="nextButton" mnemonicParsing="false" onAction="#next" text="Далее" />
-         </children>
-      </HBox>
-      <TextField fx:id="title" maxWidth="500.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <TextField fx:id="cpu" maxWidth="500.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-      <TextField fx:id="description" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-      <TextField fx:id="keywords" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+    </rowConstraints>
+    <padding>
+        <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+    </padding>
+    <children>
+        <Label text="Название:" GridPane.rowIndex="1" />
+        <Label text="ЧПУ замена:" GridPane.rowIndex="2" />
+        <Label text="Дата публикации:" GridPane.rowIndex="3" />
+        <Label text="Мета-описание:" GridPane.rowIndex="5" />
+        <Label text="Ключевые слова:" GridPane.rowIndex="6" />
+        <Label text="Возрастной ценз:" GridPane.rowIndex="7" />
+        <Label text="Зеркало:" GridPane.rowIndex="8" />
+        <Label text="Описание:" GridPane.rowIndex="9" />
+        <Label text="Имя автора:" GridPane.rowIndex="10" />
+        <Label text="Атрибуты видео:">
+            <font>
+                <Font size="18.0" />
+            </font></Label>
+        <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1" GridPane.columnSpan="2">
+            <children>
+                <Button fx:id="reloadButton" mnemonicParsing="false" onAction="#reload" text="Перезагрузить данные" />
+                <Button fx:id="helpButton" mnemonicParsing="false" onAction="#help" text="Справка" />
+            </children>
+        </HBox>
+        <Label text="Сайт автора:" GridPane.rowIndex="11" />
+        <Label text="e-mail автора:" GridPane.rowIndex="12" />
+        <Label text="Просмотров:" GridPane.rowIndex="13" />
+        <Label text="Состояние:" GridPane.rowIndex="15" />
+        <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="17">
+            <children>
+                <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#cancel" text="&lt;&lt; Отмена" />
+            <Button fx:id="finishButton" mnemonicParsing="false" onAction="#finish" text="Завершить" />
+                <Button fx:id="nextButton" defaultButton="true" mnemonicParsing="false" onAction="#next" text="Работа с картинкой &gt;&gt;" />
+            </children>
+        </HBox>
+        <TextField fx:id="title" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+        <TextField fx:id="cpu" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+        <TextField fx:id="description" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="5" />
+        <TextField fx:id="keywords" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6" />
 
-      <TextField fx:id="originalUrl" maxWidth="500.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-      <TextField fx:id="author" maxWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="12" />
-      <TextArea fx:id="text" GridPane.columnIndex="1" GridPane.rowIndex="9" />
-      <TextArea fx:id="fullText" GridPane.columnIndex="1" GridPane.rowIndex="11" />
-      <TextField fx:id="authorSite" maxWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="13" />
-      <TextField fx:id="authorEmail" maxWidth="250.0" GridPane.columnIndex="1" GridPane.rowIndex="14" />
-      <TextField fx:id="views" maxWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="15" />
-      <TextField fx:id="loads" maxWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="16" />
-      <ToggleButton fx:id="state" mnemonicParsing="false" text="включено" GridPane.columnIndex="1" GridPane.rowIndex="17" />
-      <Label text="Категория:" GridPane.rowIndex="4" />
-      <ComboBox fx:id="category" maxWidth="300.0" visibleRowCount="16" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
+        <TextField fx:id="authorSite" GridPane.columnIndex="1" GridPane.rowIndex="11" />
+        <TextField fx:id="authorEmail" maxWidth="350.0" GridPane.columnIndex="1" GridPane.rowIndex="12" />
+        <TextField fx:id="views" maxWidth="100.0" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+        <Label text="Категория:" GridPane.rowIndex="4" />
+        <ComboBox fx:id="category" maxWidth="350.0" visibleRowCount="16" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="7">
+            <children>
+                <TextField fx:id="age" maxWidth="50.0" />
+                <Label text="(если ценура не нужна, то возраст не пишем)" />
+            </children>
+        </HBox>
+        <Label text="" GridPane.rowIndex="9" />
+        <HBox GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <children>
+                <DatePicker fx:id="data" />
+            </children>
+        </HBox>
+        <TextField fx:id="author" maxWidth="350.0" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+          <Label text="Средняя оценка:" GridPane.rowIndex="14" />
+          <Label GridPane.columnIndex="1" GridPane.rowIndex="14" />
+          <Label text="(если есть)" GridPane.columnIndex="2" GridPane.rowIndex="8" />
+          <TextField fx:id="mirror" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+      <HBox alignment="CENTER" spacing="5.0" GridPane.columnIndex="2" GridPane.rowIndex="13" GridPane.rowSpan="3">
          <children>
-            <TextField fx:id="year" maxWidth="50.0" />
-            <Label text="(если ценура не нужна, возраст не пишем)" />
+            <ImageView fitHeight="90.0" fitWidth="120.0" pickOnBounds="true" preserveRatio="true">
+            </ImageView>
          </children>
       </HBox>
-      <Label text="Label" GridPane.rowIndex="10" />
-      <HBox GridPane.columnIndex="1" GridPane.rowIndex="3">
+      <Label text="Доступность:" GridPane.rowIndex="16" />
+      <HBox prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="15">
          <children>
-            <DatePicker fx:id="data" />
+            <ToggleButton fx:id="onButton" mnemonicParsing="false" selected="true" text="включено">
+               <toggleGroup>
+                  <ToggleGroup fx:id="tgState" />
+               </toggleGroup>
+            </ToggleButton>
+            <ToggleButton fx:id="offButton" mnemonicParsing="false" text="скрыто" toggleGroup="$tgState" />
          </children>
-       </HBox>
-       <!--
-      <HTMLEditor fx:id="textHtml" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" GridPane.columnIndex="1" GridPane.rowIndex="10" />
-      -->
-   </children>
+      </HBox>
+      <HBox prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="16">
+         <children>
+            <ToggleButton fx:id="allButton" mnemonicParsing="false" selected="true" text="все посетители сайта">
+               <toggleGroup>
+                  <ToggleGroup fx:id="tgAccess" />
+               </toggleGroup>
+            </ToggleButton>
+            <ToggleButton fx:id="usersButton" mnemonicParsing="false" text="только зарегистрированные" toggleGroup="$tgAccess" />
+         </children>
+      </HBox>
+<!--
+       <HTMLEditor fx:id="textHtml" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" GridPane.columnIndex="1" GridPane.rowIndex="9" GridPane.columnSpan="2" />
+-->
+    </children>
 </GridPane>

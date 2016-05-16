@@ -9,8 +9,10 @@ import javafx.scene.*;
 import javafx.fxml.*;
 import md.leonis.tivi.admin.model.*;
 import md.leonis.tivi.admin.utils.JsonUtils;
+import md.leonis.tivi.admin.utils.VideoUtils;
 import md.leonis.tivi.admin.view.MainStageController;
 import md.leonis.tivi.admin.view.video.AddVideo2Controller;
+import md.leonis.tivi.admin.view.video.AddVideo3Controller;
 import md.leonis.tivi.admin.view.video.AddVideoController;
 
 import java.io.BufferedReader;
@@ -56,10 +58,18 @@ public class MainApp extends Application {
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout, 1024, 768);
             primaryStage.setScene(scene);
+
+            showVoid();
+
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void parseVideoPage(String url) {
+        VideoUtils.parseUrl(url, addVideo);
+        VideoUtils.parsePage(addVideo);
     }
 
     public void showAddVideo() {
@@ -81,10 +91,33 @@ public class MainApp extends Application {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("/md/leonis/tivi/admin/view/video/AddVideo2.fxml"));
             Parent addVideo2 = loader.load();
-            //TODO
             AddVideo2Controller controller = loader.getController();
             controller.setMainApp(this);
             rootLayout.setCenter(addVideo2);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showProcessImage() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("/md/leonis/tivi/admin/view/video/AddVideo3.fxml"));
+            Parent addVideo3 = loader.load();
+            AddVideo3Controller controller = loader.getController();
+            controller.setMainApp(this);
+            rootLayout.setCenter(addVideo3);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showVoid() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("/md/leonis/tivi/admin/view/void.fxml"));
+            Parent voidz = loader.load();
+            rootLayout.setCenter(voidz);
         } catch (IOException e) {
             e.printStackTrace();
         }
