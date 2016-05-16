@@ -10,6 +10,10 @@ import md.leonis.tivi.admin.model.Category;
 import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.utils.VideoUtils;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 public class AddVideo2Controller {
@@ -20,7 +24,7 @@ public class AddVideo2Controller {
     private TextField cpu;
 
     @FXML
-    private TextField data;
+    private DatePicker data;
 
     @FXML
     private ComboBox<String> category;
@@ -99,18 +103,34 @@ public class AddVideo2Controller {
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
         Video video = mainApp.addVideo;
-
         title.setText(video.title);
         cpu.setText(video.cpu);
-        year.setText(video.year.toString());
+        year.setText(video.year);
+        System.out.println(data.getValue());
+        LocalDate insertDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(video.data), ZoneId.systemDefault()).toLocalDate();
+        System.out.println(insertDate);
+        if (data.getValue() == null || data.getValue().isBefore(insertDate)) data.setValue(insertDate);
         category.setValue(video.category);
+        keywords.setText((video.getKeywords()));
+        description.setText(video.getDescription());
+        year.setText(video.getYear());
+        originalUrl.setText(video.getOriginUrl());
+        text.setText(video.getText());
+        fullText.setText(video.getFullText());
+        author.setText(video.getAuthor());
+        authorEmail.setText(video.getAuthorEmail());
+        authorSite.setText(video.getAuthorUrl());
+        loads.setText(Integer.toString(video.getLoads()));
+        views.setText(Integer.toString(video.getViews()));
+        state.setSelected(video.getState());
 
-        textHtml.setHtmlText(mainApp.addVideo.text);
+
+        if (textHtml != null) textHtml.setHtmlText(mainApp.addVideo.text);
 
         catList = new ArrayList<>();
         catIds = new ArrayList<>();
 
-        mainApp.categories.sort((o1, o2) -> o1.getPosit().compareTo(o2.getPosit()));
+        // not need mainApp.categories.sort((o1, o2) -> o1.getPosit().compareTo(o2.getPosit()));
         mainApp.categories.sort((o1, o2) -> o1.getParentid().compareTo(o2.getParentid()));
 
         for (Category category: mainApp.categories) {
@@ -153,6 +173,8 @@ public class AddVideo2Controller {
             System.out.println(catIds.get(index));
             System.out.println(catList.get(index));
         }
+        LocalDate date = data.getValue();
+        System.out.println("Selected date: " + date.atStartOfDay(ZoneId.systemDefault()).toEpochSecond());
         // Check all values
     }
 

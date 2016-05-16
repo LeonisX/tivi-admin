@@ -33,8 +33,11 @@ public class VideoUtils {
             // TODO проверять, есть ли такой тайтл в базе
             // TODO резать длинные названия
             video.setCpu(Translit.toTranslit(video.getTitle()).toLowerCase().replace(' ', '_').replaceAll("[^\\w\\s]","").replace("__", "_"));
-            // TODO keywords
-            // TODO description
+            // TODO keywords - add own, generate
+            video.setKeywords(doc.select("meta[name=keywords]").first().attr("content"));
+            video.setDescription(doc.select("meta[name=description]").get(0).attr("content"));
+
+
             System.out.println(video);
 
         } catch (IOException e) {
