@@ -133,10 +133,10 @@ public class MultipartUtility {
 
         // checks server's status code first
         int status = httpConn.getResponseCode();
+        String line = null;
         if (status == HttpURLConnection.HTTP_OK) {
             BufferedReader reader = new BufferedReader(new InputStreamReader(
                     httpConn.getInputStream()));
-            String line = null;
             while ((line = reader.readLine()) != null) {
                 response.add(line);
             }
@@ -145,7 +145,6 @@ public class MultipartUtility {
         } else {
             BufferedReader reader = new BufferedReader(new InputStreamReader(
                     httpConn.getErrorStream()));
-            String line = null;
             while ((line = reader.readLine()) != null) {
                 response.add(line);
             }

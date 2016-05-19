@@ -14,15 +14,14 @@ import java.util.List;
 public class MultipartFileUploader {
 
     public static void main(String[] args) {
-        String charset = "UTF-8";
         File uploadFile = new File("/home/leonis/jdeli.jar");
         String requestURL = "http://wap.tv-games.ru/video.php?to=upload_thumb";
 
         try {
-            MultipartUtility multipart = new MultipartUtility(requestURL, charset);
+            MultipartUtility multipart = new MultipartUtility(requestURL, "UTF-8");
 
             multipart.addHeaderField("User-Agent", "TiVi's admin client");
-            multipart.addFormField("description", "Cool Pictures");
+            multipart.addFormField("description", "some description");
             multipart.addFilePart("image", uploadFile);
 
             List<String> response = multipart.finish();
