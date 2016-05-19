@@ -270,11 +270,11 @@ public class AddVideo2Controller {
         checker.checkNumber(views.getText());
         // TODO access
         // TODO tags;
-        if (checker.failed()) showAlert("Ошибка",
+        if (!checker.isOk()) showAlert("Ошибка",
                 "Следующие данные следует поправить:",
                 checker.getErrors(),
                 Alert.AlertType.ERROR);
-        return checker.failed();
+        return checker.isOk();
     }
 
     public void update() {
@@ -327,8 +327,8 @@ class Check {
         if (text.isEmpty() || !text.chars().allMatch( Character::isDigit )) notes.add("`" + text + "`" + " не является числом" );
     }
 
-    boolean failed() {
-        return notes.size() != 0;
+    boolean isOk() {
+        return notes.isEmpty();
     }
 
     String getErrors() {
