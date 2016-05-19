@@ -53,6 +53,11 @@ public class AddVideo3Controller {
         showImage();
     }
 
+    //TODO check if cpu exists
+    //TODO http://codereview.stackexchange.com/questions/112331/inserting-json-array-data-into-a-mysql-database-using-php
+    //TODO upload after send video - when upload - verify video id (or cpu) and received parameter
+    //TODO http://php.net/manual/ru/function.mysql-insert-id.php
+
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
         // show current image and buttons
