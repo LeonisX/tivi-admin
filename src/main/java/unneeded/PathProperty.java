@@ -10,11 +10,11 @@ import javafx.beans.property.ObjectPropertyBase;
 //https://ugate.wordpress.com/2012/06/06/javafx-pojo-bindings/
 
 //Example:
-/*PathProperty prop = new PathProperty(mainApp.addVideo, "title", String.class);
-        PathProperty prop2 = new PathProperty(mainApp.addVideo, "cpu", String.class);
-        PathProperty prop3 = new PathProperty(mainApp.addVideo, "year", Integer.class);
-        PathProperty prop4 = new PathProperty(mainApp.addVideo, "category", String.class);
-        //PathProperty prop5= new PathProperty(mainApp.addVideo, "text", String.class);
+/*PathProperty prop = new PathProperty(mainApp.video, "title", String.class);
+        PathProperty prop2 = new PathProperty(mainApp.video, "cpu", String.class);
+        PathProperty prop3 = new PathProperty(mainApp.video, "year", Integer.class);
+        PathProperty prop4 = new PathProperty(mainApp.video, "category", String.class);
+        //PathProperty prop5= new PathProperty(mainApp.video, "text", String.class);
         Bindings.bindBidirectional(title.textProperty(), prop);
         Bindings.bindBidirectional(cpu.textProperty(), prop2);
         Bindings.bindBidirectional(year.textProperty(), prop3, new IntegerStringConverter());

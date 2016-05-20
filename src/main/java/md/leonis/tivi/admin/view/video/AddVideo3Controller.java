@@ -1,31 +1,26 @@
 package md.leonis.tivi.admin.view.video;
 
-import helloworld.MainApp;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import md.leonis.tivi.admin.utils.JavaFxUtils;
+import md.leonis.tivi.admin.utils.JsonUtils;
+import md.leonis.tivi.admin.utils.SubPane;
+import md.leonis.tivi.admin.utils.VideoUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
-// remember to delete image on server
-
-public class AddVideo3Controller {
+public class AddVideo3Controller extends SubPane {
     @FXML
     private FlowPane imageViews;
 
@@ -44,60 +39,94 @@ public class AddVideo3Controller {
     @FXML
     private Button cancelButton;
 
-    private MainApp mainApp;
+    @FXML
+    private Button backButton;
+
+    @FXML
+    private Label sizeLabel;
 
     @FXML
     private void delete() {
-        mainApp.addVideo.setPreviousImage(mainApp.addVideo.getImage());
-        mainApp.addVideo.setImage("");
+        VideoUtils.video.setPreviousImage(VideoUtils.video.getImage());
+        VideoUtils.video.setImage("");
         showImage();
     }
 
-    //TODO check if cpu exists
-    //TODO http://codereview.stackexchange.com/questions/112331/inserting-json-array-data-into-a-mysql-database-using-php
-    //TODO upload after send video - when upload - verify video id (or cpu) and received parameter
-    //TODO http://php.net/manual/ru/function.mysql-insert-id.php
+    @FXML
+    private void cancel() {
+        JavaFxUtils.showVoidPanel();
+    }
 
-    public void setMainApp(MainApp mainApp) {
-        this.mainApp = mainApp;
+    @FXML
+    private void back() {
+        VideoUtils.showAddVideo2();
+    }
+
+    @FXML
+    private void finish() throws IOException {
+        //TODO оптимизировать
+        InputStream is = null;
+        if (imageView.isVisible()) {
+            is = toInputStream(imageView.getImage());
+            //TODO previousImage
+            VideoUtils.video.setImage(VideoUtils.video.getCpu() + ".png");
+        }
+        String json = JsonUtils.gson.toJson(VideoUtils.video);
+        System.out.println(json);
+        String res = VideoUtils.addVideo(json, VideoUtils.video.getImage(), is, VideoUtils.video.getPreviousImage());
+        System.out.println(res);
+    }
+
+    @Override
+    public void init() {
         // show current image and buttons
         showImage();
 
         // load all images, add to images
         imageViews.getChildren().clear();
-        if (!mainApp.addVideo.getYid().isEmpty()) {
+        if (!VideoUtils.video.getYid().isEmpty()) {
             loadImage(imageViews, "default");
             loadImage(imageViews, "1");
             loadImage(imageViews, "2");
             loadImage(imageViews, "3");
-            loadImage(imageViews, "0");
-            loadImage(imageViews, "mqdefault");
-            loadImage(imageViews, "hqdefault");
-            loadImage(imageViews, "maxresdefault");
+            //loadImage(imageViews, "0");
+            //loadImage(imageViews, "mqdefault");
+            //loadImage(imageViews, "hqdefault");
+            //loadImage(imageViews, "maxresdefault");
         }
     }
 
-    public static void saveToFile(Image image) {
-        File outputFile = new File("/home/leonis/test.png");
-        BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
-        //bImage.
+    private long getImageSize(Image image) {
+        byte[] buffer = new byte[4096];
+        long size = 0;
+        int bytesRead;
         try {
-            ImageIO.write(bImage, "png", outputFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            InputStream inputStream = toInputStream(image);
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                size += bytesRead;
+            }
+            inputStream.close();
+        } catch (Throwable e) { e.printStackTrace(); }
+        return size;
     }
 
-    public void loadImage(Pane parent, String name) {
-        String imageSource = formatUrl(mainApp.addVideo.getYid(), name);
+    private static InputStream toInputStream(Image image) throws IOException {
+        BufferedImage bImage = SwingFXUtils.fromFXImage(image, null);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        ImageIO.write(bImage, "png", os);
+        return new ByteArrayInputStream(os.toByteArray());
+    }
+
+    private void loadImage(Pane parent, String name) {
+        String imageSource = formatUrl(VideoUtils.video.getYid(), name);
         Image image = new Image(imageSource);
         System.out.println(image.isError());
         ImageView imageView = new ImageView(image);
         imageView.setOnMouseClicked((MouseEvent e) -> {
                 //System.out.println(name);
             // set video image
-            if (mainApp.addVideo.getPreviousImage().isEmpty()) mainApp.addVideo.setPreviousImage(mainApp.addVideo.getImage());
-            mainApp.addVideo.setImage(imageSource);
+            if (VideoUtils.video.getPreviousImage().isEmpty()) VideoUtils.video.setPreviousImage(VideoUtils.video.getImage());
+            VideoUtils.video.setImage(imageSource);
             //TODO in future - if image changed - [delete at site], upload
             // show video image
             showImage();
@@ -111,20 +140,22 @@ public class AddVideo3Controller {
         parent.getChildren().add(vbox);
     }
 
-    public void showImage() {
-        System.out.println(mainApp.addVideo.getImage());
-        Boolean visible = !mainApp.addVideo.getImage().isEmpty();
+    private void showImage() {
+        System.out.println(VideoUtils.video.getImage());
+        Boolean visible = !VideoUtils.video.getImage().isEmpty();
         if (visible) {
-            Image image = new Image(mainApp.addVideo.getImage());
+            Image image = new Image(VideoUtils.video.getImage());
             System.out.println(image.isError());
             imageView.setImage(image);
+            sizeLabel.setText("(" + String.valueOf(getImageSize(image)) + " байт)");
         }
         imageView.setVisible(visible);
         deleteButton.setVisible(visible);
         editButton.setVisible(visible);
+        sizeLabel.setVisible(visible);
     }
 
-    public String formatUrl(String yid, String name) {
+    private String formatUrl(String yid, String name) {
         return "https://i1.ytimg.com/vi/" + yid + "/" + name + ".jpg";
     }
 

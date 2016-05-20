@@ -28,6 +28,7 @@ public class Video {
     // Rename
     @SerializedName("locurl")
     private String url;
+
     @Expose(serialize = false, deserialize = false)
     private String yid = "";
 
@@ -82,6 +83,7 @@ public class Video {
 
     @SerializedName("image")
     private String image = "";
+
     @Expose(serialize = false, deserialize = false)
     private String previousImage = "";
 
