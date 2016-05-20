@@ -11,7 +11,7 @@
    <children>
       <HBox alignment="BOTTOM_LEFT">
          <children>
-            <Label text="Вставьте URL-адрес ссылки:"></Label>
+            <Label text="Вставьте URL-адрес ссылки:" />
          </children>
       </HBox>
       <TextField fx:id="urlTextField" promptText="https://www.youtube.com/watch?v=TUAy0WKsqOs" />
@@ -22,6 +22,6 @@
       </HBox>
    </children>
    <padding>
-      <Insets bottom="25.0" left="25.0" right="25.0" top="25.0" />
+      <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
    </padding>
 </VBox>

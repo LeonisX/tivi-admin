@@ -371,6 +371,11 @@ public class Video {
         return rated_count;
     }
 
+    public String getRate() {
+        if (rated_count == 0) return "нет";
+        return String.format("%1.1f", total_rating / rated_count);
+    }
+
     public void setRated_count(int rated_count) {
         this.rated_count = rated_count;
     }
@@ -399,20 +404,8 @@ public class Video {
         this.access = access;
     }
 
-    public int getListid() {
-        return listid;
-    }
-
-    public void setListid(int listid) {
-        this.listid = listid;
-    }
-
     public int getComments() {
         return comments;
-    }
-
-    public void setComments(int comments) {
-        this.comments = comments;
     }
 
     public String getTags() {

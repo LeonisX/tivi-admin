@@ -62,6 +62,10 @@ public class AddVideo2Controller extends SubPane {
     private Button reloadButton;
     @FXML
     private Button helpButton;
+    @FXML
+    private Label rate;
+    @FXML
+    private Label comments;
 
     private CatUtils cat;
 
@@ -143,6 +147,9 @@ public class AddVideo2Controller extends SubPane {
         authorEmail.setText(video.getAuthorEmail());
         authorSite.setText(video.getAuthorSite());
         views.setText(Integer.toString(video.getViews()));
+        rate.setText(video.getRate());
+        comments.setText(Integer.toString(video.getComments()));
+
         if (video.getActive() == YesNo.yes) onButton.setSelected(true); else offButton.setSelected(true);
         if (video.getAccess() == Access.all) allButton.setSelected(true); else usersButton.setSelected(true);
 
