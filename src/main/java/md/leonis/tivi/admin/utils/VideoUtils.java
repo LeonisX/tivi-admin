@@ -45,14 +45,15 @@ public class VideoUtils {
             String res = VideoUtils.addVideo(json, video.getImage(), null, video.getPreviousImage());
             System.out.println("OK Add Video");
             System.out.println(res);
-        } catch (IOException e) {
-            System.out.println("OK Add Video");
+        } catch (Throwable e) {
+            System.out.println("Error Add Video");
             System.out.println(e.getMessage());
             //TODO window with error
         }
     }
     private static void parseUrl(Video video) {
-        video.setUrl("https://www.youtube.com/watch?v=3q7QIdI6O-8");
+        if (video.getUrl().isEmpty())
+          video.setUrl(Config.sampleVideo);
         video.setYid(getYoutubeVideoId(video.getUrl()));
     }
 
@@ -71,6 +72,7 @@ public class VideoUtils {
             // TODO keywords - add own, generate
             video.setKeywords(doc.select("meta[name=keywords]").first().attr("content"));
             video.setDescription(doc.select("meta[name=description]").get(0).attr("content"));
+            video.setText(doc.getElementById("eow-description").html());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -93,7 +95,7 @@ public class VideoUtils {
 
     private static List<Category> readCategories() {
         List<Category> videoCategories = new ArrayList<>();
-        String requestURL = "http://wap.tv-games.ru/video.php?to=cat";
+        String requestURL = Config.apiPath + "video.php?to=cat";
         try {
             String jsonString = HttpUtils.readFromUrl(requestURL);
             videoCategories = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<Category>>(){}.getType());
@@ -104,7 +106,7 @@ public class VideoUtils {
     }
 
     public static String addVideo(String json, String imageName, InputStream inputStream, String deleteName) throws IOException {
-        String requestURL = "http://wap.tv-games.ru/video.php?to=add";
+        String requestURL = Config.apiPath + "video.php?to=add";
         MultipartUtility multipart;
         try {
             multipart = new MultipartUtility(requestURL, "UTF-8");

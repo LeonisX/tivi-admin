@@ -73,8 +73,18 @@ public class AddVideo3Controller extends SubPane {
         }
         String json = JsonUtils.gson.toJson(VideoUtils.video);
         System.out.println(json);
-        String res = VideoUtils.addVideo(json, VideoUtils.video.getImage(), is, VideoUtils.video.getPreviousImage());
-        System.out.println(res);
+        try {
+            String res = VideoUtils.addVideo(json, VideoUtils.video.getImage(), is, VideoUtils.video.getPreviousImage());
+            System.out.println("OK Add Video");
+            System.out.println(res);
+        } catch (IOException e) {
+            System.out.println("Error Add Video");
+            System.out.println(e.getMessage());
+            //TODO window with error
+        }
+
+
+
     }
 
     @Override

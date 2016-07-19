@@ -11,7 +11,7 @@ import javafx.stage.Stage;
  *
  * @author cmcastil
  */
-public class Main extends Application {
+public class FxMediaPlayer extends Application {
 
     private static final String MEDIA_URL = "https://www.youtube.com/v/rbN4A1eCgd8";
     private static String arg1;
@@ -32,7 +32,7 @@ public class Main extends Application {
 
         // create media player
         Media media = new Media((arg1 != null) ? arg1 : MEDIA_URL);
-        MediaPlayer mediaPlayer = new MediaPlayer(media);
+        javafx.scene.media.MediaPlayer mediaPlayer = new javafx.scene.media.MediaPlayer(media);
         mediaPlayer.setAutoPlay(true);
 
         MediaControl mediaControl = new MediaControl(mediaPlayer);
