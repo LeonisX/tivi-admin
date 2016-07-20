@@ -221,7 +221,12 @@ public class AddVideo2Controller extends SubPane {
         video.setKeywords(keywords.getText());
         video.setAge(age.getText());
         video.setMirror(mirror.getText());
-        if (text != null) video.setText(text.getHtmlText());
+        if (text != null) {
+            String txt = text.getHtmlText()
+                    .replaceFirst("<html dir=\"ltr\"><head></head><body contenteditable=\"true\">", "")
+                    .replaceFirst("</body></html>", "");
+            video.setText(txt);
+        }
         video.setAuthor(author.getText());
         video.setAuthorEmail(authorEmail.getText());
         video.setAuthorSite(authorSite.getText());
