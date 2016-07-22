@@ -105,6 +105,19 @@ public class VideoUtils {
         return videoCategories;
     }
 
+    public static List<Video> listVideos(int count, int page, int catId, String sort, String order) {
+        //$count,$page,$cat,$sort,$order;
+        List<Video> videos = new ArrayList<>();
+        String requestURL = Config.apiPath + "video.php?to=list&count=" + count +"&page=" + page + "&cat=" + catId + "&sort=" + sort + "&order=" + order;
+        try {
+            String jsonString = HttpUtils.readFromUrl(requestURL);
+            videos = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<Video>>(){}.getType());
+        } catch (IOException e) {
+            System.out.println("Error in listVideos");
+        }
+        return videos;
+    }
+
     public static String addVideo(String json, String imageName, InputStream inputStream, String deleteName) throws IOException {
         String requestURL = Config.apiPath + "video.php?to=add";
         MultipartUtility multipart;
