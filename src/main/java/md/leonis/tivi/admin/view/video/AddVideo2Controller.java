@@ -75,25 +75,7 @@ public class AddVideo2Controller extends SubPane {
         offButton.setUserData(YesNo.no);
         allButton.setUserData(Access.all);
         usersButton.setUserData(Access.user);
-        category.setCellFactory((ListView<String> param) ->
-                new ListCell<String>() {
-                    @Override
-                    public void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item != null) {
-                            setText(item);
-                            if (getParentId(item) == 0) {
-                                setStyle("-fx-background-color: lavender;");
-                            } else {
-                                setStyle("-fx-padding: 5px 10px;");
-                            }
-                        } else {
-                            setText(null);
-                        }
-                    }
-                }
-
-        );
+        CatUtils.setCellFactory(category);
     }
 
     @FXML
@@ -127,11 +109,6 @@ public class AddVideo2Controller extends SubPane {
         JavaFxUtils.showVoidPanel();
     }
 
-    private int getParentId(String catname) {
-        for (Category category: VideoUtils.categories) if (category.getCatname().equals(catname)) return category.getParentid();
-        return -1;
-    }
-
     private void fillFields() {
         Video video = VideoUtils.video;
         title.setText(video.getTitle());
@@ -157,17 +134,7 @@ public class AddVideo2Controller extends SubPane {
 
         cat = new CatUtils(VideoUtils.categories);
         category.setItems(FXCollections.observableList(cat.getCatList()));
-        setCategoryTextValue();
-    }
-
-    private void setCategoryTextValue() {
-        String catName = "";
-        Video video = VideoUtils.video;
-        if (video.getCategoryId() != 0) {
-            for (Category cat: VideoUtils.categories) if (cat.getCatid() == video.getCategoryId()) catName = cat.getCatname();
-        }
-        catName = (catName.isEmpty()) ? "Выберите категорию" : catName;
-        category.setValue(catName);
+        cat.setCategoryTextValue(category, VideoUtils.video.getCategoryId());
     }
 
     @Override

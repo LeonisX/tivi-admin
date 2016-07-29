@@ -18,8 +18,6 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Config.loadProperties();
-        List<Video> videos = VideoUtils.listVideos(5, 0, 1, "downid", "desc");
-        videos.forEach(System.out::println);
         JavaFxUtils.showMainPane(primaryStage);
     }
 }

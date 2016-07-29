@@ -6,6 +6,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -37,30 +39,34 @@
                </font></Label>
             <HBox alignment="CENTER" prefHeight="72.0" prefWidth="800.0" spacing="5.0" GridPane.rowIndex="1">
                <children>
-                  <ComboBox minWidth="350.0" visibleRowCount="16" />
-                  <Button mnemonicParsing="false" text="Сортировка" />
+                  <ComboBox fx:id="category" minWidth="350.0" visibleRowCount="16" />
+                  <Button fx:id="categorySelectButton" mnemonicParsing="false" onAction="#selectCategory" text="Отобрать" />
                </children>
             </HBox>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.rowIndex="2">
                <children>
                   <Label text="Количество на страницу:" />
-                  <Button mnemonicParsing="false" text="10" />
-                  <Button mnemonicParsing="false" text="25" />
-                  <Button mnemonicParsing="false" text="50" />
-                  <Button mnemonicParsing="false" text="100" />
-                  <Button mnemonicParsing="false" text="200" />
-                  <Button mnemonicParsing="false" text="500" />
-                  <Button mnemonicParsing="false" text="1000" />
+                  <ToggleButton mnemonicParsing="false" onAction="#selectPageCount" selected="true" text="10">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="countToggleGroup" />
+                     </toggleGroup>
+                  </ToggleButton>
+                  <ToggleButton mnemonicParsing="false" onAction="#selectPageCount" text="25" toggleGroup="$countToggleGroup" />
+                  <ToggleButton mnemonicParsing="false" onAction="#selectPageCount" text="50" toggleGroup="$countToggleGroup" />
+                  <ToggleButton mnemonicParsing="false" onAction="#selectPageCount" text="100" toggleGroup="$countToggleGroup" />
+                  <ToggleButton mnemonicParsing="false" onAction="#selectPageCount" text="250" toggleGroup="$countToggleGroup" />
+                  <ToggleButton mnemonicParsing="false" onAction="#selectPageCount" text="500" toggleGroup="$countToggleGroup" />
+                  <ToggleButton mnemonicParsing="false" onAction="#selectPageCount" text="1000" toggleGroup="$countToggleGroup" />
                </children>
             </HBox>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.rowIndex="3">
                <children>
                   <Label text="Страница:" />
-                  <HBox prefHeight="100.0" prefWidth="200.0">
+                  <HBox alignment="CENTER" prefHeight="100.0" spacing="5.0">
                      <children>
-                        <Button mnemonicParsing="false" text="Button" />
-                        <Button mnemonicParsing="false" text="Button" />
-                        <Button mnemonicParsing="false" text="Button" />
+                        <ToggleButton mnemonicParsing="false" text="ToggleButton" />
+                        <ToggleButton mnemonicParsing="false" text="ToggleButton" />
+                        <ToggleButton mnemonicParsing="false" text="ToggleButton" />
                      </children>
                   </HBox>
                </children>
@@ -83,8 +89,8 @@
             <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.rowIndex="5">
                <children>
                   <Label text="С отмеченными:" />
-                  <ComboBox prefWidth="150.0" />
-                  <Button mnemonicParsing="false" text="Выполнить" />
+                  <ComboBox fx:id="operations" prefWidth="150.0" />
+                  <Button fx:id="runBatchOperationButton" mnemonicParsing="false" onAction="#runBatchOperation" text="Выполнить" />
                </children>
             </HBox>
          </children>

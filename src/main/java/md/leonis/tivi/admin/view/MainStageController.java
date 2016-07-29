@@ -35,4 +35,9 @@ public class MainStageController {
         VideoUtils.showAddVideo();
     }
 
+    @FXML
+    private void listVideos() {
+        VideoUtils.showListVideous();
+    }
+
 }

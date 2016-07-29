@@ -2,6 +2,7 @@ package md.leonis.tivi.admin.utils;
 
 import com.google.gson.reflect.TypeToken;
 import md.leonis.tivi.admin.model.Category;
+import md.leonis.tivi.admin.model.ListVideousSettings;
 import md.leonis.tivi.admin.model.Video;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,6 +21,8 @@ public class VideoUtils {
 
     public static Video video;
 
+    public static ListVideousSettings listVideousSettings = new ListVideousSettings();
+
     public static void showAddVideo() {
         video = new Video();
         JavaFxUtils.showPane("video/AddVideo.fxml");
@@ -32,6 +35,12 @@ public class VideoUtils {
 
     public static void showAddVideo3() {
         JavaFxUtils.showPane("video/AddVideo3.fxml");
+    }
+
+    public static void showListVideous() {
+        categories = VideoUtils.readCategories();
+        listVideos();
+        JavaFxUtils.showPane("video/ListVideos.fxml");
     }
 
     public static void parseVideoPage() {
@@ -105,16 +114,19 @@ public class VideoUtils {
         return videoCategories;
     }
 
-    public static List<Video> listVideos(int count, int page, int catId, String sort, String order) {
+    public static List<Video> listVideos() {
         //$count,$page,$cat,$sort,$order;
         List<Video> videos = new ArrayList<>();
-        String requestURL = Config.apiPath + "video.php?to=list&count=" + count +"&page=" + page + "&cat=" + catId + "&sort=" + sort + "&order=" + order;
+        String cat = "";
+        if (listVideousSettings.catId != -1) cat = "&cat=" + listVideousSettings.catId;
+        String requestURL = Config.apiPath + "video.php?to=list&count=" + listVideousSettings.count +"&page=" + listVideousSettings.page + cat + "&sort=" + listVideousSettings.sort + "&order=" + listVideousSettings.order;
         try {
             String jsonString = HttpUtils.readFromUrl(requestURL);
             videos = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<Video>>(){}.getType());
         } catch (IOException e) {
             System.out.println("Error in listVideos");
         }
+        videos.forEach(System.out::println);
         return videos;
     }
 

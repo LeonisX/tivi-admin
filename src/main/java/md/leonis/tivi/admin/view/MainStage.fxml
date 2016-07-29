@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.MainStageController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.MainStageController">
    <left>
       <Accordion fx:id="accordion" prefHeight="400.0" prefWidth="195.0" BorderPane.alignment="CENTER">
         <panes>
@@ -27,7 +27,7 @@
                   <VBox prefHeight="200.0" prefWidth="100.0">
                      <children>
                         <Hyperlink fx:id="settingsHyperlink" text="Настройки" />
-                        <Hyperlink fx:id="allVideoHyperlink" text="Все видео" />
+                        <Hyperlink fx:id="allVideoHyperlink" onAction="#listVideos" text="Все видео" />
                         <Hyperlink fx:id="categoriesHyperlink" text="Категории" />
                         <Hyperlink fx:id="addVideoHyperlink" onAction="#addVideo" text="Добавить видео" />
                         <Hyperlink fx:id="addCategoryHyperlink" text="Добавить категорию" />
