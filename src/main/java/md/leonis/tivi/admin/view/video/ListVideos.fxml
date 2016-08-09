@@ -73,15 +73,15 @@
             </HBox>
             <HBox prefHeight="100.0" prefWidth="200.0" spacing="5.0" GridPane.rowIndex="4">
                <children>
-                  <TableView minWidth="800.0" prefWidth="600.0">
+                  <TableView fx:id="videousTableView" minWidth="800.0" prefWidth="600.0">
                     <columns>
-                      <TableColumn minWidth="45.0" prefWidth="45.0" text="ID" />
-                      <TableColumn minWidth="190.0" prefWidth="195.0" text="Название / Категория" />
-                        <TableColumn minWidth="120.0" prefWidth="120.0" text="Опубликовано" />
-                        <TableColumn minWidth="100.0" prefWidth="100.0" text="Просмотров" />
-                        <TableColumn minWidth="110.0" prefWidth="110.0" text="Комментарии" />
-                        <TableColumn minWidth="150.0" prefWidth="150.0" text="Управление" />
-                        <TableColumn minWidth="80.0" text="Отметить" />
+                      <TableColumn fx:id="idColumn" minWidth="45.0" prefWidth="45.0" text="ID" />
+                      <TableColumn fx:id="titleColumn" minWidth="190.0" prefWidth="195.0" text="Название / Категория" />
+                        <TableColumn fx:id="publishedColumn" minWidth="120.0" prefWidth="120.0" text="Опубликовано" />
+                        <TableColumn fx:id="viewsColumn" minWidth="100.0" prefWidth="100.0" text="Просмотров" />
+                        <TableColumn fx:id="commentsColumn" minWidth="110.0" prefWidth="110.0" text="Комментарии" />
+                        <TableColumn fx:id="v1Column" minWidth="150.0" prefWidth="150.0" text="Управление" />
+                        <TableColumn fx:id="checkedColumn" minWidth="80.0" text="Отметить" />
                     </columns>
                   </TableView>
                </children>

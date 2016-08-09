@@ -1,9 +1,13 @@
 package md.leonis.tivi.admin.utils;
 
 import com.google.gson.reflect.TypeToken;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import md.leonis.tivi.admin.model.Category;
 import md.leonis.tivi.admin.model.ListVideousSettings;
 import md.leonis.tivi.admin.model.Video;
+import md.leonis.tivi.admin.model.VideoView;
+import md.leonis.tivi.admin.view.video.ListVideosController;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,13 +17,17 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class VideoUtils {
     public static List<Category> categories = new ArrayList<>();
 
     public static Video video;
+
+    public static List<VideoView> videous;
 
     public static ListVideousSettings listVideousSettings = new ListVideousSettings();
 
@@ -39,7 +47,7 @@ public class VideoUtils {
 
     public static void showListVideous() {
         categories = VideoUtils.readCategories();
-        listVideos();
+        videous = listVideos().stream().map(VideoView::new).collect(Collectors.toList());
         JavaFxUtils.showPane("video/ListVideos.fxml");
     }
 
@@ -126,7 +134,6 @@ public class VideoUtils {
         } catch (IOException e) {
             System.out.println("Error in listVideos");
         }
-        videos.forEach(System.out::println);
         return videos;
     }
 
