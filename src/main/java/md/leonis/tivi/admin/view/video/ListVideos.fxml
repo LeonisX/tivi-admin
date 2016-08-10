@@ -39,8 +39,7 @@
                </font></Label>
             <HBox alignment="CENTER" prefHeight="72.0" spacing="5.0" GridPane.rowIndex="1">
                <children>
-                  <ComboBox fx:id="category" minWidth="350.0" visibleRowCount="16" />
-                  <Button fx:id="categorySelectButton" mnemonicParsing="false" onAction="#selectCategory" text="Отобрать" />
+                  <ComboBox fx:id="category" minWidth="350.0" onAction="#selectCategory" visibleRowCount="16" />
                </children>
             </HBox>
             <HBox alignment="CENTER" prefHeight="100.0" spacing="5.0" GridPane.rowIndex="2">
@@ -62,7 +61,7 @@
             <HBox alignment="CENTER" prefHeight="100.0" spacing="5.0" GridPane.rowIndex="3">
                <children>
                   <Label text="Страница:" />
-                  <HBox alignment="CENTER" prefHeight="100.0" spacing="5.0">
+                  <HBox fx:id="pagesHBox" alignment="CENTER" prefHeight="100.0" spacing="5.0">
                      <children>
                         <ToggleButton mnemonicParsing="false" text="ToggleButton" />
                         <ToggleButton mnemonicParsing="false" text="ToggleButton" />
@@ -78,8 +77,8 @@
                       <TableColumn fx:id="idColumn" maxWidth="48.0" minWidth="48.0" prefWidth="48.0" text="ID" />
                       <TableColumn fx:id="titleColumn" maxWidth="1.7976931348623157E308" minWidth="32.0" prefWidth="347.0" text="Название / Категория" />
                         <TableColumn fx:id="publishedColumn" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" text="Опубликовано" />
-                        <TableColumn fx:id="viewsColumn" maxWidth="32.0" minWidth="32.0" prefWidth="32.0" />
-                        <TableColumn fx:id="commentsColumn" maxWidth="32.0" minWidth="32.0" prefWidth="32.0" />
+                        <TableColumn fx:id="viewsColumn" maxWidth="48.0" minWidth="48.0" prefWidth="48.0" />
+                        <TableColumn fx:id="commentsColumn" maxWidth="48.0" minWidth="48.0" prefWidth="48.0" />
                         <TableColumn fx:id="v1Column" maxWidth="300.0" minWidth="140.0" prefWidth="140.0" text="Управление" />
                         <TableColumn fx:id="checkedColumn" maxWidth="32.0" minWidth="32.0" prefWidth="32.0" />
                     </columns>

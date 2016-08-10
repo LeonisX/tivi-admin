@@ -1,6 +1,9 @@
 package md.leonis.tivi.admin.view.video;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.Image;
@@ -19,12 +22,9 @@ public class ListVideosController extends SubPane {
     private ComboBox<String> category;
 
     @FXML
-    private Button categorySelectButton;
-
-    @FXML
     private ToggleGroup countToggleGroup;
 
-    private ToggleGroup pagesToggleGroup;
+    private ToggleGroup pagesToggleGroup = new ToggleGroup();
 
     @FXML
     public TableView<VideoView> videousTableView;
@@ -50,12 +50,22 @@ public class ListVideosController extends SubPane {
     @FXML
     private Button runBatchOperationButton;
 
+    @FXML
+    private HBox pagesHBox;
+
     private CatUtils cat;
+
+    private ChangeListener pagesChangeListener;
 
     @FXML
     private void selectCategory() {
-        VideoUtils.listVideousSettings.catId = category.getSelectionModel().getSelectedIndex();
-        System.out.println(VideoUtils.listVideousSettings.catId);
+        int index = category.getSelectionModel().getSelectedIndex();
+        VideoUtils.listVideousSettings.catId = index;
+        VideoUtils.countVideos();
+        if (index != -1) {
+            VideoUtils.listVideousSettings.catId = cat.getCatIds().get(index);
+        }
+        fillFields();
     }
 
     @FXML
@@ -74,8 +84,6 @@ public class ListVideosController extends SubPane {
     @FXML
     private void initialize() {
         CatUtils.setCellFactory(category);
-        //videousTableView.setEditable(true);
-
         idColumn.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
         idColumn.setStyle("-fx-alignment: CENTER;");
         titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
@@ -97,9 +105,21 @@ public class ListVideosController extends SubPane {
 
         v1Column.setCellFactory((TableColumn<VideoView, Boolean> videoBooleanTableColumn) -> new ButtonsCell(videousTableView));
 
+        CatUtils.setCellFactory(category);
+
+        pagesChangeListener = new ChangeListener<Toggle>() {
+            public void changed(ObservableValue<? extends Toggle> ov,
+                                Toggle old_toggle, Toggle new_toggle) {
+                if (old_toggle != null && !old_toggle.getUserData().equals(new_toggle.getUserData())) {
+                    VideoUtils.listVideousSettings.page = Integer.parseInt(new_toggle.getUserData().toString());
+                    fillFields();
+                }
+            }
+        };
+        pagesToggleGroup.selectedToggleProperty().addListener(pagesChangeListener);
     }
 
-    private enum Reaction { VIEW, EDIT, DELETE }
+    private enum Reaction {VIEW, EDIT, DELETE}
 
     private class ButtonsCell extends TableCell<VideoView, Boolean> {
         final Button viewButton = new Button("", new ImageView(new Image("view2.png")));
@@ -153,9 +173,40 @@ public class ListVideosController extends SubPane {
     }
 
     private void fillFields() {
+        //TODO sort for query
+        ObservableList<TableColumn<VideoView,?>> order = videousTableView.getSortOrder();
+        pagesToggleGroup.selectedToggleProperty().removeListener(pagesChangeListener);
+        pagesHBox.getChildren().removeAll(pagesHBox.getChildren());
+        int begin = 1;
+        int end = 1;
+        if (VideoUtils.videousCount > 1) {
+            end = VideoUtils.videousCount / VideoUtils.listVideousSettings.count + 1;
+        }
+        if (VideoUtils.listVideousSettings.page > end) VideoUtils.listVideousSettings.page = end;
+        if (begin + 4 < VideoUtils.listVideousSettings.page) begin = VideoUtils.listVideousSettings.page - 4;
+        if (end - 4 > VideoUtils.listVideousSettings.page) end = VideoUtils.listVideousSettings.page + 4;
+
         VideoUtils.listVideos();
         videousTableView.setItems(FXCollections.observableList(VideoUtils.videous));
+
+        Button firstPageButton = new Button("#");
+        Button lastPageButton = new Button("#");
+        Button prevPageButton = new Button("<<");
+        Button nextPageButton = new Button(">>");
+
+        pagesHBox.getChildren().add(firstPageButton);
+        pagesHBox.getChildren().add(prevPageButton);
+
+        for (int i = begin; i <= end; i++) {
+            ToggleButton pageButton = new ToggleButton(Integer.toString(i));
+            pageButton.setUserData(pageButton.getText());
+            pageButton.setToggleGroup(pagesToggleGroup);
+            if (VideoUtils.listVideousSettings.page == i) pageButton.setSelected(true);
+            pagesHBox.getChildren().add(pageButton);
+        }
+
+        pagesHBox.getChildren().add(nextPageButton);
+        pagesHBox.getChildren().add(lastPageButton);
+        pagesToggleGroup.selectedToggleProperty().addListener(pagesChangeListener);
     }
-
-
 }
