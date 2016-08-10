@@ -2,17 +2,12 @@ package md.leonis.tivi.admin.view.video;
 
 import javafx.collections.FXCollections;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
-
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.scene.layout.StackPane;
-import javafx.util.Callback;
-import md.leonis.tivi.admin.model.Video;
+import javafx.scene.layout.HBox;
 import md.leonis.tivi.admin.model.VideoView;
 import md.leonis.tivi.admin.utils.CatUtils;
 import md.leonis.tivi.admin.utils.SubPane;
@@ -67,9 +62,8 @@ public class ListVideosController extends SubPane {
     private void selectPageCount() {
         Toggle toggle = countToggleGroup.getSelectedToggle();
         if (toggle != null) {
-            int count = Integer.parseInt(((ToggleButton) toggle).getText());
-            VideoUtils.listVideousSettings.count = count;
-            //TODO reload videous list
+            VideoUtils.listVideousSettings.count = Integer.parseInt(((ToggleButton) toggle).getText());
+            fillFields();
         }
     }
 
@@ -80,56 +74,69 @@ public class ListVideosController extends SubPane {
     @FXML
     private void initialize() {
         CatUtils.setCellFactory(category);
-
+        //videousTableView.setEditable(true);
 
         idColumn.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
+        idColumn.setStyle("-fx-alignment: CENTER;");
         titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
+        titleColumn.setStyle("-fx-alignment: CENTER-LEFT;");
         publishedColumn.setCellValueFactory(cellData -> cellData.getValue().publishedProperty().asObject());
+        publishedColumn.setStyle("-fx-alignment: CENTER;");
         viewsColumn.setCellValueFactory(cellData -> cellData.getValue().viewsProperty().asObject());
+        viewsColumn.setGraphic(new ImageView(new Image("view.png")));
+        viewsColumn.setStyle("-fx-alignment: CENTER;");
         commentsColumn.setCellValueFactory(cellData -> cellData.getValue().commentsProperty().asObject());
-        //v1Column.setCellValueFactory(cellData -> cellData.getValue().v1Property());
-        checkedColumn.setCellValueFactory(cellData -> cellData.getValue().checkedProperty());
+        commentsColumn.setGraphic(new ImageView(new Image("comment.png")));
+        commentsColumn.setStyle("-fx-alignment: CENTER;");
+        //checkedColumn.setCellValueFactory(cellData -> cellData.getValue().checkedProperty());
+        //checkedColumn.setStyle("-fx-alignment: CENTER;");
 
-        v1Column.setCellFactory(new Callback<TableColumn<VideoView, Boolean>, TableCell<VideoView, Boolean>>() {
-            @Override public TableCell<VideoView, Boolean> call(TableColumn<VideoView, Boolean> videoBooleanTableColumn) {
-                return new AddPersonCell(videousTableView);
-            }
-        });
+        checkedColumn.setCellValueFactory((TableColumn.CellDataFeatures<VideoView, Boolean> param) -> param.getValue().checkedProperty());
+        checkedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(checkedColumn));
+        checkedColumn.setGraphic(new ImageView(new Image("select.png")));
+
+        v1Column.setCellFactory((TableColumn<VideoView, Boolean> videoBooleanTableColumn) -> new ButtonsCell(videousTableView));
+
     }
 
-    private class AddPersonCell extends TableCell<VideoView, Boolean> {
-        // a button for adding a new person.
-        final Button addButton       = new Button("Add");
-        // pads and centers the add button in the cell.
-        final StackPane paddedButton = new StackPane();
-        // records the y pos of the last button press so that the add person dialog can be shown next to the cell.
-        final DoubleProperty buttonY = new SimpleDoubleProperty();
+    private enum Reaction { VIEW, EDIT, DELETE }
 
+    private class ButtonsCell extends TableCell<VideoView, Boolean> {
+        final Button viewButton = new Button("", new ImageView(new Image("view2.png")));
+        final Button editButton = new Button("", new ImageView(new Image("edit.gif")));
+        final Button deleteButton = new Button("", new ImageView(new Image("del.gif")));
+        final HBox box = new HBox();
 
-        AddPersonCell(TableView table) {
-            paddedButton.setPadding(new Insets(3));
-            paddedButton.getChildren().add(addButton);
-            addButton.setOnMousePressed(new EventHandler<MouseEvent>() {
-                @Override public void handle(MouseEvent mouseEvent) {
-                    buttonY.set(mouseEvent.getScreenY());
-                }
-            });
-            addButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override public void handle(ActionEvent actionEvent) {
-                    //showAddPersonDialog(stage, table, buttonY.get());
-                    table.getSelectionModel().select(getTableRow().getIndex());
-                    int index = getTableRow().getIndex();
-                    System.out.println(index);
-                }
-            });
+        ButtonsCell(TableView table) {
+            box.setSpacing(5);
+            box.getChildren().addAll(viewButton, editButton, deleteButton);
+
+            viewButton.setOnAction((ActionEvent actionEvent) -> action(table, Reaction.VIEW));
+            editButton.setOnAction((ActionEvent actionEvent) -> action(table, Reaction.EDIT));
+            deleteButton.setOnAction((ActionEvent actionEvent) -> action(table, Reaction.DELETE));
         }
 
-        /** places an add button in the row only if the row is not empty. */
-        @Override protected void updateItem(Boolean item, boolean empty) {
+        private void action(TableView table, Reaction reaction) {
+            table.getSelectionModel().select(getTableRow().getIndex());
+            int index = getTableRow().getIndex();
+            //TODO reaction on click
+            switch (reaction) {
+                case VIEW:
+                    break;
+                case EDIT:
+                    break;
+                case DELETE:
+                    break;
+            }
+            System.out.println(reaction + " " + VideoUtils.videous.get(index).id.get());
+        }
+
+        @Override
+        protected void updateItem(Boolean item, boolean empty) {
             super.updateItem(item, empty);
             if (!empty) {
                 setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                setGraphic(paddedButton);
+                setGraphic(box);
             } else {
                 setGraphic(null);
             }
@@ -146,9 +153,8 @@ public class ListVideosController extends SubPane {
     }
 
     private void fillFields() {
-        if (VideoUtils.videous != null) {
-            videousTableView.setItems(FXCollections.observableList(VideoUtils.videous));
-        }
+        VideoUtils.listVideos();
+        videousTableView.setItems(FXCollections.observableList(VideoUtils.videous));
     }
 
 

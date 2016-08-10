@@ -47,7 +47,7 @@ public class VideoUtils {
 
     public static void showListVideous() {
         categories = VideoUtils.readCategories();
-        videous = listVideos().stream().map(VideoView::new).collect(Collectors.toList());
+        //listVideos();
         JavaFxUtils.showPane("video/ListVideos.fxml");
     }
 
@@ -122,7 +122,7 @@ public class VideoUtils {
         return videoCategories;
     }
 
-    public static List<Video> listVideos() {
+    public static void listVideos() {
         //$count,$page,$cat,$sort,$order;
         List<Video> videos = new ArrayList<>();
         String cat = "";
@@ -134,7 +134,7 @@ public class VideoUtils {
         } catch (IOException e) {
             System.out.println("Error in listVideos");
         }
-        return videos;
+        videous = videos.stream().map(VideoView::new).collect(Collectors.toList());
     }
 
     public static String addVideo(String json, String imageName, InputStream inputStream, String deleteName) throws IOException {
