@@ -3,6 +3,8 @@ package md.leonis.tivi.admin.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.text.DecimalFormat;
+
 public class Video {
     // Rename to id
     @SerializedName("downid")
@@ -373,7 +375,7 @@ public class Video {
 
     public String getRate() {
         if (rated_count == 0) return "нет";
-        return String.format("%1.1f", total_rating / rated_count);
+        return new DecimalFormat("#0.00").format(total_rating * 1.0 / rated_count);
     }
 
     public void setRated_count(int rated_count) {

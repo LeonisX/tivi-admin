@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
@@ -27,6 +28,7 @@
         <rowConstraints>
           <RowConstraints maxHeight="24.0" minHeight="0.0" prefHeight="24.0" vgrow="SOMETIMES" />
           <RowConstraints maxHeight="32.0" prefHeight="32.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="32.0" minHeight="10.0" prefHeight="152.0" vgrow="SOMETIMES" />
             <RowConstraints maxHeight="32.0" prefHeight="152.0" vgrow="SOMETIMES" />
             <RowConstraints maxHeight="32.0" prefHeight="28.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -39,10 +41,17 @@
                </font></Label>
             <HBox alignment="CENTER" prefHeight="72.0" spacing="5.0" GridPane.rowIndex="1">
                <children>
-                  <ComboBox fx:id="category" minWidth="350.0" onAction="#selectCategory" visibleRowCount="16" />
+                  <ComboBox fx:id="category" minWidth="340.0" onAction="#selectCategory" visibleRowCount="16" />
                </children>
             </HBox>
-            <HBox alignment="CENTER" prefHeight="100.0" spacing="5.0" GridPane.rowIndex="2">
+             <HBox alignment="CENTER" prefHeight="72.0" spacing="5.0" GridPane.rowIndex="2">
+                 <children>
+                  <Label text="Сортировать по:" />
+                     <ComboBox fx:id="sort" minWidth="150.0" onAction="#selectSortOrder" visibleRowCount="16" />
+                  <CheckBox fx:id="order" mnemonicParsing="false" onAction="#selectOrder" selected="true" text="в обратном порядке" />
+                 </children>
+             </HBox>
+            <HBox alignment="CENTER" prefHeight="100.0" spacing="5.0" GridPane.rowIndex="3">
                <children>
                   <Label text="Количество на страницу:" />
                   <ToggleButton mnemonicParsing="false" onAction="#selectPageCount" selected="true" text="10">
@@ -58,28 +67,23 @@
                   <ToggleButton mnemonicParsing="false" onAction="#selectPageCount" text="1000" toggleGroup="$countToggleGroup" />
                </children>
             </HBox>
-            <HBox alignment="CENTER" prefHeight="100.0" spacing="5.0" GridPane.rowIndex="3">
+            <HBox alignment="CENTER" prefHeight="100.0" spacing="5.0" GridPane.rowIndex="4">
                <children>
                   <Label text="Страница:" />
-                  <HBox fx:id="pagesHBox" alignment="CENTER" prefHeight="100.0" spacing="5.0">
-                     <children>
-                        <ToggleButton mnemonicParsing="false" text="ToggleButton" />
-                        <ToggleButton mnemonicParsing="false" text="ToggleButton" />
-                        <ToggleButton mnemonicParsing="false" text="ToggleButton" />
-                     </children>
-                  </HBox>
+                  <HBox fx:id="pagesHBox" alignment="CENTER" prefHeight="100.0" spacing="5.0" />
                </children>
             </HBox>
-            <HBox alignment="CENTER" maxWidth="1.7976931348623157E308" minHeight="400.0" prefHeight="400.0" spacing="5.0" GridPane.rowIndex="4">
+            <HBox alignment="CENTER" maxWidth="1.7976931348623157E308" minHeight="400.0" prefHeight="400.0" spacing="5.0" GridPane.rowIndex="5">
                <children>
                   <TableView fx:id="videousTableView" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="800.0" prefWidth="1900.0">
                     <columns>
                       <TableColumn fx:id="idColumn" maxWidth="48.0" minWidth="48.0" prefWidth="48.0" text="ID" />
-                      <TableColumn fx:id="titleColumn" maxWidth="1.7976931348623157E308" minWidth="32.0" prefWidth="347.0" text="Название / Категория" />
-                        <TableColumn fx:id="publishedColumn" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" text="Опубликовано" />
+                      <TableColumn fx:id="titleColumn" maxWidth="1.7976931348623157E308" minWidth="32.0" prefWidth="347.0" text="Категория / Название" />
+                        <TableColumn fx:id="publishedColumn" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Дата" />
                         <TableColumn fx:id="viewsColumn" maxWidth="48.0" minWidth="48.0" prefWidth="48.0" />
                         <TableColumn fx:id="commentsColumn" maxWidth="48.0" minWidth="48.0" prefWidth="48.0" />
-                        <TableColumn fx:id="v1Column" maxWidth="300.0" minWidth="140.0" prefWidth="140.0" text="Управление" />
+                        <TableColumn fx:id="ratingColumn" maxWidth="80.0" minWidth="80.0" />
+                        <TableColumn fx:id="v1Column" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" text="Управление" />
                         <TableColumn fx:id="checkedColumn" maxWidth="32.0" minWidth="32.0" prefWidth="32.0" />
                     </columns>
                      <columnResizePolicy>
@@ -88,7 +92,7 @@
                   </TableView>
                </children>
             </HBox>
-            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" spacing="5.0" GridPane.rowIndex="5">
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" spacing="5.0" GridPane.rowIndex="6">
                <children>
                   <Label text="С отмеченными:" />
                   <ComboBox fx:id="operations" prefWidth="150.0" />
