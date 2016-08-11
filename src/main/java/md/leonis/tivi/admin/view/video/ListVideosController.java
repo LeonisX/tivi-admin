@@ -16,6 +16,8 @@ import md.leonis.tivi.admin.utils.CatUtils;
 import md.leonis.tivi.admin.utils.SubPane;
 import md.leonis.tivi.admin.utils.VideoUtils;
 
+import static md.leonis.tivi.admin.utils.VideoUtils.listVideousSettings;
+
 
 public class ListVideosController extends SubPane {
     @FXML
@@ -60,10 +62,10 @@ public class ListVideosController extends SubPane {
     @FXML
     private void selectCategory() {
         int index = category.getSelectionModel().getSelectedIndex();
-        VideoUtils.listVideousSettings.catId = index;
+        listVideousSettings.catId = index;
         VideoUtils.countVideos();
         if (index != -1) {
-            VideoUtils.listVideousSettings.catId = cat.getCatIds().get(index);
+            listVideousSettings.catId = cat.getCatIds().get(index);
         }
         fillFields();
     }
@@ -72,7 +74,7 @@ public class ListVideosController extends SubPane {
     private void selectPageCount() {
         Toggle toggle = countToggleGroup.getSelectedToggle();
         if (toggle != null) {
-            VideoUtils.listVideousSettings.count = Integer.parseInt(((ToggleButton) toggle).getText());
+            listVideousSettings.count = Integer.parseInt(((ToggleButton) toggle).getText());
             fillFields();
         }
     }
@@ -111,7 +113,7 @@ public class ListVideosController extends SubPane {
             public void changed(ObservableValue<? extends Toggle> ov,
                                 Toggle old_toggle, Toggle new_toggle) {
                 if (old_toggle != null && !old_toggle.getUserData().equals(new_toggle.getUserData())) {
-                    VideoUtils.listVideousSettings.page = Integer.parseInt(new_toggle.getUserData().toString());
+                    listVideousSettings.page = Integer.parseInt(new_toggle.getUserData().toString());
                     fillFields();
                 }
             }
@@ -168,11 +170,11 @@ public class ListVideosController extends SubPane {
     public void init() {
         cat = new CatUtils(VideoUtils.categories);
         category.setItems(FXCollections.observableList(cat.getCatList()));
-        cat.setCategoryTextValue(category, VideoUtils.listVideousSettings.catId);
+        cat.setCategoryTextValue(category, listVideousSettings.catId);
         fillFields();
     }
 
-    private void fillFields() {
+    public void fillFields() {
         //TODO sort for query
         ObservableList<TableColumn<VideoView,?>> order = videousTableView.getSortOrder();
         pagesToggleGroup.selectedToggleProperty().removeListener(pagesChangeListener);
@@ -180,19 +182,36 @@ public class ListVideosController extends SubPane {
         int begin = 1;
         int end = 1;
         if (VideoUtils.videousCount > 1) {
-            end = VideoUtils.videousCount / VideoUtils.listVideousSettings.count + 1;
+            end = VideoUtils.videousCount / listVideousSettings.count + 1;
         }
-        if (VideoUtils.listVideousSettings.page > end) VideoUtils.listVideousSettings.page = end;
-        if (begin + 4 < VideoUtils.listVideousSettings.page) begin = VideoUtils.listVideousSettings.page - 4;
-        if (end - 4 > VideoUtils.listVideousSettings.page) end = VideoUtils.listVideousSettings.page + 4;
+        final int pages = end;
+        if (listVideousSettings.page > end) listVideousSettings.page = end;
+        if (begin + 4 < listVideousSettings.page) begin = listVideousSettings.page - 4;
+        if (end - 4 > listVideousSettings.page) end = listVideousSettings.page + 4;
 
         VideoUtils.listVideos();
         videousTableView.setItems(FXCollections.observableList(VideoUtils.videous));
 
         Button firstPageButton = new Button("#");
+        firstPageButton.setOnAction((ActionEvent e) -> {
+                listVideousSettings.page = 1;
+                fillFields();
+        });
         Button lastPageButton = new Button("#");
-        Button prevPageButton = new Button("<<");
-        Button nextPageButton = new Button(">>");
+        lastPageButton.setOnAction((ActionEvent e) -> {
+            listVideousSettings.page = pages;
+            fillFields();
+        });
+        Button prevPageButton = new Button("<");
+        prevPageButton.setOnAction((ActionEvent e) -> {
+            if (listVideousSettings.page != 1) listVideousSettings.page--;
+            fillFields();
+        });
+        Button nextPageButton = new Button(">");
+        nextPageButton.setOnAction((ActionEvent e) -> {
+            if (listVideousSettings.page < pages) listVideousSettings.page++;
+            fillFields();
+        });
 
         pagesHBox.getChildren().add(firstPageButton);
         pagesHBox.getChildren().add(prevPageButton);
@@ -201,7 +220,7 @@ public class ListVideosController extends SubPane {
             ToggleButton pageButton = new ToggleButton(Integer.toString(i));
             pageButton.setUserData(pageButton.getText());
             pageButton.setToggleGroup(pagesToggleGroup);
-            if (VideoUtils.listVideousSettings.page == i) pageButton.setSelected(true);
+            if (listVideousSettings.page == i) pageButton.setSelected(true);
             pagesHBox.getChildren().add(pageButton);
         }
 
