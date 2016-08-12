@@ -3,6 +3,7 @@ package md.leonis.tivi.admin.view.video;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -11,10 +12,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import md.leonis.tivi.admin.utils.JavaFxUtils;
-import md.leonis.tivi.admin.utils.JsonUtils;
-import md.leonis.tivi.admin.utils.SubPane;
-import md.leonis.tivi.admin.utils.VideoUtils;
+import md.leonis.tivi.admin.utils.*;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -33,14 +31,14 @@ public class AddVideo3Controller extends SubPane {
     @FXML
     private Button editButton;
 
-    @FXML
+    /*@FXML
     private Button finishButton;
 
     @FXML
     private Button cancelButton;
 
     @FXML
-    private Button backButton;
+    private Button backButton;*/
 
     @FXML
     private Label sizeLabel;
@@ -54,7 +52,7 @@ public class AddVideo3Controller extends SubPane {
 
     @FXML
     private void cancel() {
-        JavaFxUtils.showVoidPanel();
+        VideoUtils.showListVideous();
     }
 
     @FXML
@@ -62,38 +60,51 @@ public class AddVideo3Controller extends SubPane {
         VideoUtils.showAddVideo2();
     }
 
+    public boolean checkAllValues() {
+        CheckUtils checker = new CheckUtils();
+        checker.checkCpuExist(VideoUtils.video.getCpu());
+        if (!checker.isOk()) JavaFxUtils.showAlert("Ошибка",
+                "Следующие данные следует поправить:",
+                checker.getErrors(),
+                Alert.AlertType.ERROR);
+        return checker.isOk();
+    }
+
     @FXML
     private void finish() throws IOException {
-        //TODO оптимизировать
-        InputStream is = null;
-        if (imageView.isVisible()) {
-            is = toInputStream(imageView.getImage());
-            //TODO previousImage
-            VideoUtils.video.setImage(VideoUtils.video.getCpu() + ".png");
+        if (checkAllValues()) {
+            //TODO оптимизировать
+            InputStream is = null;
+            if (imageView.isVisible()) {
+                is = toInputStream(imageView.getImage());
+                //TODO previousImage
+                VideoUtils.video.setImage("images/video/thumbs/" + VideoUtils.video.getCpu() + ".png");
+            }
+            String json = JsonUtils.gson.toJson(VideoUtils.video);
+            System.out.println(json);
+            try {
+                String res = VideoUtils.addVideo(json, VideoUtils.video.getImage(), is, VideoUtils.video.getPreviousImage());
+                System.out.println("OK Add Video");
+                System.out.println(res);
+            } catch (IOException e) {
+                System.out.println("Error Add Video");
+                System.out.println(e.getMessage());
+                //TODO window with error
+            }
+            VideoUtils.showListVideous();
         }
-        String json = JsonUtils.gson.toJson(VideoUtils.video);
-        System.out.println(json);
-        try {
-            String res = VideoUtils.addVideo(json, VideoUtils.video.getImage(), is, VideoUtils.video.getPreviousImage());
-            System.out.println("OK Add Video");
-            System.out.println(res);
-        } catch (IOException e) {
-            System.out.println("Error Add Video");
-            System.out.println(e.getMessage());
-            //TODO window with error
-        }
-
-
 
     }
 
     @Override
     public void init() {
+        System.out.println("AddVideo3Controller.init()");
         // show current image and buttons
         showImage();
 
         // load all images, add to images
         imageViews.getChildren().clear();
+
         if (!VideoUtils.video.getYid().isEmpty()) {
             loadImage(imageViews, "default");
             loadImage(imageViews, "1");
@@ -154,7 +165,9 @@ public class AddVideo3Controller extends SubPane {
         System.out.println(VideoUtils.video.getImage());
         Boolean visible = !VideoUtils.video.getImage().isEmpty();
         if (visible) {
-            Image image = new Image(VideoUtils.video.getImage());
+            String path = VideoUtils.video.getImage();
+            if (!path.startsWith("http")) path = Config.sitePath + path;
+            Image image = new Image(path);
             System.out.println(image.isError());
             imageView.setImage(image);
             sizeLabel.setText("(" + String.valueOf(getImageSize(image)) + " байт)");

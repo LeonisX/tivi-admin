@@ -10,6 +10,7 @@ import java.util.Optional;
 public class VideoView {
     public IntegerProperty id;
     private StringProperty published;
+    private StringProperty cpu;
     private IntegerProperty views;
     private IntegerProperty comments;
     private StringProperty rating;
@@ -20,6 +21,7 @@ public class VideoView {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
         this.id = new SimpleIntegerProperty(video.getId());
         this.published = new SimpleStringProperty(dateFormat.format(new Date(video.getDate() * 1000)));
+        this.cpu = new SimpleStringProperty(video.getCpu());
         this.views = new SimpleIntegerProperty(video.getViews());
         this.comments = new SimpleIntegerProperty(video.getComments());
         this.rating = new SimpleStringProperty(video.getRate() + " (" + video.getRated_count() + ")");
@@ -36,6 +38,10 @@ public class VideoView {
 
     public StringProperty publishedProperty() {
         return published;
+    }
+
+    public StringProperty cpuProperty() {
+        return cpu;
     }
 
     public IntegerProperty viewsProperty() {

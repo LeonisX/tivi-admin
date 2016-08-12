@@ -9,6 +9,7 @@ import java.util.Properties;
 
 public class Config {
     static String apiPath;
+    public static String sitePath;
     static String sampleVideo;
 
     static final String resourcePath = "/" + MainStageController.class.getPackage().getName().replaceAll("\\.", "/") + "/";
@@ -19,6 +20,7 @@ public class Config {
             Properties prop = new Properties();
             prop.load(inputStream);
             apiPath = prop.getProperty("api.path");
+            sitePath = prop.getProperty("site.path");
             sampleVideo = prop.getProperty("sample.video");
         }
     }

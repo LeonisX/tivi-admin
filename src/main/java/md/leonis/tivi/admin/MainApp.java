@@ -2,12 +2,8 @@ package md.leonis.tivi.admin;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.utils.Config;
 import md.leonis.tivi.admin.utils.JavaFxUtils;
-import md.leonis.tivi.admin.utils.VideoUtils;
-
-import java.util.List;
 
 public class MainApp extends Application {
 

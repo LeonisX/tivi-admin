@@ -4,6 +4,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
+
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.Image;
@@ -12,11 +13,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import md.leonis.tivi.admin.model.MixedTitle;
-import md.leonis.tivi.admin.model.VideoView;
-import md.leonis.tivi.admin.utils.CatUtils;
-import md.leonis.tivi.admin.utils.SubPane;
-import md.leonis.tivi.admin.utils.VideoUtils;
+import md.leonis.tivi.admin.model.*;
+import md.leonis.tivi.admin.utils.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +22,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static md.leonis.tivi.admin.utils.VideoUtils.listVideousSettings;
+import static md.leonis.tivi.admin.utils.VideoUtils.video;
 
 
 public class ListVideosController extends SubPane {
@@ -41,7 +40,6 @@ public class ListVideosController extends SubPane {
     @FXML
     private TableColumn<VideoView, Integer> idColumn;
     @FXML
-    //private TableColumn<VideoView, String> titleColumn;
     private TableColumn<VideoView, MixedTitle> titleColumn;
     @FXML
     private TableColumn<VideoView, String> publishedColumn;
@@ -65,8 +63,8 @@ public class ListVideosController extends SubPane {
     @FXML
     private ComboBox<String> operations;
 
-    @FXML
-    private Button runBatchOperationButton;
+    /*@FXML
+    private Button runBatchOperationButton;*/
 
     @FXML
     private HBox pagesHBox;
@@ -98,9 +96,7 @@ public class ListVideosController extends SubPane {
 
     @FXML
     private void selectSortOrder() {
-
         int index = sort.getSelectionModel().getSelectedIndex();
-        System.out.println(sortFields.get(index));
         listVideousSettings.sort = sortFields.get(index);
         fillFields();
     }
@@ -128,10 +124,8 @@ public class ListVideosController extends SubPane {
     @FXML
     private void initialize() {
         System.out.println("initialize()");
-        //CatUtils.setCellFactory(category);
         idColumn.setCellValueFactory(cellData -> cellData.getValue().idProperty().asObject());
         idColumn.setStyle("-fx-alignment: CENTER;");
-        //titleColumn.setCellValueFactory(cellData -> cellData.getValue().titleProperty());
         titleColumn.setCellValueFactory(cellData -> cellData.getValue().mixedTitleProperty());
         titleColumn.setStyle("-fx-alignment: CENTER-LEFT;");
         titleColumn.setCellValueFactory((TableColumn.CellDataFeatures<VideoView, MixedTitle> param) -> param.getValue().mixedTitleProperty());
@@ -148,8 +142,6 @@ public class ListVideosController extends SubPane {
         ratingColumn.setCellValueFactory(cellData -> cellData.getValue().ratingProperty());
         ratingColumn.setGraphic(new ImageView(new Image("rating.png")));
         ratingColumn.setStyle("-fx-alignment: CENTER;");
-        //checkedColumn.setCellValueFactory(cellData -> cellData.getValue().checkedProperty());
-        //checkedColumn.setStyle("-fx-alignment: CENTER;");
 
         checkedColumn.setCellValueFactory((TableColumn.CellDataFeatures<VideoView, Boolean> param) -> param.getValue().checkedProperty());
         checkedColumn.setCellFactory(CheckBoxTableCell.forTableColumn(checkedColumn));
@@ -179,7 +171,6 @@ public class ListVideosController extends SubPane {
         final VBox box = new VBox();
 
         MixedTitleCell() {
-            //box.setSpacing(5);
             box.getChildren().addAll(category, title);
         }
 
@@ -198,11 +189,11 @@ public class ListVideosController extends SubPane {
         }
     }
 
-    private enum Reaction {VIEW, EDIT, DELETE}
+    private enum Reaction {VIEW, EDIT, CLONE, DELETE}
 
     private class ButtonsCell extends TableCell<VideoView, Boolean> {
         int size = 30;
-        List<String> icons = Arrays.asList("view2.png", "edit.gif", "del.gif");
+        List<String> icons = Arrays.asList("view2.png", "edit.gif", "clone.png", "del.gif");
         List<Button> buttons = icons.stream().map(icon -> new Button("", new ImageView(new Image(icon)))).collect(Collectors.toList());
         final HBox box = new HBox();
 
@@ -225,16 +216,60 @@ public class ListVideosController extends SubPane {
         private void action(TableView table, Reaction reaction) {
             table.getSelectionModel().select(getTableRow().getIndex());
             int index = getTableRow().getIndex();
-            //TODO reaction on click
+            int id = VideoUtils.videous.get(index).id.get();
             switch (reaction) {
                 case VIEW:
+                    VideoView item = (VideoView) table.getItems().get(id);
+                    String url = Config.sitePath;
+                    if (item.cpuProperty().get().isEmpty()) {
+                        url += "index.php?dn=video&to=open&id=" + item.id.get();
+                    } else {
+                        url += "video/open/" + item.cpuProperty().get() + ".html";
+                    }
+                    WebUtils.openWebPage(url);
                     break;
                 case EDIT:
+                    VideoUtils.getVideo(id);
+                    if (VideoUtils.video == null) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Нет такого видео");
+                        alert.setHeaderText("Видео #" + id + " не найдено.");
+                        alert.setContentText("Ошибка не типичная, требует решения.");
+                        alert.showAndWait();
+                    } else {
+                        VideoUtils.action = VideoUtils.Actions.EDIT;
+                        VideoUtils.parseUrl(VideoUtils.video);
+                        VideoUtils.showAddVideo2();
+                    }
+                    break;
+                case CLONE:
+                    VideoUtils.getVideo(id);
+                    if (VideoUtils.video == null) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Нет такого видео");
+                        alert.setHeaderText("Видео #" + id + " не найдено.");
+                        alert.setContentText("Ошибка не типичная, требует решения.");
+                        alert.showAndWait();
+                    } else {
+                        VideoUtils.action = VideoUtils.Actions.CLONE;
+                        VideoUtils.showAddVideo();
+                    }
                     break;
                 case DELETE:
+                    VideoUtils.getVideo(id);
+                    if (VideoUtils.video == null) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR);
+                        alert.setTitle("Нет такого видео");
+                        alert.setHeaderText("Видео #" + id + " не найдено.");
+                        alert.setContentText("Ошибка не типичная, требует решения.");
+                        alert.showAndWait();
+                    } else {
+                        VideoUtils.deleteVideo(video.getId());
+                        JavaFxUtils.showVoidPanel();
+                        VideoUtils.showListVideous();
+                    }
                     break;
             }
-            System.out.println(reaction + " " + VideoUtils.videous.get(index).id.get());
         }
 
         @Override
@@ -260,8 +295,6 @@ public class ListVideosController extends SubPane {
     }
 
     private void fillFields() {
-        //TODO sort for query
-
         pagesToggleGroup.selectedToggleProperty().removeListener(pagesChangeListener);
         pagesHBox.getChildren().removeAll(pagesHBox.getChildren());
         int begin = 1;

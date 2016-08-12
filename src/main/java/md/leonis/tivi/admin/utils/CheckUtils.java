@@ -18,6 +18,11 @@ public class CheckUtils {
         if (!text.matches("^[a-zA-Z0-9_]*$")) notes.add("В строке `" + text + "` используются запрещённые символы" );
     }
 
+    public void checkCpuExist(String text) {
+        if (VideoUtils.action != VideoUtils.Actions.EDIT)
+            if (VideoUtils.checkCpuExist(text)) notes.add("CPU `" + text + "` уже используется" );
+    }
+
     public void checkAge(String text) {
         if (!text.isEmpty() && !text.chars().allMatch( Character::isDigit )) notes.add("Возраст следует указывать цифрами" );
     }

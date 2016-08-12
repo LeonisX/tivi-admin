@@ -32,6 +32,7 @@ public class MainStageController {
 
     @FXML
     private void addVideo() {
+        VideoUtils.action = VideoUtils.Actions.ADD;
         VideoUtils.showAddVideo();
     }
 

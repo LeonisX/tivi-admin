@@ -202,14 +202,18 @@ public class MultipartUtility {
         StringBuilder stringBuilder = new StringBuilder();
         BufferedReader reader;
         try {
-            reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            if (conn.getResponseCode() < 300) {
+                reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            } else {
+                reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+            }
         } catch (IOException e) {
             return e.getMessage();
         }
         String inputLine;
         try {
             while ((inputLine = reader.readLine()) != null) {
-                stringBuilder.append(inputLine);
+                stringBuilder.append(inputLine + "\n");
             }
         } catch (IOException e) {
             stringBuilder.append(e.getMessage());
@@ -220,6 +224,6 @@ public class MultipartUtility {
                 stringBuilder.append("Can't close reader...");
             }
         }
-        return stringBuilder.toString();
+        return stringBuilder.toString().trim();
     }
 }

@@ -16,6 +16,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class VideoUtils {
+    public enum Actions {ADD, EDIT, CLONE}
+
+    public static Actions action;
+
     public static List<Category> categories = new ArrayList<>();
 
     public static Video video;
@@ -27,7 +31,6 @@ public class VideoUtils {
     public static int videousCount;
 
     public static void showAddVideo() {
-        video = new Video();
         JavaFxUtils.showPane("video/AddVideo.fxml");
     }
 
@@ -55,18 +58,18 @@ public class VideoUtils {
     public static void addVideo() {
         String json = JsonUtils.gson.toJson(video);
         try {
-            String res = VideoUtils.addVideo(json, video.getImage(), null, video.getPreviousImage());
-            System.out.println("OK Add Video");
-            System.out.println(res);
+            VideoUtils.addVideo(json, video.getImage(), null, video.getPreviousImage());
+            System.out.println("OK Add/Edit/Clone Video");
         } catch (Throwable e) {
-            System.out.println("Error Add Video");
+            System.out.println("Error Add/Edit/Clone Video");
             System.out.println(e.getMessage());
             //TODO window with error
         }
     }
-    private static void parseUrl(Video video) {
+    public static void parseUrl(Video video) {
         if (video.getUrl().isEmpty())
           video.setUrl(Config.sampleVideo);
+        if (!video.getUrl().startsWith("http")) video.setUrl("https://www.youtube.com/watch?v=" + video.getUrl());
         video.setYid(getYoutubeVideoId(video.getUrl()));
     }
 
@@ -110,7 +113,7 @@ public class VideoUtils {
         List<Category> videoCategories = new ArrayList<>();
         String requestURL = Config.apiPath + "video.php?to=cat";
         try {
-            String jsonString = HttpUtils.readFromUrl(requestURL);
+            String jsonString = WebUtils.readFromUrl(requestURL);
             videoCategories = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<Category>>(){}.getType());
         } catch (IOException e) {
             System.out.println("Error in readVideoCategories");
@@ -125,7 +128,7 @@ public class VideoUtils {
         if (listVideousSettings.catId != -1) cat = "&cat=" + listVideousSettings.catId;
         String requestURL = Config.apiPath + "video.php?to=list&count=" + listVideousSettings.count +"&page=" + listVideousSettings.page + cat + "&sort=" + listVideousSettings.sort + "&order=" + listVideousSettings.order;
         try {
-            String jsonString = HttpUtils.readFromUrl(requestURL);
+            String jsonString = WebUtils.readFromUrl(requestURL);
             videos = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<Video>>(){}.getType());
         } catch (IOException e) {
             System.out.println("Error in listVideos");
@@ -138,15 +141,51 @@ public class VideoUtils {
         if (listVideousSettings.catId != -1) cat = "&cat=" + listVideousSettings.catId;
         String requestURL = Config.apiPath + "video.php?to=count" + cat;
         try {
-            String jsonString = HttpUtils.readFromUrl(requestURL);
+            String jsonString = WebUtils.readFromUrl(requestURL);
             videousCount = JsonUtils.gson.fromJson(jsonString, Count.class).getCount();
         } catch (IOException e) {
             System.out.println("Error in countVideos");
         }
     }
 
+    public static void getVideo(int id) {
+        String requestURL = Config.apiPath + "video.php?to=get&id=" + id;
+        try {
+            String jsonString = WebUtils.readFromUrl(requestURL);
+            video = JsonUtils.gson.fromJson(jsonString, Video.class);
+        } catch (IOException e) {
+            System.out.println("Error in getVideo");
+        }
+    }
+
+    public static void deleteVideo(int id) {
+        String requestURL = Config.apiPath + "video.php?to=delete&id=" + id;
+        try {
+            String jsonString = WebUtils.readFromUrl(requestURL);
+            System.out.println(jsonString);
+        } catch (IOException e) {
+            System.out.println("Error in deleteVideo");
+        }
+    }
+
+    static boolean checkCpuExist(String cpu) {
+        String requestURL = Config.apiPath + "video.php?to=getByCpu&cpu=" + cpu;
+        Video vid = null;
+        try {
+            String jsonString = WebUtils.readFromUrl(requestURL);
+            vid = JsonUtils.gson.fromJson(jsonString, Video.class);
+        } catch (IOException e) {
+            System.out.println("Error in getVideo");
+        }
+        return vid != null && vid.getCpu().equals(cpu);
+    }
+
     public static String addVideo(String json, String imageName, InputStream inputStream, String deleteName) throws IOException {
+        if (!imageName.isEmpty()) deleteName = "";
         String requestURL = Config.apiPath + "video.php?to=add";
+        if (action == Actions.EDIT) {
+            requestURL = Config.apiPath + "video.php?to=save";
+        }
         MultipartUtility multipart;
         try {
             multipart = new MultipartUtility(requestURL, "UTF-8");

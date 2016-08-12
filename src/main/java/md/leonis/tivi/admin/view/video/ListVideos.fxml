@@ -83,7 +83,7 @@
                         <TableColumn fx:id="viewsColumn" maxWidth="48.0" minWidth="48.0" prefWidth="48.0" />
                         <TableColumn fx:id="commentsColumn" maxWidth="48.0" minWidth="48.0" prefWidth="48.0" />
                         <TableColumn fx:id="ratingColumn" maxWidth="80.0" minWidth="80.0" />
-                        <TableColumn fx:id="v1Column" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" text="Управление" />
+                        <TableColumn fx:id="v1Column" maxWidth="144.0" minWidth="144.0" prefWidth="144.0" text="Управление" />
                         <TableColumn fx:id="checkedColumn" maxWidth="32.0" minWidth="32.0" prefWidth="32.0" />
                     </columns>
                      <columnResizePolicy>

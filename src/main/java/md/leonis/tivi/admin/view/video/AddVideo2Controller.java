@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.web.HTMLEditor;
 import md.leonis.tivi.admin.model.Access;
-import md.leonis.tivi.admin.model.Category;
 import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.model.YesNo;
 import md.leonis.tivi.admin.utils.*;
@@ -54,14 +53,16 @@ public class AddVideo2Controller extends SubPane {
     private ToggleButton allButton;
     @FXML
     private ToggleButton usersButton;
-    @FXML
+    /*@FXML
     private Button nextButton;
     @FXML
     private Button cancelButton;
     @FXML
     private Button reloadButton;
     @FXML
-    private Button helpButton;
+    private Button helpButton;*/
+    @FXML
+    private Button finishButton;
     @FXML
     private Label rate;
     @FXML
@@ -106,7 +107,7 @@ public class AddVideo2Controller extends SubPane {
 
     @FXML
     private void cancel() {
-        JavaFxUtils.showVoidPanel();
+        VideoUtils.showListVideous();
     }
 
     private void fillFields() {
@@ -135,6 +136,8 @@ public class AddVideo2Controller extends SubPane {
         cat = new CatUtils(VideoUtils.categories);
         category.setItems(FXCollections.observableList(cat.getCatList()));
         cat.setCategoryTextValue(category, VideoUtils.video.getCategoryId());
+
+        finishButton.setDisable(video.getImage().isEmpty());
     }
 
     @Override
@@ -153,6 +156,7 @@ public class AddVideo2Controller extends SubPane {
         if (checkAllValues()) {
             updateVideoObject();
             VideoUtils.addVideo();
+            VideoUtils.showListVideous();
         }
     }
 
@@ -161,10 +165,12 @@ public class AddVideo2Controller extends SubPane {
         checker.checkLength(title.getText(), 54);
         checker.checkLength(cpu.getText(), 54);
         checker.checkCpu(cpu.getText());
+        checker.checkCpuExist(cpu.getText());
         checker.checkAge(age.getText());
         checker.checkLength(description.getText(), 255);
         checker.checkLength(keywords.getText(), 255);
         checker.checkNumber(views.getText());
+
         // TODO tags;
         if (!checker.isOk()) JavaFxUtils.showAlert("Ошибка",
                 "Следующие данные следует поправить:",
