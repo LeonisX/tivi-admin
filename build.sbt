@@ -12,3 +12,5 @@ scalaVersion := "2.11.8"
 
 libraryDependencies += "org.jsoup" % "jsoup" % "1.9.1"
 libraryDependencies += "com.google.code.gson" % "gson" % "2.6.2"
+libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.39"
+

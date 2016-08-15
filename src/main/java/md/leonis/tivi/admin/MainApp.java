@@ -14,6 +14,7 @@ public class MainApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Config.loadProperties();
+        Config.loadProtectedProperties();
         JavaFxUtils.showMainPane(primaryStage);
     }
 }

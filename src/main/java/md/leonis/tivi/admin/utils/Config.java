@@ -12,6 +12,9 @@ public class Config {
     public static String sitePath;
     static String sampleVideo;
 
+    static String serverSecret;
+    public static String testDbPassword;
+
     static final String resourcePath = "/" + MainStageController.class.getPackage().getName().replaceAll("\\.", "/") + "/";
 
     public static void loadProperties() throws IOException {
@@ -22,6 +25,15 @@ public class Config {
             apiPath = prop.getProperty("api.path");
             sitePath = prop.getProperty("site.path");
             sampleVideo = prop.getProperty("sample.video");
+        }
+    }
+
+    public static void loadProtectedProperties() throws IOException {
+        try (InputStream inputStream = Config.class.getClassLoader().getResourceAsStream("protected.properties")) {
+            Properties prop = new Properties();
+            prop.load(inputStream);
+            serverSecret = prop.getProperty("server.secret");
+            testDbPassword = prop.getProperty("test.db.password");
         }
     }
 }

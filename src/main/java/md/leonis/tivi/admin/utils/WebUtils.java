@@ -8,7 +8,7 @@ public class WebUtils {
         URL url = new URL(urlAddress);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        conn.setRequestProperty("AuthToken", "_da token");
+        conn.setRequestProperty("AuthToken", Config.serverSecret);
         conn.setRequestProperty("User-Agent", "TiVi's admin client");
         return MultipartUtility.readResponse(conn);
     }
