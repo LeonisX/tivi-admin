@@ -53,14 +53,6 @@ public class AddVideo2Controller extends SubPane {
     private ToggleButton allButton;
     @FXML
     private ToggleButton usersButton;
-    /*@FXML
-    private Button nextButton;
-    @FXML
-    private Button cancelButton;
-    @FXML
-    private Button reloadButton;
-    @FXML
-    private Button helpButton;*/
     @FXML
     private Button finishButton;
     @FXML

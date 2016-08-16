@@ -1,15 +1,12 @@
 package md.leonis.tivi.admin.view.video;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.utils.SubPane;
 import md.leonis.tivi.admin.utils.VideoUtils;
 
 public class AddVideoController extends SubPane {
-    /*@FXML
-    private Button nextButton;*/
 
     @FXML
     private TextField urlTextField;
