@@ -1,4 +1,4 @@
-package md.leonis.tivi.admin
+package md.leonis.tivi.admin.test
 
 import java.sql.{Connection, DriverManager, ResultSet}
 
