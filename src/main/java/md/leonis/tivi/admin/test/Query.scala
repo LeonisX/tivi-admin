@@ -10,25 +10,40 @@ import md.leonis.tivi.admin.test.JdbcUtils._
 class MySqlProcess {
   var running: Boolean = true
   var threshold: Int = 100
-  var count: Int = 1
   var cache: ListBuffer[(Long, Double)] = ListBuffer[(Long, Double)]()
-  withCount(count)
   var prev: (Long, Double) = (-1, 0.0)
   var next: (Long, Double) = (-1, 0.0)
   var color: Color = Color.BLACK
   var desc: String = ""
+  var divider: Int = 100
 
   var function = () => 0.0
 
-  def process(index: Long): MySqlProcess = {
+  //TODO
+  //сделать усреднение
+  //сбрасывать кеш когда его размер = divider
+  /*def process(index: Long): MySqlProcess = {
     if (index % threshold == 0) {
       cache.clear()
-      (1 to count).foreach(i => cache.append(index -> function()))
+      cache.append(index -> function())
       prev = next
       var result = average
       val diff = result - prev._2
       if (Math.abs(diff) > prev._2 / 10) result = prev._2 + diff / 5
       next = index -> result
+    }
+    this
+  }*/
+
+  def process(index: Long): MySqlProcess = {
+    if (index % threshold == 0) {
+      prev = next
+      var result = average
+      val diff = result - prev._2
+      if (Math.abs(diff) > prev._2 / 10) result = prev._2 + diff / 5
+      next = index -> result
+      if (cache.size >= divider / threshold) cache.clear()
+      cache.append(index -> function())
     }
     this
   }
@@ -40,11 +55,6 @@ class MySqlProcess {
 
   def withThreshold(threshold: Int): MySqlProcess = {
     this.threshold = threshold
-    this
-  }
-
-  def withCount(count: Int): MySqlProcess = {
-    this.count = count
     this
   }
 
@@ -63,7 +73,7 @@ class MySqlProcess {
   }
 
   def average = {
-    cache.map(c => c._2).sum / count
+    cache.map(c => c._2).sum / cache.length
   }
 }
 
@@ -75,17 +85,18 @@ object MySqlProcess {
 case class QuerySystem(var queries: List[MySqlProcess]) {
 
   var start: Option[Start] = None
+  var divider: Int = 100
 
   def process(i: Long) {
     queries.foreach(_.process(i))
   }
 
-  def draw() {
+  def draw(record: Int) {
     if (start.isEmpty) return
     Platform runLater new Runnable() {
       def run() {
         for (i <- queries.indices) {
-          start.get.drawShapes(i, queries(i), queries(i).color)
+          start.get.drawShapes(i, queries(i), queries(i).color, record)
         }
       }
     }
@@ -95,7 +106,7 @@ case class QuerySystem(var queries: List[MySqlProcess]) {
     if (start.isEmpty) return
     Platform.runLater(new Runnable() {
       def run() {
-        start.get.drawChart()
+        start.get.drawChart(divider)
       }
     })
   }
@@ -105,16 +116,16 @@ case class QuerySystem(var queries: List[MySqlProcess]) {
     this
   }
 
+  def withDivider(divider: Int): QuerySystem = {
+    this.divider = divider
+    queries.foreach(_.divider = divider)
+    this
+  }
+
 }
 
 object Query {
   val r = scala.util.Random
-
-  //val smallSize = 1000
-  //val smallList = ListBuffer[Double]()
-  //val bigList = ListBuffer[Double]()
-
-
 
   def go(start: Start) {
 
@@ -125,7 +136,12 @@ object Query {
       MySqlProcess().withFunction(insertToVideo2).withColor(Color.RED).withThreshold(1).withDesc("INSERT INTO video_index"),
       MySqlProcess().withFunction(selectFromVideoI).withColor(Color.DARKORANGE).withThreshold(1000).withDesc("SELECT video_index tags=tag"),
       MySqlProcess().withFunction(selectFromVideoI2).withColor(Color.GREEN).withThreshold(1000).withDesc("SELECT video_index tags LIKE %%")
-    )).withApplication(start)
+    )).withApplication(start).withDivider(1000)
+
+    if (system.divider < system.queries.head.threshold) {
+      println("Divider must be >= threshold")
+      System.exit(0)
+    }
 
     executeUpdate("TRUNCATE video;")
     executeUpdate("TRUNCATE video_index;")
@@ -137,7 +153,7 @@ object Query {
       for (i <- 0 until 10000000) {
         if (!start.running) break
         system.process(i)
-        system.draw()
+        system.draw(i)
       }
     }
 

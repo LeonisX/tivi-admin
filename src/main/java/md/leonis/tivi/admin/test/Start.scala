@@ -21,8 +21,6 @@ class Start extends Application {
   override def start(primaryStage: Stage) {
     primaryStage.setTitle("Drawing Operations Test")
     val root = new Group()
-    val gc = canvas.getGraphicsContext2D
-    //drawShapes(gc)
     root.getChildren.add(canvas)
     primaryStage.setScene(new Scene(root))
 
@@ -42,7 +40,7 @@ class Start extends Application {
 
   }
 
-  def drawChart() {
+  def drawChart(divider: Int) {
     val gc = canvas.getGraphicsContext2D
 
     gc.setLineWidth(0.5)
@@ -61,7 +59,7 @@ class Start extends Application {
     gc.setLineDashes(dashes:_*)
     for (i <- 1 to 35) {
       gc.strokeLine(i * 50, canvas.getHeight - 50.5, i * 50, 0)
-      gc.fillText((i * 50).toString + "K", i * 50, canvas.getHeight - 30.5)
+      gc.fillText((i * 50 * divider / 1000).toString + "K", i * 50, canvas.getHeight - 30.5)
     }
     for (i <- 1 to 35) {
       gc.strokeLine(0, canvas.getHeight - 50.5 - i * 50, canvas.getWidth, canvas.getHeight - 50.5 - i * 50)
@@ -73,21 +71,28 @@ class Start extends Application {
     }
   }
 
-  def drawShapes(index: Int, process: MySqlProcess, color: Color) {
+  def drawShapes(index: Int, process: MySqlProcess, color: Color, record: Int) {
     val gc = canvas.getGraphicsContext2D
+    gc.setFill(Color.BLACK)
+
+    gc.translate(60, 10)
+    gc.clearRect(0,0,350,20)
+    gc.fillText(record.toString, 15, 10)
+    gc.translate(-60, - 10)
+
     gc.setLineWidth(0.5)
     gc.setStroke(color)
     gc.setFill(color)
     gc.translate(50.5, -50.5)
     //gc.getPixelWriter.setColor(ds.prev._1.toInt, (canvas.getHeight - 50 - ds.prev._2 * 1000).toInt, color)
-    val m = process.threshold * ((1001 - process.threshold) + 0.000000000000000001)
+    val m = process.divider
     gc.strokeLine(process.prev._1 / m, canvas.getHeight - process.prev._2 * 500, process.next._1 / m, canvas.getHeight - process.next._2 * 500)
     gc.translate(-50.5, 50.5)
-    gc.translate(60, index * 20 + 10)
+    gc.translate(60, index * 20 + 30)
     gc.clearRect(0,0,350,20)
     gc.fillText(f"${process.prev._2}%1.4f".toString, 15, 10)
     gc.fillText(process.desc, 70, 10)
     gc.fillRect(1,2,6,7)
-    gc.translate(-60, - index * 20 - 10)
+    gc.translate(-60, - index * 20 - 30)
   }
 }
