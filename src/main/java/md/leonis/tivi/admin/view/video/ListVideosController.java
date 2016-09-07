@@ -219,7 +219,7 @@ public class ListVideosController extends SubPane {
             int id = VideoUtils.videous.get(index).id.get();
             switch (reaction) {
                 case VIEW:
-                    VideoView item = (VideoView) table.getItems().get(id);
+                    VideoView item = (VideoView) table.getItems().get(index);
                     String url = Config.sitePath;
                     if (item.cpuProperty().get().isEmpty()) {
                         url += "index.php?dn=video&to=open&id=" + item.id.get();

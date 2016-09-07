@@ -13,7 +13,7 @@ import java.net.URLConnection;
  * Modifications by Leonis
  *
  */
-public class MultipartUtility {
+class MultipartUtility {
     private final String boundary;
     private static final String LINE_FEED = "\r\n";
     private HttpURLConnection httpConn;
@@ -26,10 +26,9 @@ public class MultipartUtility {
      * is set to multipart/form-data
      * @param requestURL requestURL
      * @param charset charset
-     * @throws IOException
+     * @throws IOException .
      */
-    public MultipartUtility(String requestURL, String charset)
-            throws IOException {
+    MultipartUtility(String requestURL, String charset) throws IOException {
         this.charset = charset;
 
         // creates a unique boundary based on time stamp
@@ -43,7 +42,7 @@ public class MultipartUtility {
         httpConn.setRequestProperty("Content-Type",
                 "multipart/form-data; boundary=" + boundary);
         httpConn.setRequestProperty("User-Agent", "CodeJava Agent");
-        httpConn.setRequestProperty("AuthToken", "_da token");
+        httpConn.setRequestProperty("AuthToken", Config.serverSecret);
         outputStream = httpConn.getOutputStream();
         writer = new PrintWriter(new OutputStreamWriter(outputStream, charset),
                 true);
@@ -54,7 +53,7 @@ public class MultipartUtility {
      * @param name field name
      * @param value field value
      */
-    public void addFormField(String name, String value) {
+    void addFormField(String name, String value) {
         writer.append("--" + boundary).append(LINE_FEED);
         writer.append("Content-Disposition: form-data; name=\"" + name + "\"")
                 .append(LINE_FEED);
@@ -69,7 +68,7 @@ public class MultipartUtility {
      * Adds a upload file section to the request
      * @param fieldName name attribute in <input type="file" name="..." />
      * @param uploadFile a File to be uploaded
-     * @throws IOException
+     * @throws IOException .
      */
     public void addFilePart(String fieldName, File uploadFile)
             throws IOException {
@@ -104,9 +103,9 @@ public class MultipartUtility {
      * Adds a upload file section to the request
      * @param fieldName name attribute in <input type="file" name="..." />
      * @param inputStream a File to be uploaded
-     * @throws IOException
+     * @throws IOException .
      */
-    public void addInputStream(String fieldName, String imageName, InputStream inputStream)
+    void addInputStream(String fieldName, String imageName, InputStream inputStream)
             throws IOException {
         //String fileName = uploadFile.getName();
         writer.append("--" + boundary).append(LINE_FEED);
@@ -139,9 +138,9 @@ public class MultipartUtility {
      * Adds a upload file section to the request
      * @param fieldName name attribute in <input type="file" name="..." />
      * @param json - json to be uploaded
-     * @throws IOException
+     * @throws IOException .
      */
-    public void addJson(String fieldName, String json)
+    void addJson(String fieldName, String json)
             throws IOException {
         writer.append("--" + boundary).append(LINE_FEED);
         writer.append(
@@ -171,8 +170,8 @@ public class MultipartUtility {
      * @param name - name of the header field
      * @param value - value of the header field
      */
-    public void addHeaderField(String name, String value) {
-        writer.append(name + ": " + value).append(LINE_FEED);
+    void addHeaderField(String name, String value) {
+        writer.append(name).append(": ").append(value).append(LINE_FEED);
         writer.flush();
     }
 
@@ -180,7 +179,7 @@ public class MultipartUtility {
      * Completes the request and receives response from the server.
      * @return a list of Strings as response in case the server returned
      * status OK, otherwise an exception is thrown.
-     * @throws IOException
+     * @throws IOException .
      */
     public String finish() throws IOException {
         String response = "";
@@ -198,7 +197,7 @@ public class MultipartUtility {
         return response;
     }
 
-    public static String readResponse(HttpURLConnection conn) {
+    static String readResponse(HttpURLConnection conn) {
         StringBuilder stringBuilder = new StringBuilder();
         BufferedReader reader;
         try {
@@ -213,7 +212,7 @@ public class MultipartUtility {
         String inputLine;
         try {
             while ((inputLine = reader.readLine()) != null) {
-                stringBuilder.append(inputLine + "\n");
+                stringBuilder.append(inputLine).append("\n");
             }
         } catch (IOException e) {
             stringBuilder.append(e.getMessage());
