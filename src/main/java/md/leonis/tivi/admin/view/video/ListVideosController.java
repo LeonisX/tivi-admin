@@ -18,6 +18,7 @@ import md.leonis.tivi.admin.utils.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -264,9 +265,17 @@ public class ListVideosController extends SubPane {
                         alert.setContentText("Ошибка не типичная, требует решения.");
                         alert.showAndWait();
                     } else {
-                        VideoUtils.deleteVideo(video.getId());
-                        JavaFxUtils.showVoidPanel();
-                        VideoUtils.showListVideous();
+                        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                        alert.setTitle("Удаление видео");
+                        alert.setHeaderText(VideoUtils.video.getTitle());
+                        alert.setContentText("Точно удалить это видео?");
+
+                        Optional<ButtonType> result = alert.showAndWait();
+                        if (result.isPresent() && (result.get() == ButtonType.OK)) {
+                            VideoUtils.deleteVideo(video.getId());
+                            JavaFxUtils.showVoidPanel();
+                            VideoUtils.showListVideous();
+                        }
                     }
                     break;
             }
