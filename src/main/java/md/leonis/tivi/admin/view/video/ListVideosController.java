@@ -77,6 +77,7 @@ public class ListVideosController extends SubPane {
     @FXML
     private void selectCategory() {
         int index = category.getSelectionModel().getSelectedIndex();
+        if (index == 0) index = -1;
         listVideousSettings.catId = index;
         VideoUtils.countVideos();
         if (index != -1) {
