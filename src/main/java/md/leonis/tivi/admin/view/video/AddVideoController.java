@@ -2,6 +2,7 @@ package md.leonis.tivi.admin.view.video;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
 import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.utils.SubPane;
 import md.leonis.tivi.admin.utils.VideoUtils;
@@ -10,6 +11,16 @@ public class AddVideoController extends SubPane {
 
     @FXML
     private TextField urlTextField;
+
+    @FXML
+    private void initialize() {
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        String text = clipboard.getString();
+        if (text.startsWith("http")) {
+            urlTextField.setText(removeTrail(text));
+            clipboard.clear();
+        }
+    }
 
     @FXML
     private void processVideo() {
@@ -26,6 +37,13 @@ public class AddVideoController extends SubPane {
             VideoUtils.video.setImage("");
         }
         VideoUtils.showAddVideo2();
+    }
+
+    private String removeTrail(String url) {
+        int index = url.indexOf("&");
+        String result = url;
+        if (index != -1) result = url.substring(0, index);
+        return result;
     }
 
 }
