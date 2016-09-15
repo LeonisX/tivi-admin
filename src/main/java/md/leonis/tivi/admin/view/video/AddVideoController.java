@@ -16,7 +16,7 @@ public class AddVideoController extends SubPane {
     private void initialize() {
         Clipboard clipboard = Clipboard.getSystemClipboard();
         String text = clipboard.getString();
-        if (text.startsWith("http")) {
+        if (text != null && text.startsWith("http")) {
             urlTextField.setText(removeTrail(text));
             clipboard.clear();
         }

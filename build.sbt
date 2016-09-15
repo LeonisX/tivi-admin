@@ -16,3 +16,5 @@ libraryDependencies += "com.google.code.gson" % "gson" % "2.6.2"
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.39"
 
 mainClass in (Compile, packageBin) := Some("md.leonis.tivi.admin.test.Start")
+
+//scalacOptions ++= Seq("-no-specialization")

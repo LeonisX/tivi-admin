@@ -56,6 +56,7 @@ public class VideoUtils {
     }
 
     public static void addVideo() {
+        if (!video.getYid().isEmpty()) video.setUrl(video.getYid());
         String json = JsonUtils.gson.toJson(video);
         try {
             VideoUtils.addVideo(json, video.getImage(), null, video.getPreviousImage());
@@ -71,7 +72,6 @@ public class VideoUtils {
         if (video.getUrl().isEmpty() && action == Actions.ADD) video.setUrl(Config.sampleVideo);
         if (!video.getUrl().startsWith("http")) video.setUrl("https://www.youtube.com/watch?v=" + video.getUrl());
         video.setYid(getYoutubeVideoId(video.getUrl()));
-        if (!video.getYid().isEmpty()) video.setUrl(video.getYid());
     }
 
     private static void parsePage(Video video) {
