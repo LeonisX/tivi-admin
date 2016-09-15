@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Name=TiVi Admin Panel
+Icon=/home/leonis/tivi-admin/src/main/resources/icon.png
+Path=/home/leonis/tivi-admin
+Exec=java -cp ./target/scala-2.11/*:./libs/*:. md.leonis.tivi.admin.MainApp
+StartupNotify=false
+StartupWMClass=md.leonis.tivi.admin.MainApp
+OnlyShowIn=Unity;
+X-UnityGenerated=true
