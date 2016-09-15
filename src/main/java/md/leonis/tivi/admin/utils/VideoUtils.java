@@ -66,11 +66,12 @@ public class VideoUtils {
             //TODO window with error
         }
     }
+
     public static void parseUrl(Video video) {
-        if (video.getUrl().isEmpty())
-          video.setUrl(Config.sampleVideo);
+        if (video.getUrl().isEmpty() && action == Actions.ADD) video.setUrl(Config.sampleVideo);
         if (!video.getUrl().startsWith("http")) video.setUrl("https://www.youtube.com/watch?v=" + video.getUrl());
         video.setYid(getYoutubeVideoId(video.getUrl()));
+        if (!video.getYid().isEmpty()) video.setUrl(video.getYid());
     }
 
     private static void parsePage(Video video) {

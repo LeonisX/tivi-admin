@@ -60,7 +60,7 @@ public class AddVideo3Controller extends SubPane {
         VideoUtils.showAddVideo2();
     }
 
-    public boolean checkAllValues() {
+    private boolean checkAllValues() {
         CheckUtils checker = new CheckUtils();
         checker.checkCpuExist(VideoUtils.video.getCpu());
         if (!checker.isOk()) JavaFxUtils.showAlert("Ошибка",
