@@ -22,7 +22,7 @@ public class JavaFxUtils {
             loader.setLocation(MainApp.class.getResource(Config.resourcePath + "MainStage.fxml"));
             rootLayout = loader.load();
             //MainStageController controller = loader.getController();
-            Scene scene = new Scene(rootLayout, 1024, 768);
+            Scene scene = new Scene(rootLayout, 1280, 960);
             primaryStage.setScene(scene);
 
             showVoidPanel();

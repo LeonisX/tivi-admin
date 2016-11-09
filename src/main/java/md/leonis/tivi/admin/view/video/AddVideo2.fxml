@@ -16,7 +16,8 @@
 <?import javafx.scene.text.Font?>
 
 <?import javafx.scene.web.HTMLEditor?>
-<GridPane alignment="CENTER" hgap="5.0" minWidth="800.0" vgap="5.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.video.AddVideo2Controller">
+
+<GridPane alignment="CENTER" hgap="5.0" minWidth="1000.0" vgap="5.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.video.AddVideo2Controller">
     <columnConstraints>
         <ColumnConstraints hgrow="SOMETIMES" maxWidth="170.0" minWidth="170.0" prefWidth="170.0" />
       <ColumnConstraints hgrow="SOMETIMES" />
@@ -32,7 +33,7 @@
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        <RowConstraints minHeight="200.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        <RowConstraints minHeight="200.0" prefHeight="350.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
