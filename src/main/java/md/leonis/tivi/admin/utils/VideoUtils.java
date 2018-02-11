@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class VideoUtils {
+
     public enum Actions {ADD, EDIT, CLONE}
 
     public static Actions action;
@@ -67,6 +68,11 @@ public class VideoUtils {
             //TODO window with error
         }
     }
+
+    public static void auditBooks() {
+        JavaFxUtils.showPane("media/Audit.fxml");
+    }
+
 
     public static void parseUrl(Video video) {
         if (video.getUrl().isEmpty() && action == Actions.ADD) video.setUrl(Config.sampleVideo);
