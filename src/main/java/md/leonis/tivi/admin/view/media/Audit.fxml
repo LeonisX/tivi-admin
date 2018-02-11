@@ -57,42 +57,42 @@
                       </HBox>
                       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="4">
                           <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Label" />
+                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Языки" />
                           </children>
                       </HBox>
                       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="5">
                           <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Label" />
+                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Теги у имеющихся книг" />
                           </children>
                       </HBox>
                       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="6">
                           <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Label" />
+                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Совпадающие названия и имена файлов" />
                           </children>
                       </HBox>
                       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="7">
                           <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Label" />
+                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Издатели у имеющихся книг" />
                           </children>
                       </HBox>
                       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="8">
                           <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Label" />
+                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="ISBN" />
                           </children>
                       </HBox>
                       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="9">
                           <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Label" />
+                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Серии" />
                           </children>
                       </HBox>
                         <Button fx:id="filesOwnButton" mnemonicParsing="false" onAction="#checkFilesOwn" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <Button fx:id="scannerLinksButton" mnemonicParsing="false" onAction="#checkScannerLinks" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                        <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                        <Button mnemonicParsing="false" onAction="#checkLanguages" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Button mnemonicParsing="false" onAction="#checkOwnTags" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <Button mnemonicParsing="false" onAction="#checkTitleFileNames" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                        <Button mnemonicParsing="false" onAction="#checkOwnPublishers" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                        <Button mnemonicParsing="false" onAction="#checkIsbns" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                        <Button mnemonicParsing="false" onAction="#checkSeriesTitles" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="9" />
                   </children>
               </GridPane>
          </children>

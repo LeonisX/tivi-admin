@@ -31,10 +31,6 @@ public class MediaUtils {
 
     public static List<Book> books;
 
-    private static double value(int value) {
-        return value/8.0;
-    }
-
     public static void readBooks(AuditController auditController) {
         ProgressForm pForm = new ProgressForm();
 
