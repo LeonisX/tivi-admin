@@ -9,7 +9,7 @@ import lombok.ToString;
 @Setter
 @AllArgsConstructor
 @ToString
-public class Category {
+public class BookCategory {
     private Integer catid;
     private Integer parentid = 0;
     private String catcpu;
@@ -18,7 +18,7 @@ public class Category {
     private Integer posit = 0;
     private String icon;
     private Access access = Access.all;
-    private String sort = "newsid";
+    private String sort = "downid";
     private Order ord = Order.asc;
     private YesNo rss = YesNo.yes;
     private Integer total = 0;

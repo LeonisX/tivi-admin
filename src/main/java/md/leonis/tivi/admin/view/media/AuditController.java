@@ -5,10 +5,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import md.leonis.tivi.admin.utils.MediaUtils;
+import md.leonis.tivi.admin.model.Category;
+import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.SubPane;
 
-import static md.leonis.tivi.admin.utils.MediaUtils.books;
+import java.util.List;
+
+import static md.leonis.tivi.admin.utils.BookUtils.books;
 
 public class AuditController extends SubPane {
 
@@ -21,7 +24,7 @@ public class AuditController extends SubPane {
 
     @FXML
     private void initialize() {
-        MediaUtils.readBooks(this);
+        BookUtils.readBooks(this);
         System.out.println("initialize()");
     }
 
@@ -39,6 +42,13 @@ public class AuditController extends SubPane {
         books.stream().filter(book -> book.getDataList() != null && book.getOwn() != null)
                 .filter(book -> !book.getDataList().isEmpty() && !book.getOwn())
                 .forEach(book -> addLog(book.getTitle()));
+
+        BookUtils.countVideos();
+        addLog(BookUtils.booksCount + "");
+        BookUtils.listVideos();
+        BookUtils.siteBooks.forEach(b -> addLog(b.mixedTitleProperty().toString()));
+        List<Category> categories = BookUtils.readCategories();
+        System.out.println(categories);
     }
 
     public void checkScannerLinks() {

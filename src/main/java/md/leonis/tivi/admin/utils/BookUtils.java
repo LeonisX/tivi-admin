@@ -1,5 +1,6 @@
 package md.leonis.tivi.admin.utils;
 
+import com.google.gson.reflect.TypeToken;
 import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -12,10 +13,13 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import md.leonis.tivi.admin.model.*;
 import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.model.media.links.*;
 import md.leonis.tivi.admin.view.media.AuditController;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,9 +31,136 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
-public class MediaUtils {
+public class BookUtils {
 
     public static List<Book> books;
+
+    public enum Actions {ADD, EDIT, CLONE}
+
+    public static BookUtils.Actions action;
+
+    public static List<BookCategory> categories = new ArrayList<>();
+
+    public static Video book;
+
+    public static List<VideoView> siteBooks;
+
+    public static ListVideousSettings listBooksSettings = new ListVideousSettings();
+
+    public static int booksCount;
+
+
+    public static void auditBooks() {
+        JavaFxUtils.showPane("media/Audit.fxml");
+    }
+
+    public static void addVideo() {
+        if (!book.getYid().isEmpty()) book.setUrl(book.getYid());
+        String json = JsonUtils.gson.toJson(book);
+        try {
+            addVideo(json, book.getImage(), null, book.getPreviousImage());
+            System.out.println("OK Add/Edit/Clone Video");
+        } catch (Throwable e) {
+            System.out.println("Error Add/Edit/Clone Video");
+            System.out.println(e.getMessage());
+            //TODO window with error
+        }
+    }
+
+    public static List<BookCategory> readCategories() {
+        List<BookCategory> bookCategories = new ArrayList<>();
+        String requestURL = Config.apiPath + "media.php?to=cat";
+        try {
+            String jsonString = WebUtils.readFromUrl(requestURL);
+            bookCategories = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<BookCategory>>(){}.getType());
+        } catch (IOException e) {
+            System.out.println("Error in readVideoCategories");
+        }
+        return bookCategories;
+    }
+
+    public static void listBooks() {
+        //$count,$page,$cat,$sort,$order;
+        List<Video> videos = new ArrayList<>();
+        String cat = "";
+        if (listBooksSettings.catId != -1) cat = "&cat=" + listBooksSettings.catId;
+        String requestURL = Config.apiPath + "media.php?to=list&count=" + listBooksSettings.count +"&page=" + listBooksSettings.page + cat + "&sort=" + listBooksSettings.sort + "&order=" + listBooksSettings.order;
+        try {
+            String jsonString = WebUtils.readFromUrl(requestURL);
+            videos = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<Video>>(){}.getType());
+        } catch (IOException e) {
+            System.out.println("Error in listVideos");
+        }
+        siteBooks = videos.stream().map(VideoView::new).collect(Collectors.toList());
+    }
+
+    public static void countVideos() {
+        String cat = "";
+        if (listBooksSettings.catId != -1) cat = "&cat=" + listBooksSettings.catId;
+        String requestURL = Config.apiPath + "media.php?to=count" + cat;
+        try {
+            String jsonString = WebUtils.readFromUrl(requestURL);
+            booksCount = JsonUtils.gson.fromJson(jsonString, Count.class).getCount();
+        } catch (IOException e) {
+            System.out.println("Error in countVideos");
+        }
+    }
+
+    public static void getVideo(int id) {
+        String requestURL = Config.apiPath + "media.php?to=get&id=" + id;
+        try {
+            String jsonString = WebUtils.readFromUrl(requestURL);
+            book = JsonUtils.gson.fromJson(jsonString, Video.class);
+        } catch (IOException e) {
+            System.out.println("Error in getVideo");
+        }
+    }
+
+    public static void deleteVideo(int id) {
+        String requestURL = Config.apiPath + "media.php?to=delete&id=" + id;
+        try {
+            String jsonString = WebUtils.readFromUrl(requestURL);
+            System.out.println(jsonString);
+        } catch (IOException e) {
+            System.out.println("Error in deleteVideo");
+        }
+    }
+
+    static boolean checkCpuExist(String cpu) {
+        String requestURL = Config.apiPath + "media.php?to=getByCpu&cpu=" + cpu;
+        Video vid = null;
+        try {
+            String jsonString = WebUtils.readFromUrl(requestURL);
+            vid = JsonUtils.gson.fromJson(jsonString, Video.class);
+        } catch (IOException e) {
+            System.out.println("Error in getVideo");
+        }
+        return vid != null && vid.getCpu().equals(cpu);
+    }
+
+    public static String addVideo(String json, String imageName, InputStream inputStream, String deleteName) throws IOException {
+        if (!imageName.isEmpty()) deleteName = "";
+        String requestURL = Config.apiPath + "media.php?to=add";
+        if (action == BookUtils.Actions.EDIT) {
+            requestURL = Config.apiPath + "media.php?to=save";
+        }
+        MultipartUtility multipart;
+        try {
+            multipart = new MultipartUtility(requestURL, "UTF-8");
+            multipart.addHeaderField("User-Agent", "TiVi's admin client");
+            if (!deleteName.isEmpty()) {
+                multipart.addFormField("delete", deleteName);
+            }
+            multipart.addJson("json", json);
+            if (inputStream != null) {
+                multipart.addInputStream("image", imageName, inputStream);
+            }
+        } catch (IOException ex) {
+            return ex.getMessage();
+        }
+        return multipart.finish();
+    }
+
 
     public static void readBooks(AuditController auditController) {
         ProgressForm pForm = new ProgressForm();

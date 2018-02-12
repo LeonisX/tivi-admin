@@ -69,11 +69,6 @@ public class VideoUtils {
         }
     }
 
-    public static void auditBooks() {
-        JavaFxUtils.showPane("media/Audit.fxml");
-    }
-
-
     public static void parseUrl(Video video) {
         if (video.getUrl().isEmpty() && action == Actions.ADD) video.setUrl(Config.sampleVideo);
         if (!video.getUrl().startsWith("http")) video.setUrl("https://www.youtube.com/watch?v=" + video.getUrl());
