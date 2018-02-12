@@ -5,7 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import md.leonis.tivi.admin.model.Category;
+import md.leonis.tivi.admin.model.BookCategory;
 import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.SubPane;
 
@@ -45,9 +45,9 @@ public class AuditController extends SubPane {
 
         BookUtils.countVideos();
         addLog(BookUtils.booksCount + "");
-        BookUtils.listVideos();
+        BookUtils.listBooks();
         BookUtils.siteBooks.forEach(b -> addLog(b.mixedTitleProperty().toString()));
-        List<Category> categories = BookUtils.readCategories();
+        List<BookCategory> categories = BookUtils.readCategories();
         System.out.println(categories);
     }
 
