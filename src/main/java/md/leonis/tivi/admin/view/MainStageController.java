@@ -32,7 +32,7 @@ public class MainStageController {
 
     @FXML
     private void initialize() {
-        accordion.setExpandedPane(accordion.getPanes().get(1));
+        accordion.setExpandedPane(accordion.getPanes().get(2));
     }
 
     @FXML

@@ -85,6 +85,11 @@
                               <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Серии" />
                           </children>
                       </HBox>
+                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="10">
+                          <children>
+                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Категории" />
+                          </children>
+                      </HBox>
                         <Button fx:id="filesOwnButton" mnemonicParsing="false" onAction="#checkFilesOwn" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                         <Button fx:id="scannerLinksButton" mnemonicParsing="false" onAction="#checkScannerLinks" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                         <Button mnemonicParsing="false" onAction="#checkLanguages" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="4" />
@@ -93,6 +98,7 @@
                         <Button mnemonicParsing="false" onAction="#checkOwnPublishers" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="7" />
                         <Button mnemonicParsing="false" onAction="#checkIsbns" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="8" />
                         <Button mnemonicParsing="false" onAction="#checkSeriesTitles" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                      <Button mnemonicParsing="false" onAction="#checkCategories" prefHeight="25.0" prefWidth="97.0" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="10" />
                   </children>
               </GridPane>
          </children>

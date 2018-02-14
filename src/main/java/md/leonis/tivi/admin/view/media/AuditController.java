@@ -1,16 +1,20 @@
 package md.leonis.tivi.admin.view.media;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import md.leonis.tivi.admin.model.BookCategory;
+import md.leonis.tivi.admin.model.media.Book;
 import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.SubPane;
 
 import java.util.List;
+import java.util.Objects;
 
+import static java.util.stream.Collectors.toList;
 import static md.leonis.tivi.admin.utils.BookUtils.books;
 
 public class AuditController extends SubPane {
@@ -42,13 +46,6 @@ public class AuditController extends SubPane {
         books.stream().filter(book -> book.getDataList() != null && book.getOwn() != null)
                 .filter(book -> !book.getDataList().isEmpty() && !book.getOwn())
                 .forEach(book -> addLog(book.getTitle()));
-
-        BookUtils.countVideos();
-        addLog(BookUtils.booksCount + "");
-        BookUtils.listBooks();
-        BookUtils.siteBooks.forEach(b -> addLog(b.mixedTitleProperty().toString()));
-        List<BookCategory> categories = BookUtils.readCategories();
-        System.out.println(categories);
     }
 
     public void checkScannerLinks() {
@@ -114,5 +111,38 @@ public class AuditController extends SubPane {
 
     public void updateStatus(boolean status) {
         gridPane.setDisable(!status);
+    }
+
+    public void checkCategories(ActionEvent actionEvent) {
+        BookUtils.addCategory(0, "test");
+        BookUtils.countVideos();
+        addLog(BookUtils.booksCount + "");
+        BookUtils.listBooks();
+        //BookUtils.siteBooks.forEach(b -> addLog(b.mixedTitleProperty().toString()));
+        addLog(BookUtils.siteBooks.size() + "");
+        List<BookCategory> categories = BookUtils.readCategories();
+        //System.out.println(categories);
+        //TODO computers
+        //TODO manuals, solutions, ...
+        List<String> siteCatNames = categories.stream().map(BookCategory::getCatcpu).collect(toList());
+        List<String> catNames = books.stream().map(this::catName).filter(Objects::nonNull).distinct().collect(toList());
+        catNames = catNames.stream().filter(cat -> !siteCatNames.contains(cat)).collect(toList());
+        catNames.forEach(this::addLog);
+    }
+
+    // solutions, manuals???, docs, programming, ???
+    // journals -> separate category, gd -> gd
+    private String catName(Book book) {
+        if (book.getTags() == null || book.getTags().isEmpty()) {
+            return null;
+        }
+        String catName = book.getTags().size() > 1 ? "consoles" : book.getTags().get(0).getName();
+        // TODO
+        switch (book.getType()) {
+            case "book": return catName;
+            default:
+                return  catName;
+        }
+
     }
 }

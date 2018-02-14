@@ -37,6 +37,19 @@ public class BookUtils {
 
     public enum Actions {ADD, EDIT, CLONE}
 
+    public enum Sort {
+        PUBLIC("public"), ID("newsid"), TITLE("title"), RATING("hits");
+        private String value;
+
+        Sort(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
     public static BookUtils.Actions action;
 
     public static List<BookCategory> categories = new ArrayList<>();
@@ -67,6 +80,59 @@ public class BookUtils {
         }
     }
 
+    public static void addCategory(int parentId, String catCpu) {
+        BookCategory bookCategory = new BookCategory(null, parentId, catCpu, getCatName(catCpu), getCatDescription(catCpu),
+                0, getIcon(catCpu), Access.all, Sort.ID.getValue(), Order.ASC.getValue(), YesNo.yes, 0);
+        String json = JsonUtils.gson.toJson(bookCategory);
+        try {
+            //"images/video/thumbs/" + VideoUtils.video.getCpu() + ".png"
+            String s = addCategory(json, "", null, "");
+            System.out.println(s);
+            System.out.println("OK Add/Edit/Clone Category");
+        } catch (Throwable e) {
+            System.out.println("Error Add/Edit/Clone Category");
+            System.out.println(e.getMessage());
+            //TODO window with error
+        }
+    }
+
+    private static String getCatName(String catCpu) {
+        //TODO
+        return catCpu;
+    }
+
+    private static String getCatDescription(String catCpu) {
+        //TODO
+        return catCpu;
+    }
+
+    public static String addCategory(String json, String imageName, InputStream inputStream, String deleteName) throws IOException {
+        if (!imageName.isEmpty()) deleteName = "";
+        String requestURL = Config.apiPath + "media.php?to=catadd";
+        /*if (action == BookUtils.Actions.EDIT) {
+            requestURL = Config.apiPath + "media.php?to=catsave";
+        }*/
+        MultipartUtility multipart;
+        try {
+            multipart = new MultipartUtility(requestURL, "UTF-8");
+            multipart.addHeaderField("User-Agent", "TiVi's admin client");
+            /*if (!deleteName.isEmpty()) {
+                multipart.addFormField("delete", deleteName);
+            }*/
+            multipart.addJson("json", json);
+            /*if (inputStream != null) {
+                multipart.addInputStream("image", imageName, inputStream);
+            }*/
+        } catch (IOException ex) {
+            return ex.getMessage();
+        }
+        return multipart.finish();
+    }
+
+    private static String getIcon(String catCpu) {
+        return String.format("images/systems/%s.png", catCpu);
+    }
+
     public static List<BookCategory> readCategories() {
         List<BookCategory> bookCategories = new ArrayList<>();
         String requestURL = Config.apiPath + "media.php?to=cat";
@@ -84,7 +150,7 @@ public class BookUtils {
         List<Video> videos = new ArrayList<>();
         String cat = "";
         if (listBooksSettings.catId != -1) cat = "&cat=" + listBooksSettings.catId;
-        String requestURL = Config.apiPath + "media.php?to=list&count=" + listBooksSettings.count +"&page=" + listBooksSettings.page + cat + "&sort=" + listBooksSettings.sort + "&order=" + listBooksSettings.order;
+        String requestURL = Config.apiPath + "media.php?to=list&count=" + /*listBooksSettings.count*/ Integer.MAX_VALUE +"&page=" + listBooksSettings.page + cat + "&sort=" + listBooksSettings.sort + "&order=" + listBooksSettings.order;
         try {
             String jsonString = WebUtils.readFromUrl(requestURL);
             videos = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<Video>>(){}.getType());

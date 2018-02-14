@@ -19,7 +19,7 @@ public class BookCategory {
     private String icon;
     private Access access = Access.all;
     private String sort = "downid";
-    private Order ord = Order.asc;
+    private String ord = Order.ASC.getValue();
     private YesNo rss = YesNo.yes;
     private Integer total = 0;
 }
