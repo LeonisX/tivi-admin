@@ -29,8 +29,8 @@ public class HTMLEditorCustomizationSample extends Application {
 
         // hide controls we don't need.
         hideImageNodesMatching(htmlEditor, Pattern.compile(".*(Cut|Copy|Paste).*"), 0);
-        Node seperator = htmlEditor.lookup(".separator");
-        seperator.setVisible(false); seperator.setManaged(false);
+        Node separator = htmlEditor.lookup(".separator");
+        separator.setVisible(false); separator.setManaged(false);
 
         // modify font selections.
         int i = 0;

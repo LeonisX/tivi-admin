@@ -174,7 +174,7 @@ class MediaControl extends BorderPane {
                     if (!timeSlider.isDisabled() && duration.greaterThan(Duration.ZERO)
                             && !timeSlider.isValueChanging()) {
                         timeSlider
-                                .setValue(currentTime.divide(duration).toMillis() * 100.0);
+                                .setValue(currentTime.divide(duration.toMillis()).toMillis() * 100.0);
                     }
                     if (!volumeSlider.isValueChanging()) {
                         volumeSlider.setValue((int) Math.round(mp.getVolume() * 100));

@@ -13,7 +13,6 @@ public class Config {
     static String sampleVideo;
 
     static String serverSecret;
-    public static String testDbPassword;
 
     static final String resourcePath = "/" + MainStageController.class.getPackage().getName().replaceAll("\\.", "/") + "/";
 
@@ -22,8 +21,6 @@ public class Config {
             if (inputStream == null) throw new FileNotFoundException("Property file not found...");
             Properties prop = new Properties();
             prop.load(inputStream);
-            apiPath = prop.getProperty("api.path");
-            sitePath = prop.getProperty("site.path");
             sampleVideo = prop.getProperty("sample.video");
         }
     }
@@ -32,8 +29,10 @@ public class Config {
         try (InputStream inputStream = Config.class.getClassLoader().getResourceAsStream("protected.properties")) {
             Properties prop = new Properties();
             prop.load(inputStream);
+            String apiDir = prop.getProperty("api.dir");
+            sitePath = prop.getProperty("site.path") + "/";
             serverSecret = prop.getProperty("server.secret");
-            testDbPassword = prop.getProperty("test.db.password");
+            apiPath = sitePath + apiDir;
         }
     }
 }

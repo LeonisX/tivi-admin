@@ -48,9 +48,9 @@
 `программирование и ремонт`, возможно `журналы`, что-то ещё.
 solutions, manuals???, docs, programming, ???
 
-//TODO cat - add/update
+TODO cat - add/update
 TODO dump (backup)
-TODO compare with dump
+TODO compare with dump, show diff
 TODO restore
 
 Итак, задачи:

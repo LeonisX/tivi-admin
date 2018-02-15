@@ -10,6 +10,7 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -386,7 +387,10 @@ public class BookUtils {
         });
 
         task.setOnFailed(event -> {
-            pForm.label.setText(event.getSource().getException().getMessage());
+            final Text text = new Text(event.getSource().getException().getMessage());
+            pForm.label.setText(text.getText());
+
+            pForm.dialogStage.setWidth(text.getLayoutBounds().getWidth() + 10);
             auditController.updateStatus(false);
         });
 
@@ -402,6 +406,7 @@ public class BookUtils {
         private final ProgressBar pb = new ProgressBar();
         private final ProgressIndicator pin = new ProgressIndicator();
         private final Label label = new Label();
+        private final Scene scene;
 
         ProgressForm() {
             dialogStage = new Stage();
@@ -414,6 +419,7 @@ public class BookUtils {
             pin.setProgress(-1F);
 
             label.setTextFill(Color.RED);
+            //label.setMinWidth(500);
 
             final HBox hb = new HBox();
             hb.setSpacing(5);
@@ -426,7 +432,7 @@ public class BookUtils {
 
             vBox.getChildren().addAll(hb, label);
 
-            Scene scene = new Scene(vBox);
+            scene = new Scene(vBox);
             dialogStage.setScene(scene);
         }
 
@@ -451,6 +457,7 @@ public class BookUtils {
             conn = DriverManager.getConnection(url);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            throw new RuntimeException(e);
         }
         return conn;
     }
@@ -486,6 +493,7 @@ public class BookUtils {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            throw new RuntimeException(e);
         }
         return books;
     }

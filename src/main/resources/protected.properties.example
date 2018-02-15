@@ -1,3 +1,5 @@
-server.secret=
+site.path=http://tv-games.ru
 
-test.db.password=
+api.dir=api
+
+server.secret=

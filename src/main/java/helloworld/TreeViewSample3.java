@@ -1,28 +1,21 @@
 package helloworld;
 
-import java.util.Arrays;
-import java.util.List;
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.layout.VBox;
+import java.util.Arrays;
+import java.util.List;
 
 public class TreeViewSample3 extends Application {
 
@@ -30,7 +23,7 @@ public class TreeViewSample3 extends Application {
             new ImageView(new Image(getClass().getResourceAsStream("root.png")));
     private final Image depIcon =
             new Image(getClass().getResourceAsStream("department.png"));
-    List<Employee> employees = Arrays.<Employee>asList(
+    private List<Employee> employees = Arrays.asList(
             new Employee("Ethan Williams", "Sales Department"),
             new Employee("Emma Jones", "Sales Department"),
             new Employee("Michael Brown", "Sales Department"),
@@ -42,8 +35,8 @@ public class TreeViewSample3 extends Application {
             new Employee("Gregory Smith", "IT Support"),
             new Employee("Jacob Smith", "Accounts Department"),
             new Employee("Isabella Johnson", "Accounts Department"));
-    TreeItem<String> rootNode =
-            new TreeItem<String>("MyCompany Human Resources", rootIcon);
+    private TreeItem<String> rootNode =
+            new TreeItem<>("MyCompany Human Resources", rootIcon);
 
     public static void main(String[] args) {
         Application.launch(args);
@@ -53,7 +46,7 @@ public class TreeViewSample3 extends Application {
     public void start(Stage stage) {
         rootNode.setExpanded(true);
         for (Employee employee : employees) {
-            TreeItem<String> empLeaf = new TreeItem<String>(employee.getName());
+            TreeItem<String> empLeaf = new TreeItem<>(employee.getName());
             boolean found = false;
             for (TreeItem<String> depNode : rootNode.getChildren()) {
                 if (depNode.getValue().contentEquals(employee.getDepartment())){
@@ -63,7 +56,7 @@ public class TreeViewSample3 extends Application {
                 }
             }
             if (!found) {
-                TreeItem depNode = new TreeItem(employee.getDepartment(),
+                TreeItem<String> depNode = new TreeItem<>(employee.getDepartment(),
                         new ImageView(depIcon)
                 );
                 rootNode.getChildren().add(depNode);
@@ -76,14 +69,9 @@ public class TreeViewSample3 extends Application {
         final Scene scene = new Scene(box, 400, 300);
         scene.setFill(Color.LIGHTGRAY);
 
-        TreeView<String> treeView = new TreeView<String>(rootNode);
+        TreeView<String> treeView = new TreeView<>(rootNode);
         treeView.setEditable(true);
-        treeView.setCellFactory(new Callback<TreeView<String>,TreeCell<String>>(){
-            @Override
-            public TreeCell<String> call(TreeView<String> p) {
-                return new TextFieldTreeCellImpl();
-            }
-        });
+        treeView.setCellFactory(p -> new TextFieldTreeCellImpl());
 
         box.getChildren().add(treeView);
         stage.setScene(scene);
@@ -95,13 +83,13 @@ public class TreeViewSample3 extends Application {
         private TextField textField;
         private ContextMenu addMenu = new ContextMenu();
 
-        public TextFieldTreeCellImpl() {
+        TextFieldTreeCellImpl() {
             MenuItem addMenuItem = new MenuItem("Add Employee");
             addMenu.getItems().add(addMenuItem);
             addMenuItem.setOnAction(new EventHandler() {
                 public void handle(Event t) {
-                    TreeItem newEmployee =
-                            new TreeItem<String>("New Employee");
+                    TreeItem<String> newEmployee =
+                            new TreeItem<>("New Employee");
                     getTreeItem().getChildren().add(newEmployee);
                 }
             });
@@ -123,7 +111,7 @@ public class TreeViewSample3 extends Application {
         public void cancelEdit() {
             super.cancelEdit();
 
-            setText((String) getItem());
+            setText(getItem());
             setGraphic(getTreeItem().getGraphic());
         }
 
@@ -155,22 +143,18 @@ public class TreeViewSample3 extends Application {
 
         private void createTextField() {
             textField = new TextField(getString());
-            textField.setOnKeyReleased(new EventHandler<KeyEvent>() {
-
-                @Override
-                public void handle(KeyEvent t) {
-                    if (t.getCode() == KeyCode.ENTER) {
-                        commitEdit(textField.getText());
-                    } else if (t.getCode() == KeyCode.ESCAPE) {
-                        cancelEdit();
-                    }
+            textField.setOnKeyReleased(t -> {
+                if (t.getCode() == KeyCode.ENTER) {
+                    commitEdit(textField.getText());
+                } else if (t.getCode() == KeyCode.ESCAPE) {
+                    cancelEdit();
                 }
             });
 
         }
 
         private String getString() {
-            return getItem() == null ? "" : getItem().toString();
+            return getItem() == null ? "" : getItem();
         }
     }
 
@@ -192,7 +176,7 @@ public class TreeViewSample3 extends Application {
             name.set(fName);
         }
 
-        public String getDepartment() {
+        String getDepartment() {
             return department.get();
         }
 
