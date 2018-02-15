@@ -49,6 +49,9 @@
 solutions, manuals???, docs, programming, ???
 
 //TODO cat - add/update
+TODO dump (backup)
+TODO compare with dump
+TODO restore
 
 Итак, задачи:
 
