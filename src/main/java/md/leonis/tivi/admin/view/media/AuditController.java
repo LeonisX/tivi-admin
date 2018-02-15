@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
-import static md.leonis.tivi.admin.utils.BookUtils.books;
+import static md.leonis.tivi.admin.utils.BookUtils.calibreBooks;
 
 public class AuditController extends SubPane {
 
@@ -43,7 +43,7 @@ public class AuditController extends SubPane {
 
     public void checkFilesOwn() {
         auditLog.clear();
-        books.stream().filter(book -> book.getDataList() != null && book.getOwn() != null)
+        calibreBooks.stream().filter(book -> book.getDataList() != null && book.getOwn() != null)
                 .filter(book -> !book.getDataList().isEmpty() && !book.getOwn())
                 .forEach(book -> addLog(book.getTitle()));
     }
@@ -51,10 +51,10 @@ public class AuditController extends SubPane {
     public void checkScannerLinks() {
         auditLog.clear();
         String name = scannerName.getText().toLowerCase();
-        books.stream().filter(book -> book.getScannedBy() != null && book.getSource() == null)
+        calibreBooks.stream().filter(book -> book.getScannedBy() != null && book.getSource() == null)
                 .filter(book -> !book.getScannedBy().toLowerCase().contains(name))
                 .forEach(book -> addLog(book.getTitle()));
-        books.stream().filter(book -> book.getPostprocessing() != null && book.getSource() == null)
+        calibreBooks.stream().filter(book -> book.getPostprocessing() != null && book.getSource() == null)
                 .filter(book -> !book.getPostprocessing().toLowerCase().contains(name))
                 .forEach(book -> addLog(book.getTitle()));
         //TODO show fix button
@@ -62,21 +62,21 @@ public class AuditController extends SubPane {
 
     public void checkLanguages() {
         auditLog.clear();
-        books.stream().filter(book -> book.getLanguages() != null)
+        calibreBooks.stream().filter(book -> book.getLanguages() != null)
                 .filter(book -> book.getLanguages().isEmpty())
                 .forEach(book -> System.out.println("   - " + book.getTitle()));
     }
 
     public void checkOwnTags() {
         auditLog.clear();
-        books.stream().filter(book -> book.getOwn() != null)
+        calibreBooks.stream().filter(book -> book.getOwn() != null)
                 .filter(book -> book.getTags() == null)
                 .forEach(book -> System.out.println("   - " + book.getTitle()));
     }
 
     public void checkTitleFileNames() {
         auditLog.clear();
-        books.stream().filter(book -> book.getFileName() != null)
+        calibreBooks.stream().filter(book -> book.getFileName() != null)
                 .filter(book -> book.getFileName().equals(book.getTitle()))
                 .forEach(book -> System.out.println("   - " + book.getTitle()));
         //TODO fix
@@ -84,21 +84,21 @@ public class AuditController extends SubPane {
 
     public void checkOwnPublishers() {
         auditLog.clear();
-        books.stream().filter(book -> book.getOwn() != null)
+        calibreBooks.stream().filter(book -> book.getOwn() != null)
                 .filter(book -> book.getPublisher() == null && book.getOwn())
                 .forEach(book -> System.out.println("   - " + book.getTitle()));
     }
 
     public void checkIsbns() {
         auditLog.clear();
-        books.stream().filter(book -> book.getIsbn() != null)
+        calibreBooks.stream().filter(book -> book.getIsbn() != null)
                 .filter(book -> book.getIdentifiers().isEmpty())
                 .forEach(book -> System.out.println("   - " + book.getTitle()));
     }
 
     public void checkSeriesTitles() {
         auditLog.clear();
-        books.stream().filter(book -> book.getSeries() != null)
+        calibreBooks.stream().filter(book -> book.getSeries() != null)
                 .sorted((b1, b2) -> {
                     int result = b1.getSeries().getSort().compareTo(b2.getSeries().getSort());
                     if (result != 0) {
@@ -125,7 +125,7 @@ public class AuditController extends SubPane {
         //TODO computers
         //TODO manuals, solutions, ...
         List<String> siteCatNames = categories.stream().map(BookCategory::getCatcpu).collect(toList());
-        List<String> catNames = books.stream().map(this::catName).filter(Objects::nonNull).distinct().collect(toList());
+        List<String> catNames = calibreBooks.stream().map(this::catName).filter(Objects::nonNull).distinct().collect(toList());
         catNames = catNames.stream().filter(cat -> !siteCatNames.contains(cat)).collect(toList());
         catNames.forEach(this::addLog);
     }

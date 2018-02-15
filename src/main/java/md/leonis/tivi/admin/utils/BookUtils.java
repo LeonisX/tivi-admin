@@ -34,28 +34,13 @@ import static java.util.stream.Collectors.toList;
 
 public class BookUtils {
 
-    public static List<Book> books;
+    public static List<Book> calibreBooks;
 
-    public enum Actions {ADD, EDIT, CLONE}
-
-    public enum Sort {
-        PUBLIC("public"), ID("newsid"), TITLE("title"), RATING("hits");
-        private String value;
-
-        Sort(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
-
-    public static BookUtils.Actions action;
+    public static Actions action;
 
     public static List<BookCategory> categories = new ArrayList<>();
 
-    public static Video book;
+    public static Book book;
 
     public static List<VideoView> siteBooks;
 
@@ -69,7 +54,6 @@ public class BookUtils {
     }
 
     public static void addVideo() {
-        if (!book.getYid().isEmpty()) book.setUrl(book.getYid());
         String json = JsonUtils.gson.toJson(book);
         try {
             addVideo(json, book.getImage(), null, book.getPreviousImage());
@@ -173,17 +157,18 @@ public class BookUtils {
         }
     }
 
-    public static void getVideo(int id) {
+    public static Book getBook(int id) {
         String requestURL = Config.apiPath + "media.php?to=get&id=" + id;
         try {
             String jsonString = WebUtils.readFromUrl(requestURL);
-            book = JsonUtils.gson.fromJson(jsonString, Video.class);
+            return JsonUtils.gson.fromJson(jsonString, Book.class);
         } catch (IOException e) {
             System.out.println("Error in getVideo");
         }
+        return null;
     }
 
-    public static void deleteVideo(int id) {
+    public static void deleteBook(int id) {
         String requestURL = Config.apiPath + "media.php?to=delete&id=" + id;
         try {
             String jsonString = WebUtils.readFromUrl(requestURL);
@@ -208,7 +193,7 @@ public class BookUtils {
     public static String addVideo(String json, String imageName, InputStream inputStream, String deleteName) throws IOException {
         if (!imageName.isEmpty()) deleteName = "";
         String requestURL = Config.apiPath + "media.php?to=add";
-        if (action == BookUtils.Actions.EDIT) {
+        if (action == Actions.EDIT) {
             requestURL = Config.apiPath + "media.php?to=save";
         }
         MultipartUtility multipart;
@@ -238,7 +223,7 @@ public class BookUtils {
             @Override
             public Void call() {
 
-                books = selectBooks();
+                calibreBooks = selectBooks();
                 updateProgress(1 ,1);
 
 
@@ -247,7 +232,7 @@ public class BookUtils {
                 List<Author> authors = selectAuthors();
                 updateProgress(3 ,3);
 
-                books.forEach(book -> {
+                calibreBooks.forEach(book -> {
                     List<Long> ids = bookAuthors.stream().filter(a -> a.getBook().equals(book.getId())).map(Link::getValue).collect(toList());
                     book.setAuthors(authors.stream().filter(author -> ids.contains(author.getId())).collect(toList()));
                 });
@@ -282,7 +267,7 @@ public class BookUtils {
                 List<Own> owns = selectOwn();
                 updateProgress(8 ,8);
 
-                books.forEach(book -> {
+                calibreBooks.forEach(book -> {
                     List<Long> ids1 = links.get(1).stream().filter(a -> a.getBook().equals(book.getId())).map(Link::getValue).collect(toList());
                     book.setIsbn(isbns.stream().filter(i -> ids1.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
 
@@ -328,48 +313,48 @@ public class BookUtils {
 
                 List<Data> dataList = selectDatas();
 
-                books.forEach(book -> book.setDataList(dataList.stream().filter(a -> a.getBook().equals(book.getId())).collect(toList())));
+                calibreBooks.forEach(book -> book.setDataList(dataList.stream().filter(a -> a.getBook().equals(book.getId())).collect(toList())));
 
                 List<Identifier> identifierList = selectIdentifiers();
 
-                books.forEach(book -> book.setIdentifiers(identifierList.stream().filter(a -> a.getBook().equals(book.getId())).collect(toList())));
+                calibreBooks.forEach(book -> book.setIdentifiers(identifierList.stream().filter(a -> a.getBook().equals(book.getId())).collect(toList())));
 
                 List<Language> languageList = selectLanguages();
 
-                books.forEach(book -> {
+                calibreBooks.forEach(book -> {
                     List<Long> ids = languageLinks.stream().filter(a -> a.getBook().equals(book.getId())).map(LanguageLink::getLangCode).collect(toList());
                     book.setLanguages(languageList.stream().filter(l -> ids.contains(l.getId())).collect(toList()));
                 });
 
                 List<PublisherSeries> publisherList = selectPublishers("publishers");
 
-                books.forEach(book -> {
+                calibreBooks.forEach(book -> {
                     List<Long> ids = publisherLinks.stream().filter(a -> a.getBook().equals(book.getId())).map(PublisherLink::getPublisher).collect(toList());
                     book.setPublisher(publisherList.stream().filter(author -> ids.contains(author.getId())).findFirst().orElse(null));
                 });
 
                 List<Rating> ratingList = selectRatings();
 
-                books.forEach(book -> {
+                calibreBooks.forEach(book -> {
                     List<Long> ids = ratingLinks.stream().filter(a -> a.getBook().equals(book.getId())).map(RatingLink::getRatings).collect(toList());
                     book.setRating(ratingList.stream().filter(author -> ids.contains(author.getId())).findFirst().orElse(null));
                 });
 
                 List<PublisherSeries> seriesList = selectPublishers("series");
 
-                books.forEach(book -> {
+                calibreBooks.forEach(book -> {
                     List<Long> ids = serieLinks.stream().filter(a -> a.getBook().equals(book.getId())).map(SerieLink::getSeries).collect(toList());
                     book.setSeries(seriesList.stream().filter(s -> ids.contains(s.getId())).findFirst().orElse(null));
                 });
 
                 List<Tag> tagList = selectTags();
 
-                books.forEach(book -> {
+                calibreBooks.forEach(book -> {
                     List<Long> ids = tagLinks.stream().filter(a -> a.getBook().equals(book.getId())).map(TagLink::getTag).collect(toList());
                     book.setTags(tagList.stream().filter(t -> ids.contains(t.getId())).collect(toList()));
                 });
 
-                books.forEach(System.out::println);
+                calibreBooks.forEach(System.out::println);
 
                 return null;
             }
@@ -463,7 +448,7 @@ public class BookUtils {
     }
 
     public static List<Book> selectBooks() {
-        String sql = "SELECT * FROM books";
+        String sql = "SELECT * FROM calibreBooks";
 
         List<Book> books = new ArrayList<>();
         try (Connection conn = connect();

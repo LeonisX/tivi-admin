@@ -54,10 +54,10 @@ class MultipartUtility {
      * @param value field value
      */
     void addFormField(String name, String value) {
-        writer.append("--" + boundary).append(LINE_FEED);
-        writer.append("Content-Disposition: form-data; name=\"" + name + "\"")
+        writer.append("--").append(boundary).append(LINE_FEED);
+        writer.append("Content-Disposition: form-data; name=\"").append(name).append("\"")
                 .append(LINE_FEED);
-        writer.append("Content-Type: text/plain; charset=" + charset).append(
+        writer.append("Content-Type: text/plain; charset=").append(charset).append(
                 LINE_FEED);
         writer.append(LINE_FEED);
         writer.append(value).append(LINE_FEED);
@@ -73,15 +73,10 @@ class MultipartUtility {
     public void addFilePart(String fieldName, File uploadFile)
             throws IOException {
         String fileName = uploadFile.getName();
-        writer.append("--" + boundary).append(LINE_FEED);
-        writer.append(
-                "Content-Disposition: form-data; name=\"" + fieldName
-                        + "\"; filename=\"" + fileName + "\"")
-                .append(LINE_FEED);
-        writer.append(
-                "Content-Type: "
-                        + URLConnection.guessContentTypeFromName(fileName))
-                .append(LINE_FEED);
+        writer.append("--").append(boundary).append(LINE_FEED);
+        writer.append("Content-Disposition: form-data; name=\"").append(fieldName)
+                .append("\"; filename=\"").append(fileName).append("\"").append(LINE_FEED);
+        writer.append("Content-Type: ").append(URLConnection.guessContentTypeFromName(fileName)).append(LINE_FEED);
         writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
         writer.append(LINE_FEED);
         writer.flush();
@@ -108,14 +103,10 @@ class MultipartUtility {
     void addInputStream(String fieldName, String imageName, InputStream inputStream)
             throws IOException {
         //String fileName = uploadFile.getName();
-        writer.append("--" + boundary).append(LINE_FEED);
-        writer.append(
-                "Content-Disposition: form-data; name=\"" + fieldName
-                        + "\"; filename=\"" + imageName + "\"")
-                .append(LINE_FEED);
-        writer.append(
-                "Content-Type: "
-                        + URLConnection.guessContentTypeFromName(imageName))
+        writer.append("--").append(boundary).append(LINE_FEED);
+        writer.append("Content-Disposition: form-data; name=\"").append(fieldName).append("\"; filename=\"")
+                .append(imageName).append("\"").append(LINE_FEED);
+        writer.append("Content-Type: ").append(URLConnection.guessContentTypeFromName(imageName))
                 .append(LINE_FEED);
         writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
         writer.append(LINE_FEED);
@@ -142,11 +133,9 @@ class MultipartUtility {
      */
     void addJson(String fieldName, String json)
             throws IOException {
-        writer.append("--" + boundary).append(LINE_FEED);
-        writer.append(
-                "Content-Disposition: form-data; name=\"" + fieldName
-                        + "\"; filename=\"" + fieldName + ".json\"")
-                .append(LINE_FEED);
+        writer.append("--").append(boundary).append(LINE_FEED);
+        writer.append("Content-Disposition: form-data; name=\"").append(fieldName).append("\"; filename=\"")
+                .append(fieldName).append(".json\"").append(LINE_FEED);
         writer.append("Content-Type: application/json").append(LINE_FEED);
         writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
         writer.append(LINE_FEED);
@@ -154,7 +143,7 @@ class MultipartUtility {
 
         InputStream inputStream = new ByteArrayInputStream(json.getBytes());
         byte[] buffer = new byte[4096];
-        int bytesRead = -1;
+        int bytesRead;
         while ((bytesRead = inputStream.read(buffer)) != -1) {
             outputStream.write(buffer, 0, bytesRead);
         }
@@ -185,7 +174,7 @@ class MultipartUtility {
         String response = "";
 
         writer.append(LINE_FEED).flush();
-        writer.append("--" + boundary + "--").append(LINE_FEED);
+        writer.append("--").append(boundary).append("--").append(LINE_FEED);
         writer.close();
 
         response = readResponse(httpConn);
@@ -223,6 +212,10 @@ class MultipartUtility {
                 stringBuilder.append("Can't close reader...");
             }
         }
-        return stringBuilder.toString().trim();
+        String response = stringBuilder.toString().trim();
+        if (!response.isEmpty()) {
+            System.out.println(response);
+        }
+        return response;
     }
 }

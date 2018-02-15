@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
 
 public class VideoUtils {
 
-    public enum Actions {ADD, EDIT, CLONE}
-
     public static Actions action;
 
     public static List<Category> categories = new ArrayList<>();
