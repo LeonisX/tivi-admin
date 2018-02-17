@@ -1,5 +1,7 @@
-site.path=http://tv-games.ru
+site.path=http://sample.ru
 
-api.dir=api
+api.dir=apiDir
 
-server.secret=
+encoding=UTF-8
+
+server.secret=!@#$%

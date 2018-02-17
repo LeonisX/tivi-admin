@@ -11,6 +11,7 @@ public class Config {
     static String apiPath;
     public static String sitePath;
     static String sampleVideo;
+    static String encoding;
 
     static String serverSecret;
 
@@ -29,8 +30,9 @@ public class Config {
         try (InputStream inputStream = Config.class.getClassLoader().getResourceAsStream("protected.properties")) {
             Properties prop = new Properties();
             prop.load(inputStream);
-            String apiDir = prop.getProperty("api.dir");
+            String apiDir = prop.getProperty("api.dir") + "/";
             sitePath = prop.getProperty("site.path") + "/";
+            encoding = prop.getProperty("encoding");
             serverSecret = prop.getProperty("server.secret");
             apiPath = sitePath + apiDir;
         }

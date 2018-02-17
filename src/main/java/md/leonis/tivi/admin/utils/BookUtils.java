@@ -21,6 +21,7 @@ import md.leonis.tivi.admin.view.media.AuditController;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -53,7 +54,28 @@ public class BookUtils {
         JavaFxUtils.showPane("media/Audit.fxml");
     }
 
-    public static void addVideo() {
+    public static String queryRequest(String query) {
+        try {
+            String requestURL = Config.apiPath + "media.php?to=query&query_string=" + URLEncoder.encode(query, Config.encoding);
+            String jsonString = WebUtils.readFromUrl(requestURL);
+            System.out.println(jsonString);
+            return jsonString;
+            //videos = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<Video>>(){}.getType());
+        } catch (IOException e) {
+            System.out.println("Error");
+        }
+        return null;
+    }
+
+    public static void queryOperation(String query) {
+        queryRequest(query);
+    }
+
+    public static String prepareQuery(String query) {
+        return query.replace("\"", "\\\"");
+    }
+
+/*    public static void addVideo() {
         String json = JsonUtils.gson.toJson(book);
         try {
             addVideo(json, book.getImage(), null, book.getPreviousImage());
@@ -63,7 +85,7 @@ public class BookUtils {
             System.out.println(e.getMessage());
             //TODO window with error
         }
-    }
+    }*/
 
     public static void addCategory(int parentId, String catCpu) {
         BookCategory bookCategory = new BookCategory(null, parentId, catCpu, getCatName(catCpu), getCatDescription(catCpu),

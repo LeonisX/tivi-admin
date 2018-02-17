@@ -3,6 +3,7 @@ package md.leonis.tivi.admin.view;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Hyperlink;
+import md.leonis.tivi.admin.model.Actions;
 import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.VideoUtils;
 
@@ -37,7 +38,7 @@ public class MainStageController {
 
     @FXML
     private void addVideo() {
-        VideoUtils.action = VideoUtils.Actions.ADD;
+        VideoUtils.action = Actions.ADD;
         VideoUtils.showAddVideo();
     }
 

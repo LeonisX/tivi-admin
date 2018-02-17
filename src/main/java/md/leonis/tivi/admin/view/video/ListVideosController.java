@@ -239,7 +239,7 @@ public class ListVideosController extends SubPane {
                         alert.setContentText("Ошибка не типичная, требует решения.");
                         alert.showAndWait();
                     } else {
-                        VideoUtils.action = VideoUtils.Actions.EDIT;
+                        VideoUtils.action = Actions.EDIT;
                         VideoUtils.parseUrl(VideoUtils.video);
                         VideoUtils.showAddVideo2();
                     }
@@ -253,7 +253,7 @@ public class ListVideosController extends SubPane {
                         alert.setContentText("Ошибка не типичная, требует решения.");
                         alert.showAndWait();
                     } else {
-                        VideoUtils.action = VideoUtils.Actions.CLONE;
+                        VideoUtils.action = Actions.CLONE;
                         VideoUtils.showAddVideo();
                     }
                     break;

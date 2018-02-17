@@ -1,5 +1,7 @@
 package md.leonis.tivi.admin.utils;
 
+import md.leonis.tivi.admin.model.Actions;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +21,7 @@ public class CheckUtils {
     }
 
     public void checkCpuExist(String text) {
-        if (VideoUtils.action != VideoUtils.Actions.EDIT)
+        if (VideoUtils.action != Actions.EDIT)
             if (VideoUtils.checkCpuExist(text)) notes.add("CPU `" + text + "` уже используется" );
     }
 
