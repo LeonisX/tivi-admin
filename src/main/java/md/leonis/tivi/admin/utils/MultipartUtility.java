@@ -189,8 +189,10 @@ class MultipartUtility {
     static String readResponse(HttpURLConnection conn) {
         StringBuilder stringBuilder = new StringBuilder();
         BufferedReader reader;
+        int responseCode = 999;
         try {
-            if (conn.getResponseCode() < 300) {
+            responseCode = conn.getResponseCode();
+            if (responseCode < 300) {
                 reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             } else {
                 reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
@@ -215,6 +217,9 @@ class MultipartUtility {
         String response = stringBuilder.toString().trim();
         if (!response.isEmpty()) {
             System.out.println(response);
+        }
+        if (responseCode >= 300) {
+            throw new RuntimeException(response);
         }
         return response;
     }

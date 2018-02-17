@@ -14,7 +14,7 @@ public class MainApp extends Application {
         try {
             Config.loadProperties();
             Config.loadProtectedProperties();
-            BookUtils.queryRequest("SELECT COUNT(downid) AS count FROM danny_media");
+            BookUtils.queryRequest("SELECTъ пропро COUNT(downid) AS count FROM danny_media");
             //BookUtils.queryRequest("SELECT * FROM danny_media");
             //BookUtils.queryOperation(String.format("INSERT INTO danny_info VALUES(NULL, \"%s\", \"%s\", \"%s\")", "протест", BookUtils.prepareQuery("текст \" ' &^%$#@!*(<>{} fff"), "as"));
             //BookUtils.queryOperation("DELETE FROM danny_info WHERE infoid = 213");

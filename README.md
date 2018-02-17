@@ -52,6 +52,7 @@ TODO cat - add/update
 TODO dump (backup)
 TODO compare with dump, show diff
 TODO restore
+TODO wise error processing / specialized http client
 
 Итак, задачи:
 
