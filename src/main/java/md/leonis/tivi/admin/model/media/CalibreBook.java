@@ -1,38 +1,16 @@
 package md.leonis.tivi.admin.model.media;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import md.leonis.tivi.admin.utils.BookUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @lombok.Data
-@ToString(exclude = {"unusedIsbn", "unusedLccn", "flags", "uuid"})
-public class CalibreBook {
-
-    private Long id;
-    private String title;
-    private String sort;
-    private LocalDateTime timestamp;
-    @SerializedName("pubdate")
-    private LocalDateTime publDate;
-    @SerializedName("series_index")
-    private Double serieIndex;
-    @SerializedName("author_sort")
-    private String authorSort;
-
-    @SerializedName("isbn")
-    private String unusedIsbn;
-    @SerializedName("lccn")
-    private String unusedLccn;
-
-    private String path;
-    private Boolean flags;
-    private String uuid;
-    @SerializedName("has_cover")
-    private Boolean hasCover;
-    @SerializedName("last_modified")
-    private LocalDateTime lastModified;
+public class CalibreBook  extends Book {
 
     private String comment;
     private List<Author> authors;

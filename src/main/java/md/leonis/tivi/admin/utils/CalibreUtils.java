@@ -1,10 +1,14 @@
 package md.leonis.tivi.admin.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.model.media.links.*;
 
+import java.lang.reflect.Type;
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -20,6 +24,10 @@ public class CalibreUtils {
     PRAGMA stats;
     PRAGMA table_info(books);
     SELECT sql FROM sqlite_master WHERE name='books'*/
+
+    public static String getCreateTableQuery(String tableName) {
+        return String.format("SELECT sql FROM sqlite_master WHERE name='%s'", tableName);
+    }
 
     public static void readBooks() {
         calibreBooks = selectAllFrom("books", CalibreBook.class);
@@ -152,7 +160,7 @@ public class CalibreUtils {
         return readObjectList(String.format("SELECT * FROM %s", tableName), clazz);
     }
 
-    private static <T> List<T> readObjectList(String sql, Class<T> clazz) {
+    public static <T> List<T> readObjectList(String sql, Class<T> clazz) {
         List<T> results = new ArrayList<>();
         try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -204,6 +212,126 @@ public class CalibreUtils {
         return results;
     }
 
+    public static <T> T readObject(String sql, Class<T> clazz) {
+        List<T> results = new ArrayList<>();
+        try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                Map<String, Object> map = new HashMap<>();
+                ResultSetMetaData metaData = rs.getMetaData();
+                for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                    Object value;
+                    switch (metaData.getColumnType(i)) {
+                        case -7:
+                        case 5:
+                        case 4:
+                        case -5:
+                            value = rs.getLong(i);
+                            break;
+                        case 6:
+                        case 7:
+                        case 8:
+                        case 2:
+                        case 3:
+                            value = rs.getDouble(i);
+                            break;
+                        case 1:
+                        case -1:
+                            value = rs.getString(i);
+                            break;
+                        case 12:
+                            if (metaData.getColumnTypeName(i).equalsIgnoreCase("TIMESTAMP")) {
+                                value = parseDate(rs.getString(i));
+                            } else {
+                                value = rs.getString(i);
+                            }
+                            break;
+                        case 93:
+                            value = parseDate(rs.getString(i));
+                            break;
+                        default:
+                            //TODO java.sql.Types
+                            throw new RuntimeException("Unknown type:" + metaData.getColumnTypeName(i) + " (" + metaData.getColumnType(i) + ")");
+                    }
+                    map.put(metaData.getColumnName(i), value);
+                }
+                String json = JsonUtils.gson.toJson(map);
+                results.add(JsonUtils.gson.fromJson(json, TypeToken.get(clazz).getType()));
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+        if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
+        }
+    }
+
+    public static void executeQuery(String sql) {
+        System.out.println(sql);
+        try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getInsertQuery(String tableName, Object object) {
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(LocalDate.class, new BookUtils.LocalDateAdapter())
+                .registerTypeAdapter(LocalDateTime.class, new BookUtils.LocalDateTimeAdapter())
+                .create();
+        String json = gson.toJson(object);
+        Type type = new TypeToken<Map<String, Object>>() {}.getType();
+        Map<String, Object> myMap = gson.fromJson(json, type);
+        System.out.println(myMap);
+
+        String campos = myMap.keySet().stream().collect(Collectors.joining(","));
+        String valores = myMap.values().stream().map(v -> {
+            if (v instanceof String) {
+                return "'" + v + "'";
+            } else if (v instanceof LocalDateTime) {
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+                return "'" + formatter.format((LocalDateTime) v) + "'";
+            } else {
+                return v.toString();
+            }
+            //TODO arrays - ignore???
+        }).collect(Collectors.joining(","));
+
+        return "INSERT INTO `" + tableName + "` (" + campos + ") values (" + valores + ")";
+    }
+
+    public static String getInsertQuery(String tableName, Object object, Class<?> clazz) {
+        Gson gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(LocalDate.class, new BookUtils.LocalDateAdapter())
+                .registerTypeAdapter(LocalDateTime.class, new BookUtils.LocalDateTimeAdapter())
+                .create();
+        String json = gson.toJson(object, clazz);
+        Type type = new TypeToken<Map<String, Object>>() {}.getType();
+        Map<String, Object> myMap = gson.fromJson(json, type);
+        System.out.println(myMap);
+
+        String campos = myMap.keySet().stream().collect(Collectors.joining(","));
+        String valores = myMap.values().stream().map(v -> {
+            if (v instanceof String) {
+                return "'" + v + "'";
+            } else if (v instanceof LocalDateTime) {
+                DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
+                return "'" + formatter.format((LocalDateTime) v) + "'";
+            } else {
+                return v.toString();
+            }
+            //TODO arrays - ignore???
+        }).collect(Collectors.joining(","));
+
+        return "INSERT INTO `" + tableName + "` (" + campos + ") values (" + valores + ")";
+    }
+
     private static Connection connect() {
         // SQLite connection string
         String url = "jdbc:sqlite:E://metadata.db";
@@ -220,6 +348,11 @@ public class CalibreUtils {
     private static LocalDateTime parseDate(String date) {
         if (date.length() == 25) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ssXXX");
+            return LocalDateTime.parse(date, formatter);
+        } else if (date.length() == 23) {
+            return LocalDateTime.parse(date, DateTimeFormatter.ISO_DATE_TIME);
+        } else if (date.length() == 19) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             return LocalDateTime.parse(date, formatter);
         } else {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSXXX");
