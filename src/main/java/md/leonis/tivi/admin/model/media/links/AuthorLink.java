@@ -5,10 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PublisherLink {
+public class AuthorLink {
 
     private Long id;
     private Long book;
-    private Long publisher;
+    private Long author;
 
 }

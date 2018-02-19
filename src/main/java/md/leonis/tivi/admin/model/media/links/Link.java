@@ -1,32 +1,18 @@
 package md.leonis.tivi.admin.model.media.links;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Link {
 
     private Long id;
     private Long book;
-    private Long value;
+    private String value;
 
-    public Long getId() {
-        return id;
+    public Long getLongValue() {
+        return Long.valueOf(value);
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getBook() {
-        return book;
-    }
-
-    public void setBook(Long book) {
-        this.book = book;
-    }
-
-    public Long getValue() {
-        return value;
-    }
-
-    public void setValue(Long value) {
-        this.value = value;
-    }
 }

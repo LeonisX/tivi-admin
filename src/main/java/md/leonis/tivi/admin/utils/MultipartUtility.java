@@ -216,7 +216,7 @@ class MultipartUtility {
         }
         String response = stringBuilder.toString().trim();
         if (!response.isEmpty()) {
-            System.out.println(response);
+            //System.out.println(response);
         }
         if (responseCode >= 300) {
             throw new RuntimeException(response);

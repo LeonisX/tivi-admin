@@ -1,5 +1,6 @@
 package md.leonis.tivi.admin.model.media;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,6 +15,7 @@ public class Data {
     private Long id;
     private Long book;
     private String format;
+    @SerializedName("uncompressed_size")
     private Long uncompressedSize;
     private String name;
 

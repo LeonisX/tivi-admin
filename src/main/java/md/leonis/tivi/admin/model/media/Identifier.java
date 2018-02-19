@@ -14,6 +14,6 @@ public class Identifier {
     private Long id;
     private Long book;
     private String type;
-    private Long val;
+    private String val;
 
 }
