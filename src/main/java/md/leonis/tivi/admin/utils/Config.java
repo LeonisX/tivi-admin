@@ -12,6 +12,7 @@ public class Config {
     public static String sitePath;
     static String sampleVideo;
     static String encoding;
+    static String sqliteUrl;
 
     static String serverSecret;
 
@@ -34,6 +35,7 @@ public class Config {
             sitePath = prop.getProperty("site.path") + "/";
             encoding = prop.getProperty("encoding");
             serverSecret = prop.getProperty("server.secret");
+            sqliteUrl = prop.getProperty("sqlite.url");
             apiPath = sitePath + apiDir;
         }
     }

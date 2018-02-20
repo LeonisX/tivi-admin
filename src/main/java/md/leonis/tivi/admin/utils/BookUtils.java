@@ -16,9 +16,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import md.leonis.tivi.admin.model.*;
-import md.leonis.tivi.admin.model.media.Author;
 import md.leonis.tivi.admin.model.media.CalibreBook;
-import md.leonis.tivi.admin.model.media.links.Link;
 import md.leonis.tivi.admin.model.mysql.Field;
 import md.leonis.tivi.admin.model.mysql.TableStatus;
 import md.leonis.tivi.admin.view.media.AuditController;
@@ -38,7 +36,7 @@ import static java.util.stream.Collectors.toList;
 
 public class BookUtils {
 
-    public static List<CalibreBook> calibreBooks;
+    public static List<CalibreBook> calibreBooks = new ArrayList<>();
 
     public static Actions action;
 
@@ -46,12 +44,9 @@ public class BookUtils {
 
     public static CalibreBook calibreBook;
 
-    public static List<VideoView> siteBooks;
+    public static List<VideoView> siteBooks = new ArrayList<>();
 
     public static ListVideousSettings listBooksSettings = new ListVideousSettings();
-
-    public static int booksCount;
-
 
     public static void auditBooks() {
         JavaFxUtils.showPane("media/Audit.fxml");
@@ -515,18 +510,6 @@ public class BookUtils {
         siteBooks = videos.stream().map(VideoView::new).collect(Collectors.toList());
     }
 
-    public static void countVideos() {
-        String cat = "";
-        if (listBooksSettings.catId != -1) cat = "&cat=" + listBooksSettings.catId;
-        String requestURL = Config.apiPath + "media.php?to=count" + cat;
-        try {
-            String jsonString = WebUtils.readFromUrl(requestURL);
-            booksCount = JsonUtils.gson.fromJson(jsonString, Count.class).getCount();
-        } catch (IOException e) {
-            System.out.println("Error in countVideos");
-        }
-    }
-
     public static CalibreBook getBook(int id) {
         String requestURL = Config.apiPath + "media.php?to=get&id=" + id;
         try {
@@ -592,140 +575,8 @@ public class BookUtils {
         Task<Void> task = new Task<Void>() {
             @Override
             public Void call() {
-
-                calibreBooks = CalibreUtils.selectAllFrom("books", CalibreBook.class);
+                calibreBooks = CalibreUtils.readBooks();
                 updateProgress(1, 1);
-
-
-                List<Link> bookAuthors = CalibreUtils.selectAllFrom("books_authors_link", Link.class);
-                updateProgress(2, 2);
-                List<Author> authors = CalibreUtils.selectAllFrom("authors", Author.class);
-                updateProgress(3, 3);
-
-                calibreBooks.forEach(calibreBook -> {
-                    List<Long> ids = bookAuthors.stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(l -> Long.valueOf(l.getValue())).collect(toList());
-                    calibreBook.setAuthors(authors.stream().filter(author -> ids.contains(author.getId())).collect(toList()));
-                });
-
-                Integer[] c = {1, 2, 4, 6, 7, 10, 11, 12, 13, 14, 15};
-
-                /*Map<Integer, List<Link>> links = Arrays.stream(c).collect(Collectors.toMap(i -> i, i -> selectLinks("books_custom_column_" + i + "_link", "value")));
-                updateProgress(4, 4);
-
-                List<LanguageLink> languageLinks = selectLanguageLinks();
-                List<PublisherLink> publisherLinks = selectPublisherLinks();
-                List<RatingLink> ratingLinks = selectRatingsLinks();
-                List<SerieLink> serieLinks = selectSeriesLinks();
-                List<TagLink> tagLinks = selectTagsLinks();
-                updateProgress(5, 5);
-                List<CustomColumn> isbns = selectCustomColumn(1);
-                List<CustomColumn> bbks = selectCustomColumn(10);
-                List<CustomColumn> formats = selectCustomColumn(11);
-                List<CustomColumn> sources = selectCustomColumn(12);
-                List<CustomColumn> officialTitles = selectCustomColumn(13);
-                updateProgress(6, 6);
-                List<CustomColumn> types = selectCustomColumn(14);
-                List<CustomColumn> companies = selectCustomColumn(15);
-                List<CustomColumn> udks = selectCustomColumn(2);
-                List<Link> editions = selectLinks("custom_column_3", "value");
-                List<CustomColumn> postprocessings = selectCustomColumn(4);
-                updateProgress(7, 7);
-                List<SignedInPrint> signedInPrint = selectSignedInPrint();
-                List<CustomColumn> fileNames = selectCustomColumn(6);
-                List<CustomColumn> scannedBys = selectCustomColumn(7);
-                List<Link> pages = selectLinks("custom_column_8", "value");
-                List<Own> owns = selectOwn();*/
-                updateProgress(8, 8);
-/*
-                calibreBooks.forEach(calibreBook -> {
-                    List<Long> ids1 = links.get(1).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getValue).collect(toList());
-                    calibreBook.setIsbn(isbns.stream().filter(i -> ids1.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
-
-                    List<Long> ids10 = links.get(10).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getValue).collect(toList());
-                    calibreBook.setBbk(bbks.stream().filter(i -> ids10.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
-
-                    List<Long> ids11 = links.get(11).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getValue).collect(toList());
-                    calibreBook.setFormat(formats.stream().filter(i -> ids11.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
-
-                    List<Long> ids12 = links.get(12).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getValue).collect(toList());
-                    calibreBook.setSource(sources.stream().filter(i -> ids12.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
-
-                    List<Long> ids13 = links.get(13).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getValue).collect(toList());
-                    calibreBook.setOfficialTitle(officialTitles.stream().filter(i -> ids13.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
-
-                    List<Long> ids14 = links.get(14).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getValue).collect(toList());
-                    calibreBook.setType(types.stream().filter(i -> ids14.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
-
-                    List<Long> ids15 = links.get(15).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getValue).collect(toList());
-                    calibreBook.setCompany(companies.stream().filter(i -> ids15.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
-
-                    List<Long> ids2 = links.get(2).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getValue).collect(toList());
-                    calibreBook.setUdk(udks.stream().filter(i -> ids2.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
-
-                    calibreBook.setEdition(editions.stream().filter(e -> e.getBook().equals(calibreBook.getId())).findFirst().map(a -> a.getValue().intValue()).orElse(null));
-
-                    List<Long> ids4 = links.get(4).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getValue).collect(toList());
-                    calibreBook.setPostprocessing(postprocessings.stream().filter(i -> ids4.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
-
-                    calibreBook.setSignedInPrint(signedInPrint.stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(SignedInPrint::getValue).findFirst().orElse(null));
-
-                    List<Long> ids6 = links.get(6).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getValue).collect(toList());
-                    calibreBook.setFileName(fileNames.stream().filter(i -> ids6.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
-
-                    List<Long> ids7 = links.get(7).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getValue).collect(toList());
-                    calibreBook.setScannedBy(scannedBys.stream().filter(i -> ids7.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
-
-                    calibreBook.setPages(pages.stream().filter(a -> a.getBook().equals(calibreBook.getId())).findFirst().map(a -> a.getValue().intValue()).orElse(null));
-                    calibreBook.setOwn(owns.stream().filter(a -> a.getBook().equals(calibreBook.getId())).findFirst().map(Own::getValue).orElse(null));
-                });*/
-
-                /*List<CustomColumns> customColumns = selectCustomColumns();
-
-                List<Data> dataList = selectDatas();
-
-                calibreBooks.forEach(calibreBook -> calibreBook.setDataList(dataList.stream().filter(a -> a.getBook().equals(calibreBook.getId())).collect(toList())));
-
-                List<Identifier> identifierList = selectIdentifiers();
-
-                calibreBooks.forEach(calibreBook -> calibreBook.setIdentifiers(identifierList.stream().filter(a -> a.getBook().equals(calibreBook.getId())).collect(toList())));
-
-                List<Language> languageList = selectLanguages();*/
-
-                /*calibreBooks.forEach(calibreBook -> {
-                    List<Long> ids = languageLinks.stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(LanguageLink::getLangCode).collect(toList());
-                    calibreBook.setLanguages(languageList.stream().filter(l -> ids.contains(l.getId())).collect(toList()));
-                });
-
-                List<PublisherSeries> publisherList = selectPublishers("publishers");
-
-                calibreBooks.forEach(calibreBook -> {
-                    List<Long> ids = publisherLinks.stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(PublisherLink::getPublisher).collect(toList());
-                    calibreBook.setPublisher(publisherList.stream().filter(author -> ids.contains(author.getId())).findFirst().orElse(null));
-                });
-
-                List<Rating> ratingList = selectRatings();
-
-                calibreBooks.forEach(calibreBook -> {
-                    List<Long> ids = ratingLinks.stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(RatingLink::getRatings).collect(toList());
-                    calibreBook.setRating(ratingList.stream().filter(author -> ids.contains(author.getId())).findFirst().orElse(null));
-                });
-
-                List<PublisherSeries> seriesList = selectPublishers("series");
-
-                calibreBooks.forEach(calibreBook -> {
-                    List<Long> ids = serieLinks.stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(SerieLink::getSeries).collect(toList());
-                    calibreBook.setSeries(seriesList.stream().filter(s -> ids.contains(s.getId())).findFirst().orElse(null));
-                });
-
-                List<Tag> tagList = selectTags();
-
-                calibreBooks.forEach(calibreBook -> {
-                    List<Long> ids = tagLinks.stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(TagLink::getTag).collect(toList());
-                    calibreBook.setTags(tagList.stream().filter(t -> ids.contains(t.getId())).collect(toList()));
-                });*/
-
-                calibreBooks.forEach(System.out::println);
-
                 return null;
             }
         };

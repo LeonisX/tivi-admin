@@ -1,12 +1,16 @@
 package md.leonis.tivi.admin.model.media;
 
 import com.google.gson.annotations.SerializedName;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @lombok.Data
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString(exclude = {"unusedIsbn", "unusedLccn", "flags", "uuid"})
 public class Book {
 

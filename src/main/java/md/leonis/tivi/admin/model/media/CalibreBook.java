@@ -1,16 +1,15 @@
 package md.leonis.tivi.admin.model.media;
 
-import com.google.gson.annotations.SerializedName;
 import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import md.leonis.tivi.admin.utils.BookUtils;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @lombok.Data
-public class CalibreBook  extends Book {
+public class CalibreBook extends Book {
 
     private String comment;
     private List<Author> authors;
@@ -39,4 +38,6 @@ public class CalibreBook  extends Book {
     private List<Data> dataList;
     private List<Identifier> identifiers;
 
+    private Long tiviId;
+    private String cpu;
 }

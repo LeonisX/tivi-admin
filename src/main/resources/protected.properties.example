@@ -5,3 +5,5 @@ api.dir=apiDir
 encoding=UTF-8
 
 server.secret=!@#$%
+
+sqlite.url=jdbc:sqlite:...

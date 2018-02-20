@@ -2,7 +2,10 @@ package md.leonis.tivi.admin.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
+import javafx.util.Pair;
 import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.model.media.links.*;
 
@@ -29,8 +32,8 @@ public class CalibreUtils {
         return String.format("SELECT sql FROM sqlite_master WHERE name='%s'", tableName);
     }
 
-    public static void readBooks() {
-        calibreBooks = selectAllFrom("books", CalibreBook.class);
+    public static List<CalibreBook> readBooks() {
+        List<CalibreBook> calibreBooks = selectAllFrom("books", CalibreBook.class);
 
         List<Comment> comments = selectAllFrom("comments", Comment.class);
         calibreBooks.forEach(calibreBook -> {
@@ -45,7 +48,7 @@ public class CalibreUtils {
             calibreBook.setAuthors(authors.stream().filter(author -> ids.contains(author.getId())).collect(toList()));
         });
 
-        Integer[] c = {1, 2, 4, 6, 7, 10, 11, 12, 13, 14, 15};
+        Integer[] c = {1, 2, 4, 6, 7, 10, 11, 12, 13, 14, 15, 16};
 
         Map<Integer, List<Link>> links = Arrays.stream(c).collect(Collectors.toMap(i -> i, i -> selectAllFrom("books_custom_column_" + i + "_link", Link.class)));
 
@@ -72,6 +75,10 @@ public class CalibreUtils {
         List<CustomColumn> scannedBys = selectAllFrom("custom_column_7", CustomColumn.class);
         List<Link> pages = selectAllFrom("custom_column_8", Link.class);
         List<Own> owns = selectAllFrom("custom_column_9", Own.class);
+
+        List<CustomColumn> cpus = selectAllFrom("custom_column_16", CustomColumn.class);
+        List<Link> tiviIds = selectAllFrom("custom_column_17", Link.class);
+
 
         calibreBooks.forEach(calibreBook -> {
             List<Long> ids1 = links.get(1).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
@@ -113,6 +120,11 @@ public class CalibreUtils {
 
             calibreBook.setPages(pages.stream().filter(a -> a.getBook().equals(calibreBook.getId())).findFirst().map(a -> a.getLongValue().intValue()).orElse(null));
             calibreBook.setOwn(owns.stream().filter(a -> a.getBook().equals(calibreBook.getId())).findFirst().map(Own::getValue).orElse(null));
+
+            calibreBook.setTiviId(tiviIds.stream().filter(a -> a.getBook().equals(calibreBook.getId())).findFirst().map(Link::getLongValue).orElse(null));
+
+            List<Long> ids16 = links.get(16).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
+            calibreBook.setCpu(cpus.stream().filter(i -> ids16.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
         });
 
         //List<CustomColumns> customColumns = selectAllFrom("custom_columns", CustomColumns.class);
@@ -154,6 +166,7 @@ public class CalibreUtils {
         });
 
         calibreBooks.forEach(System.out::println);
+        return calibreBooks;
     }
 
     public static <T> List<T> selectAllFrom(String tableName, Class<T> clazz) {
@@ -278,6 +291,35 @@ public class CalibreUtils {
         }
     }
 
+    public static Integer executeInsertQuery(String sql) {
+        System.out.println(sql);
+        try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
+            int affectedRows = stmt.executeUpdate(sql);
+            if (affectedRows == 0) {
+                throw new SQLException("No rows affected.");
+            }
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                }
+            }
+            return null;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static int executeUpdateQuery(String sql) {
+        System.out.println(sql);
+        try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
+            return stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
+
     public static String getInsertQuery(String tableName, Object object) {
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
@@ -306,38 +348,80 @@ public class CalibreUtils {
     }
 
     public static String getInsertQuery(String tableName, Object object, Class<?> clazz) {
+        //TODO - common gson
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeAdapter(LocalDate.class, new BookUtils.LocalDateAdapter())
                 .registerTypeAdapter(LocalDateTime.class, new BookUtils.LocalDateTimeAdapter())
                 .create();
-        String json = gson.toJson(object, clazz);
-        Type type = new TypeToken<Map<String, Object>>() {}.getType();
-        Map<String, Object> myMap = gson.fromJson(json, type);
-        System.out.println(myMap);
+        JsonObject jsonObject = gson.toJsonTree(object, clazz).getAsJsonObject();
 
-        String campos = myMap.keySet().stream().collect(Collectors.joining(","));
-        String valores = myMap.values().stream().map(v -> {
-            if (v instanceof String) {
-                return "'" + v + "'";
-            } else if (v instanceof LocalDateTime) {
-                DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
-                return "'" + formatter.format((LocalDateTime) v) + "'";
-            } else {
-                return v.toString();
+        String keys = jsonObject.keySet().stream().collect(Collectors.joining(","));
+        List<String> valuesList = jsonObject.entrySet().stream().map(v -> {
+            if (v.getValue().getAsJsonPrimitive().isString()) {
+                return "'" + escape(v.getValue().getAsJsonPrimitive().getAsString()) + "'";
+            } else  {
+                return v.getValue().getAsJsonPrimitive().getAsString();
             }
-            //TODO arrays - ignore???
-        }).collect(Collectors.joining(","));
+        }).collect(toList());
+        String values = valuesList.stream().collect(Collectors.joining(","));
 
-        return "INSERT INTO `" + tableName + "` (" + campos + ") values (" + valores + ")";
+        return "INSERT INTO `" + tableName + "` (" + keys + ") values (" + values + ")";
     }
 
+    private static String escape(String value) {
+        return value.replace("'", "''");
+    }
+
+    public static String getUpdateQuery(String tableName, Object o1, Object o2) {
+        Map<String, Pair<JsonPrimitive, JsonPrimitive>> diff = getDiff(o1, o2);
+        String expression = diff.entrySet().stream().map(v -> {
+            String k = v.getKey() + "=";
+            if (v.getValue().getValue().isString()) {
+                k += "'" + escape(v.getValue().getValue().getAsString()) + "'";
+            } else  {
+                k += v.getValue().getValue().getAsString();
+            }
+            return k;
+        }).collect(Collectors.joining(","));
+
+        /*String key = diff.entrySet().iterator().next().getKey();
+        String where = key + "=";
+        JsonPrimitive value = diff.get(key).getKey();
+        if (value.isString()) {
+            where += "'" + value.getAsString() + "'";
+        } else  {
+            where += value.getAsString();
+        }*/
+
+        return "UPDATE `" + tableName + "` SET " + expression + " WHERE " /*+ where*/;
+    }
+
+    public static Map<String, Pair<JsonPrimitive, JsonPrimitive>> getDiff(Object o1, Object o2) {
+        Map<String, Pair<JsonPrimitive, JsonPrimitive>> diff = new LinkedHashMap<>();
+        JsonObject jo1 = JsonUtils.gson.toJsonTree(o1).getAsJsonObject();
+        JsonObject jo2 = JsonUtils.gson.toJsonTree(o2).getAsJsonObject();
+        jo1.entrySet().forEach(e -> {
+            JsonPrimitive v1 = e.getValue().getAsJsonPrimitive();
+            JsonPrimitive v2 = jo2.get(e.getKey()).getAsJsonPrimitive();
+            if (!v1.equals(v2)) {
+                diff.put(e.getKey(), new Pair<>(v1, v2));
+                System.out.println(e.getKey() + ": " + new Pair<>(v1, v2).toString());
+            }
+        });
+        return diff;
+    }
+
+    public static boolean isEquals(Object o1, Object o2) {
+        return getDiff(o1, o2).isEmpty();
+    }
+
+    public static Connection conn;
+
     private static Connection connect() {
-        // SQLite connection string
-        String url = "jdbc:sqlite:E://metadata.db";
-        Connection conn;
         try {
-            conn = DriverManager.getConnection(url);
+            conn = DriverManager.getConnection(Config.sqliteUrl);
+            conn.setAutoCommit(true);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e);
@@ -351,6 +435,9 @@ public class CalibreUtils {
             return LocalDateTime.parse(date, formatter);
         } else if (date.length() == 23) {
             return LocalDateTime.parse(date, DateTimeFormatter.ISO_DATE_TIME);
+        } else if (date.length() == 21) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.S");
+            return LocalDateTime.parse(date, formatter);
         } else if (date.length() == 19) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             return LocalDateTime.parse(date, formatter);
