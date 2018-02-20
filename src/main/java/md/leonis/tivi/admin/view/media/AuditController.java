@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import md.leonis.tivi.admin.model.BookCategory;
-import md.leonis.tivi.admin.model.media.Book;
 import md.leonis.tivi.admin.model.media.CalibreBook;
 import md.leonis.tivi.admin.model.media.CustomColumn;
 import md.leonis.tivi.admin.model.media.Language;
@@ -13,10 +12,8 @@ import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.CalibreUtils;
 import md.leonis.tivi.admin.utils.SubPane;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static md.leonis.tivi.admin.utils.BookUtils.calibreBooks;
@@ -214,11 +211,6 @@ public class AuditController extends SubPane {
                 .forEach(calibreBook -> addLog(calibreBook.getTitle()));
     }
 
-    //TODO tiviid, own
-    //TODO tiviid - unique
-    //TODO cpu - own
-    //TODO cpu - incorrect symbols
-
     public void checkSeriesTitles() {
         auditLog.clear();
         calibreBooks.stream().filter(calibreBook -> calibreBook.getSeries() != null)
@@ -229,7 +221,7 @@ public class AuditController extends SubPane {
                     }
                     return b1.getSort().compareTo(b2.getSort());
                 })
-                .forEach(calibreBook -> System.out.println("   - " + calibreBook.getSeries().getName() + " [" + calibreBook.getSerieIndex() + "] : " + calibreBook.getTitle()));
+                .forEach(calibreBook -> System.out.println(calibreBook.getSeries().getName() + " [" + calibreBook.getSerieIndex() + "] : " + calibreBook.getTitle()));
     }
 
     public void updateStatus(boolean status) {
@@ -240,7 +232,7 @@ public class AuditController extends SubPane {
     }
 
     public void checkCategories(ActionEvent actionEvent) {
-        BookUtils.addCategory(0, "test");
+        //BookUtils.addCategory(0, "test");
         /*BookUtils.countVideos();
         addLog(BookUtils.booksCount + "");*/
         BookUtils.listBooks();
@@ -254,7 +246,47 @@ public class AuditController extends SubPane {
         List<String> catNames = calibreBooks.stream().map(this::catName).filter(Objects::nonNull).distinct().collect(toList());
         catNames = catNames.stream().filter(cat -> !siteCatNames.contains(cat)).collect(toList());
         catNames.forEach(this::addLog);
+
+        //TODO add cats
     }
+
+
+    //TODO tiviid, own
+    public void checkTiviIdOwn() {
+        auditLog.clear();
+        addLog("TiviId / владею");
+        calibreBooks.stream()
+                .filter(calibreBook -> (calibreBook.getTiviId() == null || calibreBook.getTiviId() < 1)
+                        && (calibreBook.getOwn() != null))
+                .forEach(calibreBook -> addLog("   - " + calibreBook.getTitle()));
+        addLog("TiviId / уникальность");
+        calibreBooks.stream()
+                .filter(calibreBook -> calibreBook.getTiviId() != null)
+                .collect(Collectors.groupingBy(CalibreBook::getTiviId))
+        .entrySet().stream().filter(f -> f.getValue().size() > 1).map(Map.Entry::getValue).flatMap(List::stream)
+                .forEach(calibreBook -> addLog("   - " + calibreBook.getTitle() + " (" + calibreBook.getTiviId() + ")"));
+    }
+
+    //TODO cpu - own
+    public void checkCpuOwn() {
+        auditLog.clear();
+        addLog("ЧПУ / владею");
+        calibreBooks.stream()
+                .filter(calibreBook -> (calibreBook.getCpu() == null)
+                        && (calibreBook.getOwn() != null))
+                .forEach(calibreBook -> addLog("   - " + calibreBook.getTitle()));
+        addLog("ЧПУ / валидность");
+        calibreBooks.stream()
+                .filter(calibreBook -> (calibreBook.getCpu() != null) && !calibreBook.getCpu().matches("^[a-z0-9_]+$"))
+                .forEach(calibreBook -> addLog("   - " + calibreBook.getTitle() + " (" + calibreBook.getCpu() + ")"));
+        addLog("ЧПУ / уникальность");
+        calibreBooks.stream()
+                .filter(calibreBook -> calibreBook.getCpu() != null)
+                .collect(Collectors.groupingBy(CalibreBook::getCpu))
+                .entrySet().stream().filter(f -> f.getValue().size() > 1).map(Map.Entry::getValue).flatMap(List::stream)
+                .forEach(calibreBook -> addLog("   - " + calibreBook.getTitle() + " (" + calibreBook.getCpu() + ")"));
+    }
+
 
     // solutions, manuals???, docs, programming, ???
     // journals -> separate category, gd -> gd

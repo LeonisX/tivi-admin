@@ -9,7 +9,11 @@ import javafx.util.Pair;
 import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.model.media.links.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,7 +22,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static md.leonis.tivi.admin.utils.BookUtils.calibreBooks;
 
 public class CalibreUtils {
 
@@ -435,6 +438,9 @@ public class CalibreUtils {
             return LocalDateTime.parse(date, formatter);
         } else if (date.length() == 23) {
             return LocalDateTime.parse(date, DateTimeFormatter.ISO_DATE_TIME);
+        } else if (date.length() == 22) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SS");
+            return LocalDateTime.parse(date, formatter);
         } else if (date.length() == 21) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.S");
             return LocalDateTime.parse(date, formatter);
@@ -444,6 +450,17 @@ public class CalibreUtils {
         } else {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSSXXX");
             return LocalDateTime.parse(date, formatter);
+        }
+    }
+
+    public static void dumpDB() {
+        String source = Config.calibreDbPath + File.separator + Config.calibreDbName;
+        String destination = source.replace(".db", "-" + LocalDateTime.now().toString().replace(":", "-") + ".db");
+        try {
+            Files.copy(Paths.get(source), Paths.get(destination));
+            System.out.println("Dumped to: " + destination);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

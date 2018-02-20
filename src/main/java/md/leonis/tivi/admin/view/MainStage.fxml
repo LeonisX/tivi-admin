@@ -13,26 +13,29 @@
         <panes>
             <TitledPane animated="false" text="Новости">
                 <VBox prefHeight="200.0" prefWidth="100.0" spacing="5.0">
-                    <Button mnemonicParsing="false" text="Button"/>
-                    <Button mnemonicParsing="false" text="Button"/>
-                    <Button mnemonicParsing="false" text="Button"/>
+                    <Button mnemonicParsing="false" text="Button" />
+                    <Button mnemonicParsing="false" text="Button" />
+                    <Button mnemonicParsing="false" text="Button" />
                 </VBox>
             </TitledPane>
             <TitledPane animated="false" text="Видео">
                 <VBox prefHeight="200.0" prefWidth="100.0">
-                    <Hyperlink fx:id="settingsHyperlink" text="Настройки"/>
-                    <Hyperlink fx:id="allVideoHyperlink" onAction="#listVideos" text="Все видео"/>
-                    <Hyperlink fx:id="categoriesHyperlink" text="Категории"/>
-                    <Hyperlink fx:id="addVideoHyperlink" onAction="#addVideo" text="Добавить видео"/>
-                    <Hyperlink fx:id="addCategoryHyperlink" text="Добавить категорию"/>
-                    <Hyperlink fx:id="inaccesibleHyperlink" text="Недоступные"/>
-                    <Hyperlink fx:id="tagsHyperlink" text="Ключевые слова"/>
-                    <Hyperlink fx:id="commentsHyperlink" text="Комментарии"/>
+                    <Hyperlink fx:id="settingsHyperlink" text="Настройки" />
+                    <Hyperlink fx:id="allVideoHyperlink" onAction="#listVideos" text="Все видео" />
+                    <Hyperlink fx:id="categoriesHyperlink" text="Категории" />
+                    <Hyperlink fx:id="addVideoHyperlink" onAction="#addVideo" text="Добавить видео" />
+                    <Hyperlink fx:id="addCategoryHyperlink" text="Добавить категорию" />
+                    <Hyperlink fx:id="inaccesibleHyperlink" text="Недоступные" />
+                    <Hyperlink fx:id="tagsHyperlink" text="Ключевые слова" />
+                    <Hyperlink fx:id="commentsHyperlink" text="Комментарии" />
                 </VBox>
             </TitledPane>
             <TitledPane animated="false" text="Книги">
                 <VBox prefHeight="200.0" prefWidth="100.0">
-                    <Hyperlink fx:id="auditHyperlink" onAction="#auditBooks" text="Аудит"/>
+                  <children>
+                       <Hyperlink fx:id="dumpHyperlink" onAction="#dumpCalibreDB" text="Дамп БД Calibre" />
+                     <Hyperlink fx:id="auditHyperlink" layoutX="20.0" layoutY="20.0" onAction="#auditBooks" text="Аудит" />
+                  </children>
                 </VBox>
             </TitledPane>
         </panes>

@@ -25,7 +25,7 @@ public class QueryIntegrationTest {
     public void testBook() throws IOException {
         Config.loadProperties();
         Config.loadProtectedProperties();
-        CalibreUtils.readBooks();
+        BookUtils.calibreBooks = CalibreUtils.readBooks();
         Book book = BookUtils.calibreBooks.get(0);
 
         String json = JsonUtils.gson.toJson(book, Book.class);

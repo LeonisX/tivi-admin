@@ -1,16 +1,19 @@
 package md.leonis.tivi.admin.view;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Hyperlink;
 import md.leonis.tivi.admin.model.Actions;
 import md.leonis.tivi.admin.utils.BookUtils;
+import md.leonis.tivi.admin.utils.CalibreUtils;
 import md.leonis.tivi.admin.utils.VideoUtils;
 
 public class MainStageController {
 
     @FXML
     public Hyperlink auditHyperlink;
+    public Hyperlink dumpHyperlink;
 
     @FXML
     private Accordion accordion;
@@ -49,5 +52,9 @@ public class MainStageController {
 
     public void auditBooks() {
         BookUtils.auditBooks();
+    }
+
+    public void dumpCalibreDB() {
+        CalibreUtils.dumpDB();
     }
 }

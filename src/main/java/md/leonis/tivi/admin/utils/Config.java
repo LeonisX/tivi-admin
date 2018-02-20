@@ -13,6 +13,8 @@ public class Config {
     static String sampleVideo;
     static String encoding;
     static String sqliteUrl;
+    static String calibreDbPath;
+    static String calibreDbName = "metadata.db";
 
     static String serverSecret;
 
@@ -36,6 +38,7 @@ public class Config {
             encoding = prop.getProperty("encoding");
             serverSecret = prop.getProperty("server.secret");
             sqliteUrl = prop.getProperty("sqlite.url");
+            calibreDbPath = prop.getProperty("calibre.db.path");
             apiPath = sitePath + apiDir;
         }
     }

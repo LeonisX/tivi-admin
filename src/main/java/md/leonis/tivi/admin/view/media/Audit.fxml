@@ -12,12 +12,12 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="700.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.media.AuditController">
+<BorderPane prefHeight="850.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.media.AuditController">
     <center>
-        <TextArea fx:id="auditLog" maxHeight="1.7976931348623157E308" minHeight="300.0" prefHeight="372.0" prefWidth="970.0" BorderPane.alignment="CENTER" />
+        <TextArea fx:id="auditLog" maxHeight="1.7976931348623157E308" minHeight="247.0" prefHeight="240.0" prefWidth="1000.0" BorderPane.alignment="CENTER" />
     </center>
    <top>
-      <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+      <VBox alignment="CENTER" prefHeight="509.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
          <children>
                 <Label prefHeight="28.0" prefWidth="126.0" text="Аудит базы данных">
                     <font>
@@ -32,18 +32,22 @@
                   </columnConstraints>
                   <rowConstraints>
                       <RowConstraints maxHeight="24.0" minHeight="0.0" prefHeight="24.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="32.0" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="32.0" minHeight="10.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" minHeight="32.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" minHeight="32.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="32.0" minHeight="16.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                   </rowConstraints>
                   <children>
                       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="4">
@@ -111,6 +115,30 @@
                   <Button mnemonicParsing="false" onAction="#fixScannerLinks" text="Fix" GridPane.columnIndex="2" GridPane.rowIndex="5" />
                   <Button mnemonicParsing="false" onAction="#fixLanguages" text="Fix" GridPane.columnIndex="2" GridPane.rowIndex="6" />
                   <Button mnemonicParsing="false" onAction="#fixTitleFileNames" text="Fix" GridPane.columnIndex="2" GridPane.rowIndex="8" />
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="13">
+                     <children>
+                        <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="TiviId" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="14">
+                     <children>
+                        <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="ЧПУ" />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="15">
+                     <children>
+                        <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="..." />
+                     </children>
+                  </HBox>
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="16">
+                     <children>
+                        <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="..." />
+                     </children>
+                  </HBox>
+                  <Button mnemonicParsing="false" onAction="#checkTiviIdOwn" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="13" />
+                  <Button mnemonicParsing="false" onAction="#checkCpuOwn" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="14" />
+                  <Button mnemonicParsing="false" onAction="#checkCpuQuality" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="15" />
+                  <Button mnemonicParsing="false" onAction="#checkCpuUnique" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="16" />
                   </children>
               </GridPane>
          </children>
