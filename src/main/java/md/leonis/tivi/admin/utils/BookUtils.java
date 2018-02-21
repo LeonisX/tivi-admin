@@ -61,13 +61,13 @@ public class BookUtils {
 
 
     public static String queryRequest(String query) {
-        System.out.println(query);
+        //System.out.println(query);
         try {
             String requestURL = Config.apiPath + "media.php?to=query&query_string=" + URLEncoder.encode(query, Config.encoding);
             String jsonString = WebUtils.readFromUrl(requestURL);
             //String jsonString = ascii2Native(WebUtils.readFromUrl(requestURL));
             int len = jsonString.length() > 1024 ? 1024 : jsonString.length();
-            System.out.println(jsonString.substring(0, len));
+            //System.out.println(jsonString.substring(0, len));
             return jsonString;
             //videos = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<Video>>(){}.getType());
         } catch (IOException e) {
@@ -93,13 +93,13 @@ public class BookUtils {
     }
 
     public static String rawQueryRequest(String query) {
-        System.out.println(query);
+        //System.out.println(query);
         try {
             String requestURL = Config.apiPath + "media.php?to=raw_query&query_string=" + URLEncoder.encode(query, Config.encoding);
             String result = WebUtils.readFromUrl(requestURL);
             //String result = ascii2Native(WebUtils.readFromUrl(requestURL));
             int len = result.length() > 1024 ? 1024 : result.length();
-            System.out.println(result.substring(0, len));
+            //System.out.println(result.substring(0, len));
             return result;
         } catch (IOException e) {
             System.out.println("Error");
