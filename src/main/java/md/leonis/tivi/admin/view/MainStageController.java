@@ -13,7 +13,10 @@ public class MainStageController {
 
     @FXML
     public Hyperlink auditHyperlink;
-    public Hyperlink dumpHyperlink;
+    public Hyperlink calibreCompareHyperlink;
+    public Hyperlink siteCompareHyperlink;
+    public Hyperlink calibreDumpHyperlink;
+    public Hyperlink siteDumpHyperlink;
 
     @FXML
     private Accordion accordion;
@@ -56,5 +59,17 @@ public class MainStageController {
 
     public void dumpCalibreDB() {
         CalibreUtils.dumpDB();
+    }
+
+    public void compareCalibreDbs() {
+        BookUtils.compareCalibreDbs();
+    }
+
+    public void compareSiteDbs() {
+        BookUtils.compareSiteDbs();
+    }
+
+    public void dumpSiteDB() {
+        BookUtils.dumpDB();
     }
 }

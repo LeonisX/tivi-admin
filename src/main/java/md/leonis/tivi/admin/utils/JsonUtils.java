@@ -17,6 +17,7 @@ public class JsonUtils {
         builder.registerTypeAdapter(Boolean.class, new BooleanTypeAdapter());
         builder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter());
         builder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeSerializer());
+        builder.serializeNulls();
         gson = builder.create();
     }
 

@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
 import javafx.util.Pair;
+import md.leonis.tivi.admin.model.calibre.ComparisionResult;
 import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.model.media.links.*;
 
@@ -19,8 +20,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 public class CalibreUtils {
@@ -170,6 +173,59 @@ public class CalibreUtils {
 
         calibreBooks.forEach(System.out::println);
         return calibreBooks;
+    }
+
+    public static ComparisionResult compare(String oldBasePath, String newBasePath) {
+        String configUrl = Config.sqliteUrl;
+        Config.sqliteUrl = "jdbc:sqlite:/home/leonidstavila/Calibre Library 2/metadata.db";
+        List<CalibreBook> oldBooks = readBooks();
+        Config.sqliteUrl = "jdbc:sqlite:/home/leonidstavila/Calibre Library/metadata.db";
+        List<CalibreBook> newBooks = readBooks();
+        Config.sqliteUrl = configUrl;
+
+        //TODO added
+        //TODO deleted
+        Map<Long, CalibreBook> oldIds = oldBooks.stream().collect(Collectors.toMap(CalibreBook::getId, Function.identity()));
+        Map<Long, CalibreBook> newIds = newBooks.stream().collect(Collectors.toMap(CalibreBook::getId, Function.identity()));
+
+        Collection<CalibreBook> addedBooks = mapDifference(newIds, oldIds);
+        Collection<CalibreBook> deletedBooks = mapDifference(oldIds, newIds);
+
+        List<CalibreBook> allBooks = new ArrayList<>(oldBooks);
+        allBooks.addAll(newBooks);
+        List<Pair<CalibreBook, CalibreBook>> changed = allBooks.stream().collect(groupingBy(Book::getId))
+                .entrySet().stream().filter(e -> e.getValue().size() == 2)
+                .filter(e -> !e.getValue().get(0).equals(e.getValue().get(1)))
+                .map(e -> new Pair<>(e.getValue().get(0), e.getValue().get(1))).collect(toList());
+
+        //Map<CalibreBook, List<Pair<String, String>>> changedBooks = new HashMap<>();
+
+        System.out.println("===");
+        Map<CalibreBook, List<Pair<String, Pair<String, String>>>> changedBooks = changed.stream().collect(Collectors.toMap(Pair::getKey, pair -> {
+            List<Pair<String, Pair<String, String>>> result = new ArrayList<>();
+            JsonObject oldJsonObject = JsonUtils.gson.toJsonTree(pair.getKey()).getAsJsonObject();
+            JsonObject newJsonObject = JsonUtils.gson.toJsonTree(pair.getValue()).getAsJsonObject();
+            oldJsonObject.entrySet().forEach(e -> {
+                if (!e.getValue().toString().equals(newJsonObject.get(e.getKey()).toString())) {
+                    System.out.print(e.getKey() + ": ");
+                    System.out.print(e.getValue().toString() + " -> ");
+                    System.out.println(newJsonObject.get(e.getKey()).toString());
+                    Pair<String, String> value = new Pair<>(e.getValue().toString(), newJsonObject.get(e.getKey()).toString());
+                    result.add(new Pair<>(e.getKey(), value));
+                }
+            });
+            return result;
+        }));
+
+        return new ComparisionResult(addedBooks, deletedBooks, changedBooks);
+    }
+
+    public static <K, V> Collection<V> mapDifference(Map<? extends K, ? extends V> left, Map<? extends K, ? extends V> right) {
+        Map<K, V> difference = new HashMap<>();
+        difference.putAll(left);
+        difference.putAll(right);
+        difference.entrySet().removeAll(right.entrySet());
+        return difference.values();
     }
 
     public static <T> List<T> selectAllFrom(String tableName, Class<T> clazz) {
@@ -419,9 +475,8 @@ public class CalibreUtils {
         return getDiff(o1, o2).isEmpty();
     }
 
-    public static Connection conn;
-
     private static Connection connect() {
+        Connection conn;
         try {
             conn = DriverManager.getConnection(Config.sqliteUrl);
             conn.setAutoCommit(true);

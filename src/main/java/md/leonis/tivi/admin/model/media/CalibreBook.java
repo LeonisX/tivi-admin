@@ -1,5 +1,6 @@
 package md.leonis.tivi.admin.model.media;
 
+import com.google.gson.annotations.SerializedName;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
@@ -19,7 +20,8 @@ public class CalibreBook extends Book {
     private PublisherSeries series;
     private List<Tag> tags;
 
-    private transient String isbn;
+    @SerializedName("customIsbn")
+    private String isbn;
     private String bbk;
     private String format;
     private String source;

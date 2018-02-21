@@ -2,6 +2,7 @@ package md.leonis.tivi.admin.utils;
 
 import com.google.gson.JsonPrimitive;
 import javafx.util.Pair;
+import md.leonis.tivi.admin.model.calibre.ComparisionResult;
 import md.leonis.tivi.admin.model.calibre.Sql;
 import md.leonis.tivi.admin.model.media.Book;
 import org.junit.Rule;
@@ -101,4 +102,11 @@ public class QueryIntegrationTest {
         //BookUtils.queryOperation("DELETE FROM `danny_info` WHERE infoid = 213");
     }
 
+    @Test
+    public void testComparator() throws IOException {
+        Config.loadProperties();
+        Config.loadProtectedProperties();
+        ComparisionResult comparisionResult = CalibreUtils.compare();
+        System.out.println(comparisionResult);
+    }
 }
