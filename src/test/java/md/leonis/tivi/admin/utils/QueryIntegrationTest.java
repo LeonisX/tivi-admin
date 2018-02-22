@@ -155,77 +155,81 @@ public class QueryIntegrationTest {
         Config.loadProperties();
         Config.loadProtectedProperties();
 
-        new File(Config.workPath + "gen").mkdirs();
-
         Type type = new TypeToken<List<TableStatus>>() {}.getType();
         List<TableStatus> tableStatuses = JsonUtils.gson.fromJson(queryRequest("SHOW TABLE STATUS"), type);
 
         for (TableStatus table : tableStatuses) {
-            if (!table.getName().startsWith("vv_post")) {
+            if (table.getName().startsWith("vv_socialgroupicon") || !table.getName().startsWith("vv_")) {
                 continue;
             }
             System.out.println(table.getName());
 
-            //dumpDBAsNativeSql(table.getName());
+            dumpDBAsNativeSql(table.getName());
 
-            List<String> jsons = new ArrayList<>();
-            long offset = 0;
-            long limit = 4000;
-            String result;
-            do {
-                int count = 0;
-                int maxTries = 15;
-                while (true) {
-                    try {
-                        System.out.println(offset);
-                        String requestURL = Config.apiPath + String.format("dumper.php?action=backup&tables=%s&offset=%d,%d&format=json&comp_level=9&comp_method=1", table.getName(), offset, limit);
-                        String queryId = WebUtils.readFromUrl(requestURL);
-                        System.out.println(queryId);
-                        String fileName = Config.apiPath + "backup/" + queryId + ".sql.gz";
-                        result = gunzipIt(fileName);
-                        break;
-                    } catch (Exception e) {
-                        System.out.println("#" + e.getMessage());
-                        try {
-                            Thread.sleep(1000 * (count + 1) * 3);
-                        } catch (InterruptedException e1) {
-                            e1.printStackTrace();
-                        }
-                        if (++count == maxTries) throw new RuntimeException(e);
-                    }
-                }
-                result = result.substring(1, result.length() - 1).trim();
-                jsons.add(result);
-                offset += limit;
-                System.out.println(result.substring(0, result.length() > 256 ? 256 : result.length()).trim());
-            } while (!result.isEmpty());
-
-                    /*try (FileOutputStream fos = new FileOutputStream("E:\\" + table.getName() + "-gen.txt")) {
-                        fos.write(BookUtils.ascii2Native(result).getBytes(charset));
-                        fos.close();
-                    }*/
-            //Type REVIEW_TYPE = new TypeToken<List<Video>>() {}.getType();
-            //JsonReader reader = new JsonReader(new FileReader(newFile));
-            //List<Video> data = JsonUtils.gson.fromJson(result, REVIEW_TYPE); // contains the whole reviews list
-            //System.out.println(data); // prints to screen some values
-
-            //TODO to sql
-            try (FileOutputStream fos = new FileOutputStream(Config.workPath + "gen" + File.separatorChar + table.getName() + ".txt")) {
-                //queryRequest("SHOW COLUMNS FROM `danny_media`");
-                //queryRequest("SHOW TABLE STATUS");
-                jsonToSqlInsertQuery("[" + jsons.stream().filter(s -> !s.isEmpty()).collect(joining(",")) + "]", fos, table.getName());
-            }
+            String json = dumpBaseAsJson(table);
+            generateInsertQueries(json, table.getName(), tableStatuses);
         }
-        //TODO compare
 
         //http://tv-games.ru/api2d/dumper.php?action=backup&db_backup=alenka975_wiki&drop_table=false&create_table=false&where=downid%3C4&tables=danny_media&format=json&comp_level=9&comp_method=1&as=danny_media2
     }
 
-    private static void jsonToSqlInsertQuery(String json, FileOutputStream fos, String pattern) throws IOException {
-        Type type = new TypeToken<List<TableStatus>>() {
-        }.getType();
-        List<TableStatus> tableStatuses = JsonUtils.gson.fromJson(queryRequest("SHOW TABLE STATUS"), type);
+    public String dumpBaseAsJson(TableStatus table) {
+        new File(Config.workPath + "gen").mkdirs();
+        List<String> jsons = new ArrayList<>();
+        long offset = 0;
+        long limit = 1 + Math.round(1 * 1048576 / (table.getAvgRowLength() * 1.7 + 1));
+        String result;
+        int page = 1;
+        do {
+            System.out.println("Page : " + page++ + " of " + (table.getRows() / limit + 1) + " limit: " + limit);
+            int count = 0;
+            int maxTries = 15;
+            while (true) {
+                try {
+                    System.out.println(offset);
+                    String requestURL = Config.apiPath + String.format("dumper.php?action=backup&tables=%s&offset=%d,%d&format=json&comp_level=9&comp_method=1", table.getName(), offset, limit);
+                    String queryId = WebUtils.readFromUrl(requestURL);
+                    System.out.println(queryId);
+                    String fileName = Config.apiPath + "backup/" + queryId + ".sql.gz";
+                    result = gunzipIt(fileName);
+                    break;
+                } catch (Exception e) {
+                    System.out.println("#" + e.getMessage());
+                    try {
+                        Thread.sleep(1000 * (count + 1) * 3);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    if (++count == maxTries) throw new RuntimeException(e);
+                }
+            }
+            if (!result.isEmpty()) {
+                result = result.substring(1, result.length() - 1).trim();
+            }
+            jsons.add(result);
+            offset += limit;
+            System.out.println(result.substring(0, result.length() > 256 ? 256 : result.length()).trim());
+        } while (!result.isEmpty());
 
+        //TODO to sql
+        return "[" + jsons.stream().filter(s -> !s.isEmpty()).collect(joining(",")) + "]";
+    }
+
+
+    public void generateInsertQueries(String json, String tableName, List<TableStatus> tableStatuses, String as) {
+        generateInsertQueries(json, tableName, tableStatuses, tableName);
+    }
+
+
+    public void generateInsertQueries(String json, String tableName, List<TableStatus> tableStatuses) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(Config.workPath + "gen" + File.separatorChar + tableName + ".txt")) {
+            //queryRequest("SHOW COLUMNS FROM `danny_media`");
+            //queryRequest("SHOW TABLE STATUS");
+            jsonToSqlInsertQuery(json, fos, tableName, tableStatuses);
+        }
+    }
+
+    private static void jsonToSqlInsertQuery(String json, FileOutputStream fos, String pattern, List<TableStatus> tableStatuses) throws IOException {
         for (TableStatus table : tableStatuses) {
             if (!table.getName().matches(pattern)) {
                 continue;
@@ -252,14 +256,13 @@ public class QueryIntegrationTest {
             List<String> blobColumns = fields.stream().filter(t -> t.getType().matches("^(\\w*blob.*)")).map(Field::getField).collect(toList());
 
             boolean isFirst = true;
-            type = new TypeToken<List<Map<String, Object>>>() {}.getType();
+            Type type = new TypeToken<List<Map<String, Object>>>() {}.getType();
             List<Map<String, Object>> rows = JsonUtils.gson.fromJson(json, type);
 
             if (rows != null) {
                 for (Map<String, Object> row : rows) {
                     String values = row.entrySet().stream().map(field -> {
                         if (numericColumns.contains(field.getKey())) {
-                            //$row[$k] = isset($row[$k]) ? $row[$k] : "NULL";
                             if (field.getValue() == null) {
                                 return "NULL";
                             }
@@ -275,8 +278,6 @@ public class QueryIntegrationTest {
                             }
                             return "'" + field.getValue().toString().replace("\"", "\\\"") + "'";
                         } else {
-                            //TODO
-                            //$row[$k] = isset($row[$k]) ? "'".mysql_escape_string($row[$k]). "'" :"NULL";
                             if (field.getValue() == null) {
                                 return "NULL";
                             }
@@ -284,10 +285,9 @@ public class QueryIntegrationTest {
                                     .replace("\\", "\\\\")
                                     .replace("\"", "\\\"")
                                     .replace("'", "\\'")
-                                    .replace("\r\n", "\\r\\n")
-                                    //.replace("\r\n", "\\r\\n")
                                     .replace("\n", "\\n")
-                                    //.replace("" + ((char) 0), "\\0")
+                                    .replace("\r", "\\r")
+                                    .replace("" + ((char) 0), "\\0")
                                     + "'";
                         }
                     }).collect(Collectors.joining(", "));
