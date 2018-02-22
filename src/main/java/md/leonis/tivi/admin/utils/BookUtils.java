@@ -205,7 +205,7 @@ public class BookUtils {
             count = vv.size();
         } while (count > 0);
 
-        String destination = Config.calibreDbPath + File.separator + "danny_media" + "-"
+        String destination = Config.calibreDbPath + "danny_media" + "-"
                 + LocalDateTime.now().toString().replace(":", "-") + ".json";
 
         try {

@@ -509,7 +509,7 @@ public class CalibreUtils {
     }
 
     public static void dumpDB() {
-        String source = Config.calibreDbPath + File.separator + Config.calibreDbName;
+        String source = Config.calibreDbPath + Config.calibreDbName;
         String destination = source.replace(".db", "-" + LocalDateTime.now().toString().replace(":", "-") + ".db");
         try {
             Files.copy(Paths.get(source), Paths.get(destination));

@@ -2,6 +2,7 @@ package md.leonis.tivi.admin.utils;
 
 import md.leonis.tivi.admin.view.MainStageController;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,7 @@ public class Config {
     static String encoding;
     static String sqliteUrl;
     static String calibreDbPath;
+    static String workPath;
     static String calibreDbName = "metadata.db";
 
     static String serverSecret;
@@ -38,7 +40,8 @@ public class Config {
             encoding = prop.getProperty("encoding");
             serverSecret = prop.getProperty("server.secret");
             sqliteUrl = prop.getProperty("sqlite.url");
-            calibreDbPath = prop.getProperty("calibre.db.path");
+            calibreDbPath = prop.getProperty("calibre.db.path") + File.separatorChar;
+            workPath = prop.getProperty("work.path") + File.separatorChar;
             apiPath = sitePath + apiDir;
         }
     }

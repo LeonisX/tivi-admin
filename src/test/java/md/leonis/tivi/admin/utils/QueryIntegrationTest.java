@@ -1,12 +1,8 @@
 package md.leonis.tivi.admin.utils;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
 import javafx.util.Pair;
-import md.leonis.tivi.admin.model.Video;
-import md.leonis.tivi.admin.model.calibre.ComparisionResult;
 import md.leonis.tivi.admin.model.calibre.Sql;
 import md.leonis.tivi.admin.model.media.Book;
 import md.leonis.tivi.admin.model.mysql.Field;
@@ -17,15 +13,15 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static junit.framework.TestCase.assertTrue;
 import static md.leonis.tivi.admin.utils.BookUtils.queryRequest;
@@ -129,82 +125,95 @@ public class QueryIntegrationTest {
         //System.out.println(comparisionResult);
     }
 
+    public void dumpDBAsNativeSql(String tableName) {
+        new File(Config.workPath + "nat").mkdirs();
+        int count = 0;
+        int maxTries = 15;
+            while (true) {
+                try {
+                    String requestURL = Config.apiPath + String.format("dumper.php?action=backup&drop_table=true&create_table=true&tables=%s&format=sql&comp_level=9&comp_method=1", tableName);
+                    String queryId = WebUtils.readFromUrl(requestURL);
+                    System.out.println(queryId);
+                    String fileName = Config.apiPath + "backup/" + queryId + ".sql.gz";
+                    File newFile = new File(Config.workPath + "nat" + File.separatorChar + tableName + ".txt");
+                    gunzipIt(fileName, newFile);
+                    break;
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    try {
+                        Thread.sleep(1000 * (count + 1) * 3);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    if (++count == maxTries) throw new RuntimeException(e);
+                }
+            }
+    }
+
     @Test
     public void testDumper() throws IOException {
         Config.loadProperties();
         Config.loadProtectedProperties();
 
-        Type type = new TypeToken<List<TableStatus>>() {
-        }.getType();
+        new File(Config.workPath + "gen").mkdirs();
+
+        Type type = new TypeToken<List<TableStatus>>() {}.getType();
         List<TableStatus> tableStatuses = JsonUtils.gson.fromJson(queryRequest("SHOW TABLE STATUS"), type);
 
         for (TableStatus table : tableStatuses) {
-            if (!table.getName().startsWith("vv_")) {
+            if (!table.getName().startsWith("vv_post")) {
                 continue;
             }
             System.out.println(table.getName());
-            String charset = table.getCollation().split("_")[0];
-            //System.out.println("======================" + charset);
 
+            //dumpDBAsNativeSql(table.getName());
 
-            int count = 0;
-            int maxTries = 15;
-            while (true) {
-                try {
-                    String requestURL = Config.apiPath + String.format("dumper.php?action=backup&drop_table=true&create_table=true&tables=%s&format=sql&comp_level=9&comp_method=1", table.getName());
-                    String queryId = WebUtils.readFromUrl(requestURL);
-                    //System.out.println(queryId);
-                    String fileName = Config.apiPath + "backup/" + queryId + ".sql.gz";
-                    File newFile = new File("E:\\nat\\" + table.getName() + ".txt");
-
-                    gunzipIt(fileName, newFile);
-                    break;
-                } catch (Exception e) {
-                    // handle exception
-                    System.out.println(e.getMessage());
+            List<String> jsons = new ArrayList<>();
+            long offset = 0;
+            long limit = 4000;
+            String result;
+            do {
+                int count = 0;
+                int maxTries = 15;
+                while (true) {
                     try {
-                        Thread.sleep(1000 * (count + 1) * 3);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
+                        System.out.println(offset);
+                        String requestURL = Config.apiPath + String.format("dumper.php?action=backup&tables=%s&offset=%d,%d&format=json&comp_level=9&comp_method=1", table.getName(), offset, limit);
+                        String queryId = WebUtils.readFromUrl(requestURL);
+                        System.out.println(queryId);
+                        String fileName = Config.apiPath + "backup/" + queryId + ".sql.gz";
+                        result = gunzipIt(fileName);
+                        break;
+                    } catch (Exception e) {
+                        System.out.println("#" + e.getMessage());
+                        try {
+                            Thread.sleep(1000 * (count + 1) * 3);
+                        } catch (InterruptedException e1) {
+                            e1.printStackTrace();
+                        }
+                        if (++count == maxTries) throw new RuntimeException(e);
                     }
-                    if (++count == maxTries) throw e;
                 }
-            }
+                result = result.substring(1, result.length() - 1).trim();
+                jsons.add(result);
+                offset += limit;
+                System.out.println(result.substring(0, result.length() > 256 ? 256 : result.length()).trim());
+            } while (!result.isEmpty());
 
-            count = 0;
-            while (true) {
-                try {
-                    String requestURL = Config.apiPath + String.format("dumper.php?action=backup&tables=%s&format=json&comp_level=9&comp_method=1", table.getName());
-                    String queryId = WebUtils.readFromUrl(requestURL);
-                    //System.out.println(queryId);
-                    String fileName = Config.apiPath + "backup/" + queryId + ".sql.gz";
-                    String result = gunzipIt(fileName);
                     /*try (FileOutputStream fos = new FileOutputStream("E:\\" + table.getName() + "-gen.txt")) {
                         fos.write(BookUtils.ascii2Native(result).getBytes(charset));
                         fos.close();
                     }*/
-                    //Type REVIEW_TYPE = new TypeToken<List<Video>>() {}.getType();
-                    //JsonReader reader = new JsonReader(new FileReader(newFile));
-                    //List<Video> data = JsonUtils.gson.fromJson(result, REVIEW_TYPE); // contains the whole reviews list
-                    //System.out.println(data); // prints to screen some values
+            //Type REVIEW_TYPE = new TypeToken<List<Video>>() {}.getType();
+            //JsonReader reader = new JsonReader(new FileReader(newFile));
+            //List<Video> data = JsonUtils.gson.fromJson(result, REVIEW_TYPE); // contains the whole reviews list
+            //System.out.println(data); // prints to screen some values
 
-                    //TODO to sql
-                    try (FileOutputStream fos = new FileOutputStream("E:\\gen\\" + table.getName() + ".txt")) {
-                        //queryRequest("SHOW COLUMNS FROM `danny_media`");
-                        //queryRequest("SHOW TABLE STATUS");
-                        doDump(result, fos, table.getName());
-                    }
-                    break;
-                } catch (Exception e) {
-                    // handle exception
-                    System.out.println(e.getMessage());
-                    try {
-                        Thread.sleep(1000 * (count + 1) * 3);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-                    if (++count == maxTries) throw e;
-                }
+            //TODO to sql
+            try (FileOutputStream fos = new FileOutputStream(Config.workPath + "gen" + File.separatorChar + table.getName() + ".txt")) {
+                //queryRequest("SHOW COLUMNS FROM `danny_media`");
+                //queryRequest("SHOW TABLE STATUS");
+                jsonToSqlInsertQuery("[" + jsons.stream().filter(s -> !s.isEmpty()).collect(joining(",")) + "]", fos, table.getName());
             }
         }
         //TODO compare
@@ -212,7 +221,7 @@ public class QueryIntegrationTest {
         //http://tv-games.ru/api2d/dumper.php?action=backup&db_backup=alenka975_wiki&drop_table=false&create_table=false&where=downid%3C4&tables=danny_media&format=json&comp_level=9&comp_method=1&as=danny_media2
     }
 
-    private static void doDump(String json, FileOutputStream fos, String pattern) throws IOException {
+    private static void jsonToSqlInsertQuery(String json, FileOutputStream fos, String pattern) throws IOException {
         Type type = new TypeToken<List<TableStatus>>() {
         }.getType();
         List<TableStatus> tableStatuses = JsonUtils.gson.fromJson(queryRequest("SHOW TABLE STATUS"), type);
@@ -243,10 +252,8 @@ public class QueryIntegrationTest {
             List<String> blobColumns = fields.stream().filter(t -> t.getType().matches("^(\\w*blob.*)")).map(Field::getField).collect(toList());
 
             boolean isFirst = true;
-            type = new TypeToken<List<Map<String, Object>>>() {
-            }.getType();
+            type = new TypeToken<List<Map<String, Object>>>() {}.getType();
             List<Map<String, Object>> rows = JsonUtils.gson.fromJson(json, type);
-            //System.out.println(rows);
 
             if (rows != null) {
                 for (Map<String, Object> row : rows) {
