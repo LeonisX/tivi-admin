@@ -177,9 +177,9 @@ public class CalibreUtils {
 
     public static ComparisionResult compare(String oldBasePath, String newBasePath) {
         String configUrl = Config.sqliteUrl;
-        Config.sqliteUrl = "jdbc:sqlite:/home/leonidstavila/Calibre Library 2/metadata.db";
+        Config.sqliteUrl = oldBasePath;
         List<CalibreBook> oldBooks = readBooks();
-        Config.sqliteUrl = "jdbc:sqlite:/home/leonidstavila/Calibre Library/metadata.db";
+        Config.sqliteUrl = newBasePath;
         List<CalibreBook> newBooks = readBooks();
         Config.sqliteUrl = configUrl;
 

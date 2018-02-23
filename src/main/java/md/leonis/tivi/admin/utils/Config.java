@@ -9,14 +9,14 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class Config {
-    static String apiPath;
+    public static String apiPath;
     public static String sitePath;
-    static String sampleVideo;
-    static String encoding;
-    static String sqliteUrl;
-    static String calibreDbPath;
-    static String workPath;
-    static String calibreDbName = "metadata.db";
+    public static String sampleVideo;
+    public static String encoding;
+    public static String sqliteUrl;
+    public static String calibreDbPath;
+    public static String workPath;
+    public static String calibreDbName = "metadata.db";
 
     static String serverSecret;
 

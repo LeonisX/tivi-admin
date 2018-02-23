@@ -8,6 +8,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import md.leonis.tivi.admin.model.calibre.ComparisionResult;
 import md.leonis.tivi.admin.utils.CalibreUtils;
+import md.leonis.tivi.admin.utils.Config;
 import md.leonis.tivi.admin.utils.SubPane;
 
 import java.io.File;
@@ -35,7 +36,7 @@ public class CalibreCompareController extends SubPane {
 
     public void selectOldDir() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setInitialDirectory(new File("/home/leonidstavila/"));
+        directoryChooser.setInitialDirectory(new File(Config.workPath));
         directoryChooser.setTitle("dassdasd");
         File selectedDirectory = directoryChooser.showDialog(null);
         oldDir.setText(selectedDirectory.getAbsolutePath());
@@ -43,7 +44,7 @@ public class CalibreCompareController extends SubPane {
 
     public void selectNewDir() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setInitialDirectory(new File("/home/leonidstavila/"));
+        directoryChooser.setInitialDirectory(new File(Config.workPath));
         directoryChooser.setTitle("dassdasd");
         File selectedDirectory = directoryChooser.showDialog(null);
         newDir.setText(selectedDirectory.getAbsolutePath());
@@ -91,6 +92,7 @@ public class CalibreCompareController extends SubPane {
     }
 
     private String getJdbcString(String path) {
+        //return String.format("jdbc:sqlite:E:\\metadata.db");
         return String.format("jdbc:sqlite:%s%smetadata.db", path, File.separatorChar);
     }
 }
