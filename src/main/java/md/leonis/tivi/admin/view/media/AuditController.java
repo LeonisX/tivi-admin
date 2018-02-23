@@ -11,7 +11,9 @@ import md.leonis.tivi.admin.model.media.Language;
 import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.CalibreUtils;
 import md.leonis.tivi.admin.utils.SubPane;
+import md.leonis.tivi.admin.utils.Translit;
 
+import java.text.Normalizer;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -263,7 +265,7 @@ public class AuditController extends SubPane {
         calibreBooks.stream()
                 .filter(calibreBook -> calibreBook.getTiviId() != null)
                 .collect(Collectors.groupingBy(CalibreBook::getTiviId))
-        .entrySet().stream().filter(f -> f.getValue().size() > 1).map(Map.Entry::getValue).flatMap(List::stream)
+                .entrySet().stream().filter(f -> f.getValue().size() > 1).map(Map.Entry::getValue).flatMap(List::stream)
                 .forEach(calibreBook -> addLog("   - " + calibreBook.getTitle() + " (" + calibreBook.getTiviId() + ")"));
     }
 
@@ -271,22 +273,96 @@ public class AuditController extends SubPane {
     public void checkCpuOwn() {
         auditLog.clear();
         addLog("ЧПУ / владею");
-        calibreBooks.stream()
-                .filter(calibreBook -> (calibreBook.getCpu() == null)
-                        && (calibreBook.getOwn() != null))
-                .forEach(calibreBook -> addLog("   - " + calibreBook.getTitle()));
+        getCpuOwn().forEach(calibreBook -> addLog("   - " + calibreBook.getTitle()));
         addLog("ЧПУ / валидность");
-        calibreBooks.stream()
-                .filter(calibreBook -> (calibreBook.getCpu() != null) && !calibreBook.getCpu().matches("^[a-z0-9_]+$"))
-                .forEach(calibreBook -> addLog("   - " + calibreBook.getTitle() + " (" + calibreBook.getCpu() + ")"));
+        getCpuValid().forEach(calibreBook -> addLog("   - " + calibreBook.getTitle() + " (" + calibreBook.getCpu() + ")"));
         addLog("ЧПУ / уникальность");
+        //TODO если теги разные то уникальны
         calibreBooks.stream()
                 .filter(calibreBook -> calibreBook.getCpu() != null)
                 .collect(Collectors.groupingBy(CalibreBook::getCpu))
-                .entrySet().stream().filter(f -> f.getValue().size() > 1).map(Map.Entry::getValue).flatMap(List::stream)
+                .entrySet().stream().filter(f -> uniqueCount(f.getValue()) > 1).map(Map.Entry::getValue).flatMap(List::stream)
                 .forEach(calibreBook -> addLog("   - " + calibreBook.getTitle() + " (" + calibreBook.getCpu() + ")"));
     }
 
+    private int uniqueCount(List<CalibreBook> books) {
+        return books.stream().collect(Collectors.groupingBy(calibreBook -> calibreBook.getTags().toString())).size();
+    }
+
+    public List<CalibreBook> getCpuOwn() {
+        return calibreBooks.stream()
+                .filter(calibreBook -> (calibreBook.getCpu() == null)
+                        && (calibreBook.getOwn() != null) && calibreBook.getOwn()).collect(toList());
+    }
+
+    public List<CalibreBook> getCpuValid() {
+        return calibreBooks.stream()
+                .filter(calibreBook -> (calibreBook.getCpu() != null) && !isValidCpu(calibreBook.getCpu())).collect(toList());
+    }
+
+    public void fixCpu() {
+        //TODO delete invalid
+        getCpuValid().forEach(calibreBook -> {
+            String query = String.format("SELECT * FROM `custom_column_16` WHERE value='%s'", calibreBook.getCpu());
+            System.out.println(query);
+            CustomColumn source = CalibreUtils.readObject(query, CustomColumn.class);
+            Long cpuId = source.getId();
+
+            query = String.format("DELETE FROM `books_custom_column_16_link` WHERE book=%d AND value=%d", calibreBook.getId(), cpuId);
+            System.out.println(query);
+            Integer id = CalibreUtils.executeUpdateQuery(query);
+            System.out.println(id);
+
+            //TODO delete if no links
+            query = String.format("SELECT * FROM `books_custom_column_16_link` WHERE value=%d", cpuId);
+            System.out.println(query);
+            List<CustomColumn> fileNames = CalibreUtils.readObjectList(query, CustomColumn.class);
+            if (fileNames.isEmpty()) {
+                query = String.format("DELETE FROM `custom_column_16` WHERE id=%d", cpuId);
+                System.out.println(query);
+                id = CalibreUtils.executeUpdateQuery(query);
+                System.out.println(id);
+            }
+        });
+
+
+        getCpuOwn().forEach(calibreBook -> {
+            //TODO generate
+            String cpu = calibreBook.getFileName() == null ? calibreBook.getTitle() : calibreBook.getFileName();
+            cpu = toPrettyURL(Translit.toTranslit(cpu));
+            if (!isValidCpu(cpu)) {
+                System.out.println(cpu);
+            }
+            //find in custom_column_16
+            String query = String.format("SELECT * FROM `custom_column_16` WHERE value='%s'", cpu);
+            System.out.println(query);
+            CustomColumn source = CalibreUtils.readObject(query, CustomColumn.class);
+            Long sourceId;
+            if (source != null) {
+                sourceId = source.getId();
+            } else {
+                //if no - add
+                query = String.format("INSERT INTO `custom_column_16` VALUES (null, '%s')", cpu);
+                System.out.println(query);
+                Integer id = CalibreUtils.executeInsertQuery(query);
+                sourceId = id.longValue();
+            }
+            String q = String.format("INSERT INTO `books_custom_column_16_link` VALUES (null, %d, %d)", calibreBook.getId(), sourceId);
+            System.out.println(q);
+            Integer id = CalibreUtils.executeInsertQuery(q);
+            System.out.println(id);
+        });
+    }
+
+    public static boolean isValidCpu(String cpu) {
+        return cpu.matches("^[a-z0-9_]+$")/* && cpu.length() < 64*/;
+    }
+    public static String toPrettyURL(String string) {
+        return Normalizer.normalize(string.toLowerCase(), Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                .replaceAll("[^\\p{Alnum}]+", "_")
+                .replaceAll("_*$", "");
+    }
 
     // solutions, manuals???, docs, programming, ???
     // journals -> separate category, gd -> gd

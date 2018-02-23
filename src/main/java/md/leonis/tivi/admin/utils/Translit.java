@@ -25,7 +25,7 @@ public class Translit {
         charTable['Ж' - START_CHAR] = "ZH";
         charTable['З' - START_CHAR] = "Z";
         charTable['И' - START_CHAR] = "I";
-        charTable['Й' - START_CHAR] = "I";
+        charTable['Й' - START_CHAR] = "Y";
         charTable['К' - START_CHAR] = "K";
         charTable['Л' - START_CHAR] = "L";
         charTable['М' - START_CHAR] = "M";
@@ -42,9 +42,9 @@ public class Translit {
         charTable['Ч' - START_CHAR] = "CH";
         charTable['Ш' - START_CHAR] = "SH";
         charTable['Щ' - START_CHAR] = "SH";
-        charTable['Ъ' - START_CHAR] = "'";
+        charTable['Ъ' - START_CHAR] = ""; // "
         charTable['Ы' - START_CHAR] = "Y";
-        charTable['Ь' - START_CHAR] = "'";
+        charTable['Ь' - START_CHAR] = ""; // '
         charTable['Э' - START_CHAR] = "E";
         charTable['Ю' - START_CHAR] = "U";
         charTable['Я' - START_CHAR] = "YA";
