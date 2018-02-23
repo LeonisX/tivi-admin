@@ -26,7 +26,7 @@ public class VideoView {
         this.comments = new SimpleIntegerProperty(video.getComments());
         this.rating = new SimpleStringProperty(video.getRate() + " (" + video.getRated_count() + ")");
         this.checked = new SimpleBooleanProperty(false);
-        Optional<Category> cats = VideoUtils.categories.stream().filter(cat -> cat.getCatid() == video.getCategoryId()).findFirst();
+        Optional<Category> cats = VideoUtils.categories.stream().filter(cat -> cat.getCatid().equals(video.getCategoryId())).findFirst();
         String cat = Integer.toString(video.getCategoryId());
         if (cats.isPresent()) cat = cats.get().getCatname();
         this.mixedTitle = new SimpleObjectProperty<>(new MixedTitle(video.getTitle(), cat));

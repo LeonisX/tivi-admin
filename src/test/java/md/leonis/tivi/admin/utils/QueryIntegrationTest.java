@@ -3,6 +3,7 @@ package md.leonis.tivi.admin.utils;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
 import javafx.util.Pair;
+import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.model.calibre.Sql;
 import md.leonis.tivi.admin.model.media.Book;
 import md.leonis.tivi.admin.model.mysql.Field;
@@ -11,13 +12,19 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -118,224 +125,114 @@ public class QueryIntegrationTest {
         Config.loadProperties();
         Config.loadProtectedProperties();
         BookUtils.queryRequest("ASD");
-        Config.loadProperties();
-        Config.loadProtectedProperties();
         //TODO
         //ComparisionResult comparisionResult = CalibreUtils.compare();
         //System.out.println(comparisionResult);
     }
 
-    public void dumpDBAsNativeSql(String tableName) {
-        new File(Config.workPath + "nat").mkdirs();
-        int count = 0;
-        int maxTries = 15;
-            while (true) {
-                try {
-                    String requestURL = Config.apiPath + String.format("dumper.php?action=backup&drop_table=true&create_table=true&tables=%s&format=sql&comp_level=9&comp_method=1", tableName);
-                    String queryId = WebUtils.readFromUrl(requestURL);
-                    System.out.println(queryId);
-                    String fileName = Config.apiPath + "backup/" + queryId + ".sql.gz";
-                    File newFile = new File(Config.workPath + "nat" + File.separatorChar + tableName + ".txt");
-                    gunzipIt(fileName, newFile);
-                    break;
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    try {
-                        Thread.sleep(1000 * (count + 1) * 3);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-                    if (++count == maxTries) throw new RuntimeException(e);
-                }
-            }
-    }
-
     @Test
-    public void testDumper() throws IOException {
-        Config.loadProperties();
-        Config.loadProtectedProperties();
-
-        Type type = new TypeToken<List<TableStatus>>() {}.getType();
-        List<TableStatus> tableStatuses = JsonUtils.gson.fromJson(queryRequest("SHOW TABLE STATUS"), type);
-
-        for (TableStatus table : tableStatuses) {
-            if (table.getName().startsWith("vv_socialgroupicon") || !table.getName().startsWith("vv_")) {
-                continue;
-            }
+    public void testDumper() throws IOException, NoSuchAlgorithmException {
+        for (TableStatus table : BookUtils.tableStatuses) {
             System.out.println(table.getName());
 
-            dumpDBAsNativeSql(table.getName());
-
-            String json = dumpBaseAsJson(table);
-            generateInsertQueries(json, table.getName(), tableStatuses);
+            if (table.getName().startsWith("vv_socialgroupicon") || queryExist(table.getName())) {
+                System.out.println("Skipped: " + table.getName());
+                continue;
+            }
+            BookUtils.dumpDBAsNativeSql(table.getName());
+            String json = BookUtils.dumpBaseAsJson(table);
+            generateInsertQueries(json, table, table.getName());
         }
-
         //http://tv-games.ru/api2d/dumper.php?action=backup&db_backup=alenka975_wiki&drop_table=false&create_table=false&where=downid%3C4&tables=danny_media&format=json&comp_level=9&comp_method=1&as=danny_media2
     }
 
-    public String dumpBaseAsJson(TableStatus table) {
-        new File(Config.workPath + "gen").mkdirs();
-        List<String> jsons = new ArrayList<>();
-        long offset = 0;
-        long limit = 1 + Math.round(1 * 1048576 / (table.getAvgRowLength() * 1.7 + 1));
-        String result;
-        int page = 1;
-        do {
-            System.out.println("Page : " + page++ + " of " + (table.getRows() / limit + 1) + " limit: " + limit);
-            int count = 0;
-            int maxTries = 15;
-            while (true) {
-                try {
-                    System.out.println(offset);
-                    String requestURL = Config.apiPath + String.format("dumper.php?action=backup&tables=%s&offset=%d,%d&format=json&comp_level=9&comp_method=1", table.getName(), offset, limit);
-                    String queryId = WebUtils.readFromUrl(requestURL);
-                    System.out.println(queryId);
-                    String fileName = Config.apiPath + "backup/" + queryId + ".sql.gz";
-                    result = gunzipIt(fileName);
-                    break;
-                } catch (Exception e) {
-                    System.out.println("#" + e.getMessage());
-                    try {
-                        Thread.sleep(1000 * (count + 1) * 3);
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    }
-                    if (++count == maxTries) throw new RuntimeException(e);
-                }
-            }
-            if (!result.isEmpty()) {
-                result = result.substring(1, result.length() - 1).trim();
-            }
-            jsons.add(result);
-            offset += limit;
-            System.out.println(result.substring(0, result.length() > 256 ? 256 : result.length()).trim());
-        } while (!result.isEmpty());
+    private boolean queryExist(String tableName) throws IOException, NoSuchAlgorithmException {
+        File f = new File(Config.workPath + "nat" + File.separatorChar + tableName + ".txt");
+        if (!f.exists()) {
+            return false;
+        }
+        byte[] b = Files.readAllBytes(f.toPath());
+        byte[] hash = MessageDigest.getInstance("MD5").digest(b);
+        String expected = DatatypeConverter.printHexBinary(hash);
 
-        //TODO to sql
-        return "[" + jsons.stream().filter(s -> !s.isEmpty()).collect(joining(",")) + "]";
+
+        f = new File(Config.workPath + "gen" + File.separatorChar + tableName + ".txt");
+        if (!f.exists()) {
+            return false;
+        }
+        b = Files.readAllBytes(f.toPath());
+        hash = MessageDigest.getInstance("MD5").digest(b);
+        String actual = DatatypeConverter.printHexBinary(hash);
+        return expected.equalsIgnoreCase(actual);
     }
 
-
-    public void generateInsertQueries(String json, String tableName, List<TableStatus> tableStatuses, String as) {
-        generateInsertQueries(json, tableName, tableStatuses, tableName);
-    }
-
-
-    public void generateInsertQueries(String json, String tableName, List<TableStatus> tableStatuses) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(Config.workPath + "gen" + File.separatorChar + tableName + ".txt")) {
-            //queryRequest("SHOW COLUMNS FROM `danny_media`");
-            //queryRequest("SHOW TABLE STATUS");
-            jsonToSqlInsertQuery(json, fos, tableName, tableStatuses);
+    public void generateInsertQueries(String json, TableStatus table, String as) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(Config.workPath + "gen" + File.separatorChar + table.getName() + ".txt")) {
+            jsonToSqlInsertQuery(json, fos, table, as);
         }
     }
 
-    private static void jsonToSqlInsertQuery(String json, FileOutputStream fos, String pattern, List<TableStatus> tableStatuses) throws IOException {
-        for (TableStatus table : tableStatuses) {
-            if (!table.getName().matches(pattern)) {
-                continue;
-            }
-            // TODO Выставляем кодировку соединения соответствующую кодировке таблицы
-            // Создание таблицы
-            String charset = table.getCollation().split("_")[0];
-            // Fix bad charset ;)
+    private static void jsonToSqlInsertQuery(String json, OutputStream fos, TableStatus table, String as) throws IOException {
+        String charset = table.getCollation().split("_")[0];
+        // Fix bad charset ;)
             /*if (table.getName().startsWith("danny_")) {
                 charset = "cp1251";
             }*/
-            String result = rawQueryRequest(String.format("SHOW CREATE TABLE `%s`", table.getName()));
-            result = result.replaceAll("(?i)(DEFAULT CHARSET=\\w+|COLLATE=\\w+)", "/*!40101 $1 */;");
-            result = result.replaceAll("(?i)(default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP|collate \\w+|character set \\w+)", "/*!40101 $1 */");
-            fos.write(String.format("DROP TABLE IF EXISTS `%s`;\n", table.getName()).getBytes(charset));
-            fos.write((result + "\n\n").getBytes(charset));
-            // Опредеделяем типы столбцов
-            result = queryRequest(String.format("SHOW COLUMNS FROM `%s`", table.getName()));
-            Type fieldType = new TypeToken<List<Field>>() {
-            }.getType();
-            List<Field> fields = JsonUtils.gson.fromJson(result, fieldType);
-            //TODO other numeric https://dev.mysql.com/doc/refman/5.7/en/numeric-types.html
-            List<String> numericColumns = fields.stream().filter(t -> t.getType().matches("^(\\w*int.*)")).map(Field::getField).collect(toList());
-            List<String> blobColumns = fields.stream().filter(t -> t.getType().matches("^(\\w*blob.*)")).map(Field::getField).collect(toList());
+        String result = rawQueryRequest(String.format("SHOW CREATE TABLE `%s`", table.getName()));
+        result = result.replaceAll("(?i)(DEFAULT CHARSET=\\w+|COLLATE=\\w+)", "/*!40101 $1 */;");
+        result = result.replaceAll("(?i)(default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP|collate \\w+|character set \\w+)", "/*!40101 $1 */");
+        fos.write(String.format("DROP TABLE IF EXISTS `%s`;\n", as).getBytes(charset));
+        fos.write((result.replace(table.getName(), as) + "\n\n").getBytes(charset));
 
-            boolean isFirst = true;
-            Type type = new TypeToken<List<Map<String, Object>>>() {}.getType();
-            List<Map<String, Object>> rows = JsonUtils.gson.fromJson(json, type);
 
-            if (rows != null) {
-                for (Map<String, Object> row : rows) {
-                    String values = row.entrySet().stream().map(field -> {
-                        if (numericColumns.contains(field.getKey())) {
-                            if (field.getValue() == null) {
-                                return "NULL";
-                            }
-                            String v = field.getValue().toString();
-                            Long value = v.isEmpty() ? null : Long.valueOf(v);
-                            if (value == null) {
-                                return "NULL";
-                            }
-                            return value.toString();
-                        } else if (blobColumns.contains(field.getKey())) {
-                            if (field.getValue() == null) {
-                                return "NULL";
-                            }
-                            return "'" + field.getValue().toString().replace("\"", "\\\"") + "'";
-                        } else {
-                            if (field.getValue() == null) {
-                                return "NULL";
-                            }
-                            return "'" + field.getValue().toString()
-                                    .replace("\\", "\\\\")
-                                    .replace("\"", "\\\"")
-                                    .replace("'", "\\'")
-                                    .replace("\n", "\\n")
-                                    .replace("\r", "\\r")
-                                    .replace("" + ((char) 0), "\\0")
-                                    + "'";
-                        }
-                    }).collect(Collectors.joining(", "));
-
-                    if (!isFirst) {
-                        fos.write((",\n").getBytes(charset));
-                    } else {
-                        fos.write(String.format("INSERT INTO `%s` VALUES\n", table.getName()).getBytes(charset));
-                    }
-                    fos.write(("(" + values + ")").getBytes(charset));
-                    isFirst = false;
-                }
-            }
-            if (!isFirst) {
-                fos.write((";\n\n").getBytes(charset));
-            }
-        }
+        fos.write(BookUtils.jsonToSqlInsertQuery(json, as, new ColumnsResolver(table.getName())).getBytes(charset));
     }
 
-    public void gunzipIt(String fileName, File newFile) {
-        byte[] buffer = new byte[1024];
-        try {
-            GZIPInputStream gzis = new GZIPInputStream(new URL(fileName).openStream());
-            FileOutputStream out = new FileOutputStream(newFile);
-            int len;
-            while ((len = gzis.read(buffer)) > 0) {
-                out.write(buffer, 0, len);
-            }
-            gzis.close();
-            out.close();
-        } catch (IOException ex) {
-            ex.printStackTrace();
+    @Test
+    public void testInsertQuery() throws IOException {
+        Video video = new Video();
+        video.setId(null);
+        video.setAge("age");
+        video.setComments(2);
+        video.setYid("yid");
+        video.setCpu("cpu");
+        video.setUrl("url");
+        video.setMirror("exturl");
+        video.setImage("image");
+        video.setImageAlt("image_alt");
+        video.setFullText("textmore");
+        video.setOpenGraphImage("image_thumb");
+        video.setDescription("Комментъ comment \" ' ~`!@#$%^&*()_+-={}[]:;<>?,./\\| <>< \n\r\t <p>asd</p>");
+        video.setPreviousImage("previousImage");
+        //BookUtils.queryOperation("DELETE FROM danny_media WHERE cpu='cpu'");
+        String insertQuery = BookUtils.objectToSqlInsertQuery(video, Video.class, "danny_media");
+        System.out.println(insertQuery);
+        //TODO compress
+        String result = WebUtils.readFromUrl("http://tv-games.ru/api2d/upload2.php?to=clean_backups");
+        System.out.println(result);
+        String fileName = UUID.randomUUID().toString() + ".sql";
+        result = BookUtils.upload("api2d/backup", fileName, new ByteArrayInputStream(insertQuery.getBytes(StandardCharsets.UTF_8)));
+        System.out.println(result);
+        result = WebUtils.readFromUrl("http://tv-games.ru/api2d/dumper.php?to=restore&file=" + fileName);
+        System.out.println(result);
+        Integer id = getIdByCpu("cpu");
+        System.out.println(id);
+        BookUtils.queryOperation("DELETE FROM danny_media WHERE cpu='cpu'");
+    }
+
+    public Integer getIdByCpu(String cpu) {
+        String result = BookUtils.queryRequest(String.format("SELECT * FROM `danny_media` WHERE cpu='%s'", cpu));
+        Type fieldType = new TypeToken<List<Video>>() {}.getType();
+        List<Video> ids = JsonUtils.gson.fromJson(result, fieldType);
+        if (ids.isEmpty()) {
+            throw new RuntimeException("Empty result, probably, failed query");
         }
+        if (ids.size() > 1) {
+            throw new RuntimeException("Too many results, CPU not unique");
+        }
+        return ids.get(0).getId();
     }
 
 
-    public String gunzipIt(String fileName) throws IOException {
-        final int bufferSize = 1024;
-        final char[] buffer = new char[bufferSize];
-        final StringBuilder out = new StringBuilder();
-        try (Reader in = new InputStreamReader(new GZIPInputStream(new URL(fileName).openStream()), "UTF-8")) {
-            for (; ; ) {
-                int rsz = in.read(buffer, 0, buffer.length);
-                if (rsz < 0)
-                    break;
-                out.append(buffer, 0, rsz);
-            }
-            return out.toString();
-        }
-    }
+
 }

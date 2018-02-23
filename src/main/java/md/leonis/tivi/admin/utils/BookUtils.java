@@ -17,13 +17,12 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import md.leonis.tivi.admin.model.*;
 import md.leonis.tivi.admin.model.media.CalibreBook;
+import md.leonis.tivi.admin.model.mysql.TableStatus;
 import md.leonis.tivi.admin.view.media.AuditController;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -34,6 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
+
+import static java.util.stream.Collectors.joining;
 
 public class BookUtils {
 
@@ -46,6 +48,23 @@ public class BookUtils {
     public static List<VideoView> siteBooks = new ArrayList<>();
 
     public static ListVideousSettings listBooksSettings = new ListVideousSettings();
+
+    static {
+        try {
+            Config.loadProperties();
+            Config.loadProtectedProperties();
+
+            Type type = new TypeToken<List<TableStatus>>() { }.getType();
+            tableStatuses = JsonUtils.gson.fromJson(queryRequest("SHOW TABLE STATUS"), type);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static List<TableStatus> tableStatuses;
+
+    public static ColumnsResolver MediaResolver = new ColumnsResolver("danny_media");
+
 
     public static void auditBooks() {
         JavaFxUtils.showPane("media/Audit.fxml");
@@ -151,7 +170,7 @@ public class BookUtils {
         return (char) code;
     }
 
-    public static String getInsertQuery(Object object, Class<?> bookClass) {
+    /*public static String getInsertQuery(Object object, Class<?> bookClass) {
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
@@ -179,46 +198,167 @@ public class BookUtils {
 
         String sql = "INSERT INTO " + object.getClass().getSimpleName().toLowerCase() + "(" + campos + ")values(" + valores + ");";
         return sql;
+    }*/
+
+    public static String objectToSqlInsertQuery(Object object, Type clazz, String tableName) {
+        String json = JsonUtils.gson.toJson(object, clazz);
+        return jsonToSqlInsertQuery("[" + json + "]", tableName, BookUtils.MediaResolver);
     }
 
-    public static void dumpDB() {
+    public static String jsonToSqlInsertQuery(String json, String tableName, ColumnsResolver columnsResolver) {
+        StringBuilder sb = new StringBuilder();
 
-        int from = 0;
-        int LIMIT = 1; // Mb
-        //TODO
-        //long limit = 1 + LIMIT * 1048576 / table.getAvgRowLength() + 1;
-        long limit = 400;
-        int count;
+        boolean isFirst = true;
+        Type type = new TypeToken<List<Map<String, Object>>>() {}.getType();
+        List<Map<String, Object>> rows = JsonUtils.gson.fromJson(json, type);
 
-        List<Video> videos = new ArrayList<>();
+        if (rows != null) {
+            for (Map<String, Object> row : rows) {
+                String values = row.entrySet().stream().map(columnsResolver::resolve).collect(Collectors.joining(", "));
+                if (!isFirst) {
+                    sb.append(",\n");
+                } else {
+                    sb.append(String.format("INSERT INTO `%s` VALUES\n", tableName));
+                }
+                sb.append("(").append(values).append(")");
+                isFirst = false;
+            }
+        }
+        if (!isFirst) {
+            sb.append(";\n\n");
+        }
+        return sb.toString();
+    }
 
-        do {
-            String query = String.format("SELECT * FROM `%s` LIMIT %d, %d", "danny_media", from, limit);
-            String result = queryRequest(query);
+    public static void dumpDB() throws FileNotFoundException, UnsupportedEncodingException {
+        String tableName = "danny_media";
+        String json = dumpBaseAsJson(tableStatuses.stream().filter(t -> t.getName().equals(tableName)).findFirst().get());
 
-            List<Video> vv = JsonUtils.gson.fromJson(result, new TypeToken<List<Video>>() {}.getType());
+        // RAW type -->> ideal for INSERT QUERY generation - all escaped
+        String res = jsonToSqlInsertQuery(json, tableName, MediaResolver);
 
-            System.out.println(result);
+        Type fieldType = new TypeToken<List<Video>>() {}.getType();
+        List<Video> vids = JsonUtils.gson.fromJson(json, fieldType);
 
-            videos.addAll(vv);
-            from += limit;
-            count = vv.size();
-        } while (count > 0);
+        // Тоже работает :)
+        json = JsonUtils.gson.toJson(vids, fieldType);
+        res =  jsonToSqlInsertQuery(json, tableName, MediaResolver);
 
-        String destination = Config.calibreDbPath + "danny_media" + "-"
-                + LocalDateTime.now().toString().replace(":", "-") + ".json";
+        System.out.println(res);
+        /*json = JsonUtils.gson.toJson(vids, fieldType);
 
-        try {
-            FileWriter file = new FileWriter(destination);
-            file.write(JsonUtils.gson.toJson(videos).replace("\\u003d", "=").replace("\\u003c", "<").replace("\\u003e", ">"));
-            file.flush();
-            file.close();
-            System.out.println("Dumped to: " + destination);
-        } catch (IOException e) {
-            e.printStackTrace();
+        json = ascii2Native(json);*/
+
+        String path = Config.workPath + tableName + "-" + LocalDateTime.now().toString().replace(":", "-") + ".txt";
+        try (PrintWriter out = new PrintWriter(path)) {
+            out.println(json);
+        }
+        System.out.println("Dumped to: " + path);
+
+
+        dumpDBAsNativeSql(tableName);
+    }
+
+
+    public static void dumpDBAsNativeSql(String tableName) {
+        new File(Config.workPath + "nat").mkdirs();
+        int count = 0;
+        int maxTries = 15;
+        while (true) {
+            try {
+                String requestURL = Config.apiPath + String.format("dumper.php?to=backup&drop_table=true&create_table=true&tables=%s&format=sql&comp_level=9&comp_method=1", tableName);
+                String queryId = WebUtils.readFromUrl(requestURL);
+                System.out.println(queryId);
+                String fileName = Config.apiPath + "backup/" + queryId + ".sql.gz";
+                File newFile = new File(Config.workPath + "nat" + File.separatorChar + tableName + ".txt");
+                gunzipIt(fileName, newFile);
+                break;
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                try {
+                    Thread.sleep(1000 * (count + 1) * 3);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                if (++count == maxTries) throw new RuntimeException(e);
+            }
         }
     }
 
+
+    public static String dumpBaseAsJson(TableStatus table) {
+        new File(Config.workPath + "gen").mkdirs();
+        List<String> jsons = new ArrayList<>();
+        long offset = 0;
+        long limit = 1 + Math.round(1048576 / (table.getAvgRowLength() * 1.7 + 1));
+        String result;
+        int page = 1;
+        do {
+            System.out.println("Page : " + (page++) + " of " + (table.getRows() / limit + 1) + " limit: " + limit);
+            int count = 0;
+            int maxTries = 15;
+            while (true) {
+                try {
+                    String requestURL = Config.apiPath + String.format("dumper.php?to=backup&tables=%s&offset=%d,%d&format=json&comp_level=9&comp_method=1", table.getName(), offset, limit);
+                    String queryId = WebUtils.readFromUrl(requestURL);
+                    System.out.println(queryId);
+                    String fileName = Config.apiPath + "backup/" + queryId + ".sql.gz";
+                    result = gunzipIt(fileName);
+                    break;
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    try {
+                        Thread.sleep(1000 * (count + 1) * 3);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    if (++count == maxTries) throw new RuntimeException(e);
+                }
+            }
+            if (!result.isEmpty()) {
+                result = result.substring(1, result.length() - 1).trim();
+            }
+            jsons.add(result);
+            offset += limit;
+            System.out.println(result.substring(0, result.length() > 256 ? 256 : result.length()).trim());
+        } while (!result.isEmpty());
+
+        //TODO to sql
+        return "[" + jsons.stream().filter(s -> !s.isEmpty()).collect(joining(",")) + "]";
+    }
+
+
+    private static void gunzipIt(String fileName, File newFile) {
+        byte[] buffer = new byte[1024];
+        try {
+            GZIPInputStream gzis = new GZIPInputStream(new URL(fileName).openStream());
+            FileOutputStream out = new FileOutputStream(newFile);
+            int len;
+            while ((len = gzis.read(buffer)) > 0) {
+                out.write(buffer, 0, len);
+            }
+            gzis.close();
+            out.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
+    private static String gunzipIt(String fileName) throws IOException {
+        final int bufferSize = 1024;
+        final char[] buffer = new char[bufferSize];
+        final StringBuilder out = new StringBuilder();
+        try (Reader in = new InputStreamReader(new GZIPInputStream(new URL(fileName).openStream()), "UTF-8")) {
+            for (; ; ) {
+                int rsz = in.read(buffer, 0, buffer.length);
+                if (rsz < 0)
+                    break;
+                out.append(buffer, 0, rsz);
+            }
+            return out.toString();
+        }
+    }
 
     static class LocalDateAdapter implements JsonSerializer<LocalDate> {
 
@@ -368,20 +508,12 @@ public class BookUtils {
         return vid != null && vid.getCpu().equals(cpu);
     }
 
-    public static String addVideo(String json, String imageName, InputStream inputStream, String deleteName) throws IOException {
-        if (!imageName.isEmpty()) deleteName = "";
-        String requestURL = Config.apiPath + "media.php?to=add";
-        if (action == Actions.EDIT) {
-            requestURL = Config.apiPath + "media.php?to=save";
-        }
+    public static String upload(String path, String imageName, InputStream inputStream) throws IOException {
+        String requestURL = Config.apiPath + "upload2.php?to=upload&upload_dir=" + path + "&image_name=" + imageName;
         MultipartUtility multipart;
         try {
             multipart = new MultipartUtility(requestURL, "UTF-8");
             multipart.addHeaderField("User-Agent", "TiVi's admin client");
-            if (!deleteName.isEmpty()) {
-                multipart.addFormField("delete", deleteName);
-            }
-            multipart.addJson("json", json);
             if (inputStream != null) {
                 multipart.addInputStream("image", imageName, inputStream);
             }

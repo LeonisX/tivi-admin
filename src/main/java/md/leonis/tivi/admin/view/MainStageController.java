@@ -9,6 +9,9 @@ import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.CalibreUtils;
 import md.leonis.tivi.admin.utils.VideoUtils;
 
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+
 public class MainStageController {
 
     @FXML
@@ -69,7 +72,7 @@ public class MainStageController {
         BookUtils.compareSiteDbs();
     }
 
-    public void dumpSiteDB() {
+    public void dumpSiteDB() throws FileNotFoundException, UnsupportedEncodingException {
         BookUtils.dumpDB();
     }
 }

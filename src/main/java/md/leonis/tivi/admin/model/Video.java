@@ -12,22 +12,22 @@ import java.text.DecimalFormat;
 public class Video {
     // Rename to id
     @SerializedName("downid")
-    private int id;
+    private Integer id;
 
     @SerializedName("catid")
-    private int categoryId = 0;
+    private Integer categoryId = 0;
 
     // Rename to date
     @SerializedName("public")
-    private long date = System.currentTimeMillis() / 1000L;
+    private Long date = System.currentTimeMillis() / 1000L;
 
     // Not need???
     @SerializedName("stpublic")
-    private long startDate = 0;
+    private Long startDate = 0L;
 
     // Not need???
     @SerializedName("unpublic")
-    private long endDatedate = 0;
+    private Long endDatedate = 0L;
 
     private String cpu = "";
 
@@ -36,7 +36,7 @@ public class Video {
     private String url;
 
     @Expose(serialize = false, deserialize = false)
-    private String yid = "";
+    transient private String yid = "";
 
     // Not need
     @SerializedName("exturl")
@@ -91,10 +91,7 @@ public class Video {
     private String image = "";
 
     @Expose(serialize = false, deserialize = false)
-    private String previousImage = "";
-
-    @SerializedName("image_alt")
-    private String imageAlt = "";
+    transient private String previousImage = "";
 
     // Rename to og_image
     @SerializedName("image_thumb")
@@ -104,24 +101,27 @@ public class Video {
     @SerializedName("image_align")
     private String image_align = "left";
 
+    @SerializedName("image_alt")
+    private String imageAlt = "";
+
     // Rename to views
     @SerializedName("hits")
-    private int views = 0;
+    private Integer views = 0;
 
     // Not need
     @SerializedName("trans")
-    private int loads = 0;
+    private Integer loads = 0;
 
     @SerializedName("lastdown")
-    private long lastdown = 0;
+    private Long lastdown = 0L;
 
     // Rename
     @SerializedName("rating")
-    private int rated_count = 0;
+    private Integer rated_count = 0;
 
     // Rename
     @SerializedName("totalrating")
-    private int total_rating = 0;
+    private Integer total_rating = 0;
 
     // Rename
     @SerializedName("act")
