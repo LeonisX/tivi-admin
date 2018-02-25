@@ -12,13 +12,17 @@ import java.util.List;
 @lombok.Data
 public class CalibreBook extends Book {
 
-    private String comment;
+    private String textShort;
+    private String textMore;
+    private String releaseNote;
+
     private List<Author> authors;
     private List<Language> languages;
     private PublisherSeries publisher;
     private Rating rating;
     private PublisherSeries series;
     private List<Tag> tags;
+    private List<CustomColumn> altTags;
 
     @SerializedName("customIsbn")
     private String isbn;

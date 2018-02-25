@@ -43,7 +43,7 @@ public class CalibreUtils {
         List<Comment> comments = selectAllFrom("comments", Comment.class);
         calibreBooks.forEach(calibreBook -> {
             String comment = comments.stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Comment::getText).findFirst().orElse(null);
-            calibreBook.setComment(comment);
+            calibreBook.setTextMore(comment);
         });
 
         List<AuthorLink> bookAuthors = selectAllFrom("books_authors_link", AuthorLink.class);
@@ -53,7 +53,7 @@ public class CalibreUtils {
             calibreBook.setAuthors(authors.stream().filter(author -> ids.contains(author.getId())).collect(toList()));
         });
 
-        Integer[] c = {1, 2, 4, 6, 7, 10, 11, 12, 13, 14, 15, 16};
+        Integer[] c = {1, 2, 4, 6, 7, 10, 11, 12, 13, 14, 15, 16, 19, 20};
 
         Map<Integer, List<Link>> links = Arrays.stream(c).collect(Collectors.toMap(i -> i, i -> selectAllFrom("books_custom_column_" + i + "_link", Link.class)));
 
@@ -84,6 +84,7 @@ public class CalibreUtils {
         List<CustomColumn> cpus = selectAllFrom("custom_column_16", CustomColumn.class);
         List<Link> tiviIds = selectAllFrom("custom_column_17", Link.class);
 
+        List<Link> textShort = selectAllFrom("custom_column_18", Link.class);
 
         calibreBooks.forEach(calibreBook -> {
             List<Long> ids1 = links.get(1).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
@@ -130,6 +131,8 @@ public class CalibreUtils {
 
             List<Long> ids16 = links.get(16).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
             calibreBook.setCpu(cpus.stream().filter(i -> ids16.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
+
+            calibreBook.setTextShort(textShort.stream().filter(i -> i.getBook().equals(calibreBook.getId())).findFirst().map(Link::getValue).orElse(null));
         });
 
         //List<CustomColumns> customColumns = selectAllFrom("custom_columns", CustomColumns.class);
@@ -168,6 +171,18 @@ public class CalibreUtils {
         calibreBooks.forEach(calibreBook -> {
             List<Long> ids = tagLinks.stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(TagLink::getTag).collect(toList());
             calibreBook.setTags(tagList.stream().filter(t -> ids.contains(t.getId())).collect(toList()));
+        });
+
+        List<CustomColumn> altTags = selectAllFrom("custom_column_19", CustomColumn.class);
+        calibreBooks.forEach(calibreBook -> {
+            List<Long> ids = links.get(19).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
+            calibreBook.setAltTags(altTags.stream().filter(t -> ids.contains(t.getId())).collect(toList()));
+        });
+
+        List<CustomColumn> releaseNotes = selectAllFrom("custom_column_20", CustomColumn.class);
+        calibreBooks.forEach(calibreBook -> {
+            List<Long> ids = links.get(20).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
+            calibreBook.setReleaseNote(releaseNotes.stream().filter(t -> ids.contains(t.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
         });
 
         calibreBooks.forEach(System.out::println);

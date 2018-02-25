@@ -19,6 +19,7 @@ import javafx.util.Pair;
 import md.leonis.tivi.admin.model.*;
 import md.leonis.tivi.admin.model.media.Author;
 import md.leonis.tivi.admin.model.media.CalibreBook;
+import md.leonis.tivi.admin.model.media.CustomColumn;
 import md.leonis.tivi.admin.model.media.Tag;
 import md.leonis.tivi.admin.model.mysql.TableStatus;
 import md.leonis.tivi.admin.view.media.AuditController;
@@ -637,7 +638,7 @@ public class BookUtils {
             newManual.setTitle("Описания и прохождения игр " + categories.stream().filter(c -> c.getCatcpu().equals(category)).findFirst().get().getCatname());
             newManual.setText("<p><img style=\"float: right; margin: 5px;\" title=\"Solutions\" src=\"images/books/solutions.jpg\" alt=\"Прохождения, солюшены\" />Описания и прохождения игр от наших авторов</p>");
             newManual.setFullText(calibreBooks.stream().map(b -> String.format("<p><a href=\"up/down/file/sol/3do/D.doc\"><img style=\"float: left; margin-right: 3px;\" src=\"images/book.png\" alt=\"\" /></a>%s (C) %s</p>",
-                    b.getComment().replace("\n", ""), b.getAuthors().stream().map(Author::getName).collect(joining(", ")))).collect(joining("<br />")));
+                    b.getTextMore().replace("\n", ""), b.getAuthors().stream().map(Author::getName).collect(joining(", ")))).collect(joining("<br />")));
             //TODO
             newManual.setUrl("");
             newManual.setMirror("http://tv-games.ru");
@@ -655,7 +656,7 @@ public class BookUtils {
             newManual.setMirror(manual.get().getMirror());
             newManual.setText("<p><img style=\"float: right; margin: 5px;\" title=\"Solutions\" src=\"images/books/solutions.jpg\" alt=\"Прохождения, солюшены\" />Описания и прохождения игр от наших авторов</p>");
             newManual.setFullText(calibreBooks.stream().map(b -> String.format("<p><a href=\"up/down/file/sol/3do/D.doc\"><img style=\"float: left; margin-right: 3px;\" src=\"images/book.png\" alt=\"\" /></a>%s (C) %s</p>",
-                    b.getComment().replace("\n", ""), b.getAuthors().stream().map(Author::getName).collect(joining(", ")))).collect(joining("<br />")));
+                    b.getTextMore().replace("\n", ""), b.getAuthors().stream().map(Author::getName).collect(joining(", ")))).collect(joining("<br />")));
             if (!manual.get().equals(newManual)) {
                 oldBooks.add(newManual);
             }
@@ -687,9 +688,8 @@ public class BookUtils {
         video.setAge(""); // extsize
         video.setDescription(getDescription(calibreBook));
         video.setKeywords(getKeywords(calibreBook));
-        //todo text = ""; - generate
-        //video.setText("");
-        video.setFullText(calibreBook.getComment());
+        video.setText(getTextShort(calibreBook));
+        video.setFullText(getTextMore(calibreBook));
         video.setUserText("");
         video.setMirrorsname("");
         video.setMirrorsurl("");
@@ -705,6 +705,20 @@ public class BookUtils {
         video.setListid(0);
         // TODO tags = "";
         return video;
+    }
+
+    private static String getTextShort(CalibreBook calibreBook) {
+        //todo text = ""; - generate
+        String result = calibreBook.getTextShort();
+        if (calibreBook.getReleaseNote() != null) {
+            result = "<p>" + calibreBook.getReleaseNote() + "</p>" + result;
+        }
+        return result;
+    }
+
+    public static String getTextMore(CalibreBook calibreBook) {
+        //TODO + tags, alt-tags in textmore
+        return calibreBook.getTextMore();
     }
 
     private static String getDescription(CalibreBook calibreBook) {
@@ -735,6 +749,12 @@ public class BookUtils {
             chunks.add(calibreBook.getIsbn());
         }
         chunks.addAll(Arrays.asList(calibreBook.getAuthors().stream().map(Author::getName).filter(n -> !n.equalsIgnoreCase("неизвестный")).collect(joining(" ")).toLowerCase().replaceAll("[^\\w\\sА-Яа-я]", "").split(" ")));
+        if (calibreBook.getTags() != null) {
+            chunks.addAll(calibreBook.getTags().stream().map(Tag::getName).collect(toList()));
+        }
+        if (calibreBook.getAltTags() != null) {
+            chunks.addAll(calibreBook.getAltTags().stream().map(CustomColumn::getValue).collect(toList()));
+        }
         return chunks.stream().filter(s -> !s.isEmpty()).collect(joining(", "));
     }
 

@@ -86,6 +86,8 @@ TODO DUMP BLOB (HEX OR NOT) - с сервера идут уже корявые �
 - Update
 - Build metadata <UL>...
 
+TODO прикрутить textShort, releasseNotes, alttags
+
 
 TODO генерить новостные анонсы по изменениям
 
