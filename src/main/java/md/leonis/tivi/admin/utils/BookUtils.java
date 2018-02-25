@@ -61,7 +61,7 @@ public class BookUtils {
 
     public static List<TableStatus> tableStatuses;
 
-    public static ColumnsResolver MediaResolver = new ColumnsResolver("danny_media");
+    private static ColumnsResolver MediaResolver = new ColumnsResolver("danny_media");
 
 
     public static void auditBooks() {
@@ -538,8 +538,8 @@ public class BookUtils {
         }
     }
 
-    public static ComparisionResult<Video> compare(List<CalibreBook> allСalibreBooks, List<Video> siteBooks, List<BookCategory> categories, String category) {
-        List<CalibreBook> calibreBooks = allСalibreBooks.stream().filter(b -> b.getType().equals("book"))
+    public static ComparisionResult<Video> compare(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, List<BookCategory> categories, String category) {
+        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("book"))
                 .filter(CalibreBook::getOwn).collect(toList());
 
         List<String> multi = Arrays.asList("consoles", "computers"); //computers реально не задействован - только для журналов.
@@ -569,9 +569,8 @@ public class BookUtils {
         // TODO - других книгах,
         // TODO - так же страница с поиском книг
 
-        // TODO - и мануалами (солюшенами)
-        generateManualsPage(allСalibreBooks, siteBooks, categories, category, addedBooks, oldBooks);
-
+        // - и мануалами (солюшенами)
+        generateManualsPage(allCalibreBooks, siteBooks, categories, category, addedBooks, oldBooks);
 
         //Если в Calibre нет нужного ID значит удалённые
         Map<Integer, Video> newIds = oldBooks.stream().collect(Collectors.toMap(Video::getId, Function.identity()));
@@ -628,8 +627,8 @@ public class BookUtils {
         return new ComparisionResult<>(addedBooks, deletedBooks, changedBooks);
     }
 
-    private static void generateManualsPage(List<CalibreBook> allСalibreBooks, List<Video> siteBooks, List<BookCategory> categories, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
-        List<CalibreBook> calibreBooks = allСalibreBooks.stream().filter(b -> b.getType().equals("manual")).collect(toList());
+    private static void generateManualsPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, List<BookCategory> categories, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
+        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("manual")).collect(toList());
         calibreBooks = calibreBooks.stream().filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category)).collect(toList()); //TODO multi??
         Optional<Video> manual = siteBooks.stream().filter(b -> b.getCpu().equals(category + "_manuals")).findFirst();
         if (!calibreBooks.isEmpty() && !manual.isPresent()) {
@@ -643,17 +642,11 @@ public class BookUtils {
             newManual.setUrl("");
             newManual.setMirror("http://tv-games.ru");
             addedBooks.add(newManual);
-            return;
         } else if (!calibreBooks.isEmpty() && manual.isPresent()) {
             // change
             //TODO copy constructor
-            Video newManual = new Video();
-            newManual.setId(manual.get().getId());
-            newManual.setCpu(manual.get().getCpu());
+            Video newManual = new Video(manual.get());
             newManual.setTitle("Описания и прохождения игр " + categories.stream().filter(c -> c.getCatcpu().equals(category)).findFirst().get().getCatname());
-            newManual.setDate(manual.get().getDate());
-            newManual.setUrl(manual.get().getUrl());
-            newManual.setMirror(manual.get().getMirror());
             newManual.setText("<p><img style=\"float: right; margin: 5px;\" title=\"Solutions\" src=\"images/books/solutions.jpg\" alt=\"Прохождения, солюшены\" />Описания и прохождения игр от наших авторов</p>");
             newManual.setFullText(calibreBooks.stream().map(b -> String.format("<p><a href=\"up/down/file/sol/3do/D.doc\"><img style=\"float: left; margin-right: 3px;\" src=\"images/book.png\" alt=\"\" /></a>%s (C) %s</p>",
                     b.getTextMore().replace("\n", ""), b.getAuthors().stream().map(Author::getName).collect(joining(", ")))).collect(joining("<br />")));
@@ -661,7 +654,6 @@ public class BookUtils {
                 oldBooks.add(newManual);
             }
         }
-        return;
     }
 
     private static LocalDateTime timestampToDate(long timestamp, int offset) {
@@ -716,7 +708,7 @@ public class BookUtils {
         return result;
     }
 
-    public static String getTextMore(CalibreBook calibreBook) {
+    private static String getTextMore(CalibreBook calibreBook) {
         //TODO + tags, alt-tags in textmore
         return calibreBook.getTextMore();
     }
@@ -756,10 +748,6 @@ public class BookUtils {
             chunks.addAll(calibreBook.getAltTags().stream().map(CustomColumn::getValue).collect(toList()));
         }
         return chunks.stream().filter(s -> !s.isEmpty()).collect(joining(", "));
-    }
-
-    private static String capitalize(final String line) {
-        return Character.toUpperCase(line.charAt(0)) + line.substring(1);
     }
 
     public static void readBooks(AuditController auditController) {

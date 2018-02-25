@@ -2,16 +2,14 @@ package md.leonis.tivi.admin.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.text.DecimalFormat;
 
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 @EqualsAndHashCode
 public class Video {
     // Rename to id
@@ -144,6 +142,46 @@ public class Video {
 
     @SerializedName("tags")
     private String tags = "";
+
+    public Video(Video other) {
+        this.id = other.id;
+        this.categoryId = other.categoryId;
+        this.date = other.date;
+        this.startDate = other.startDate;
+        this.endDatedate = other.endDatedate;
+        this.cpu = other.cpu;
+        this.url = other.url;
+        this.yid = other.yid;
+        this.mirror = other.mirror;
+        this.age = other.age;
+        this.description = other.description;
+        this.keywords = other.keywords;
+        this.title = other.title;
+        this.text = other.text;
+        this.fullText = other.fullText;
+        this.userText = other.userText;
+        this.mirrorsname = other.mirrorsname;
+        this.mirrorsurl = other.mirrorsurl;
+        this.platforms = other.platforms;
+        this.author = other.author;
+        this.authorSite = other.authorSite;
+        this.authorEmail = other.authorEmail;
+        this.image = other.image;
+        this.previousImage = other.previousImage;
+        this.OpenGraphImage = other.OpenGraphImage;
+        this.image_align = other.image_align;
+        this.imageAlt = other.imageAlt;
+        this.views = other.views;
+        this.loads = other.loads;
+        this.lastdown = other.lastdown;
+        this.rated_count = other.rated_count;
+        this.total_rating = other.total_rating;
+        this.active = other.active;
+        this.access = other.access;
+        this.listid = other.listid;
+        this.comments = other.comments;
+        this.tags = other.tags;
+    }
 
     public String getRate() {
         if (rated_count == 0) return "нет";
