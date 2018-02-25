@@ -708,7 +708,7 @@ public class BookUtils {
     }
 
     private static String getDescription(CalibreBook calibreBook) {
-        return translateType(calibreBook.getType()) + ": " + calibreBook.getOfficialTitle();
+        return translateType(calibreBook.getType()) + ": " + ((calibreBook.getOfficialTitle() == null) ? calibreBook.getTitle() : calibreBook.getOfficialTitle());
     }
 
     private static String translateType(String type) {
