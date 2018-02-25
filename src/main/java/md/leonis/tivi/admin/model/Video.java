@@ -2,13 +2,17 @@ package md.leonis.tivi.admin.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.text.DecimalFormat;
 
 @Getter
 @Setter
+@ToString
+@EqualsAndHashCode
 public class Video {
     // Rename to id
     @SerializedName("downid")

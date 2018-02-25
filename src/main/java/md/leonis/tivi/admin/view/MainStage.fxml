@@ -37,7 +37,7 @@
                       <Hyperlink fx:id="siteDumpHyperlink" onAction="#dumpSiteDB" text="Дамп БД сайта" />
                      <Hyperlink fx:id="auditHyperlink" onAction="#auditBooks" text="Аудит" />
                      <Hyperlink fx:id="calibreCompareHyperlink" onAction="#compareCalibreDbs" text="Сравнение баз Calibre" />
-                      <Hyperlink fx:id="siteCompareHyperlink" onAction="#compareSiteDbs" text="Сравнение баз сайта" />
+                      <Hyperlink fx:id="siteCompareHyperlink" onAction="#compareWithSite" text="Сравнение с базой сайта" />
                   </children>
                 </VBox>
             </TitledPane>

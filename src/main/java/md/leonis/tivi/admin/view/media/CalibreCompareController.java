@@ -6,7 +6,8 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
-import md.leonis.tivi.admin.model.calibre.ComparisionResult;
+import md.leonis.tivi.admin.model.ComparisionResult;
+import md.leonis.tivi.admin.model.media.CalibreBook;
 import md.leonis.tivi.admin.utils.CalibreUtils;
 import md.leonis.tivi.admin.utils.Config;
 import md.leonis.tivi.admin.utils.SubPane;
@@ -51,7 +52,7 @@ public class CalibreCompareController extends SubPane {
     }
 
     public void compareDbs() {
-        ComparisionResult comparisionResult = CalibreUtils.compare(getJdbcString(oldDir.getText()), getJdbcString(newDir.getText()));
+        ComparisionResult<CalibreBook> comparisionResult = CalibreUtils.compare(getJdbcString(oldDir.getText()), getJdbcString(newDir.getText()));
         //TODO show
         TreeItem<String> addedItem = new TreeItem<>("Added");
         TreeItem<String> deletedItem = new TreeItem<>("Deleted");

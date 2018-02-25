@@ -126,7 +126,7 @@ public class QueryIntegrationTest {
         Config.loadProtectedProperties();
         BookUtils.queryRequest("ASD");
         //TODO
-        //ComparisionResult comparisionResult = CalibreUtils.compare();
+        //CalibreComparisionResult comparisionResult = CalibreUtils.compare();
         //System.out.println(comparisionResult);
     }
 

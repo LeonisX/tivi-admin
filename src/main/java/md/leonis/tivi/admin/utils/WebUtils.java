@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.*;
 
 public class WebUtils {
-    static String readFromUrl(String urlAddress) throws IOException {
+    public static String readFromUrl(String urlAddress) throws IOException {
         URL url = new URL(urlAddress);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");

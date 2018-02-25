@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+
 <BorderPane prefHeight="850.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.media.SiteCompareController">
    <top>
       <VBox alignment="CENTER" prefHeight="146.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
          <children>
-                <Label alignment="CENTER" prefHeight="28.0" prefWidth="250.0" text="Сравнение баз данных">
+                <Label alignment="CENTER" prefHeight="20.0" prefWidth="437.0" text="Сравнение локальной базы данных с сайтом">
                     <font>
                         <Font name="System Bold" size="13.0" />
                     </font>
@@ -17,29 +27,39 @@
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="773.0" minWidth="10.0" prefWidth="666.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="662.0" minWidth="10.0" prefWidth="229.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="483.0" minWidth="100.0" prefWidth="61.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="483.0" minWidth="100.0" prefWidth="100.0" />
                   </columnConstraints>
                   <rowConstraints>
                       <RowConstraints maxHeight="24.0" minHeight="0.0" prefHeight="24.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="32.0" minHeight="16.0" prefHeight="32.0" vgrow="SOMETIMES" />
                       <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                       <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                   </rowConstraints>
                   <children>
-                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="1">
+                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="2">
                           <children>
                               <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Путь к исходной базе  Calibre" />
-                        <TextField fx:id="oldDir" prefHeight="26.0" prefWidth="281.0" text="/home/leonidstavila/Calibre Library" />
+                        <TextField fx:id="calibreDir" prefHeight="26.0" prefWidth="281.0" text="E:" />
                           </children>
                       </HBox>
-                        <Button mnemonicParsing="false" onAction="#selectOldDir" prefHeight="25.0" prefWidth="97.0" text="Select" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Button mnemonicParsing="false" onAction="#selectNewDir" prefHeight="25.0" prefWidth="97.0" text="Select" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="2">
+                        <Button mnemonicParsing="false" onAction="#selectCalibreDir" prefHeight="25.0" prefWidth="97.0" text="Select" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <Button mnemonicParsing="false" onAction="#reloadSiteData" prefHeight="25.0" prefWidth="97.0" text="Reload" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="3">
                      <children>
-                        <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Путь к изменённой базе  Calibre" />
-                        <TextField fx:id="newDir" prefHeight="26.0" prefWidth="281.0" text="/home/leonidstavila/Calibre Library 2" />
+                        <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="База на сайте" />
                      </children>
                   </HBox>
-                  <Button mnemonicParsing="false" onAction="#compareDbs" prefHeight="25.0" prefWidth="97.0" text="Compare" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                  <Button mnemonicParsing="false" onAction="#compare" prefHeight="25.0" prefWidth="97.0" text="Compare" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                  <Label fx:id="calibreTotals" minWidth="102.0" prefHeight="17.0" prefWidth="102.0" text="#" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <Label fx:id="siteTotals" minWidth="101.0" prefHeight="17.0" prefWidth="101.0" text="#" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <Button mnemonicParsing="false" onAction="#generate" prefHeight="25.0" prefWidth="97.0" text="Generate" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="4">
+                     <children>
+                        <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="База на сайте" />
+                        <ComboBox fx:id="categoryCombobox" onAction="#onSelectCategory" prefHeight="25.0" prefWidth="237281.0" />
+                     </children>
+                  </HBox>
                   </children>
               </GridPane>
          </children>

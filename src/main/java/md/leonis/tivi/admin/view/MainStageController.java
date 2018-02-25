@@ -68,11 +68,11 @@ public class MainStageController {
         BookUtils.compareCalibreDbs();
     }
 
-    public void compareSiteDbs() {
-        BookUtils.compareSiteDbs();
-    }
-
     public void dumpSiteDB() throws FileNotFoundException, UnsupportedEncodingException {
         BookUtils.dumpDB();
+    }
+
+    public void compareWithSite() {
+        BookUtils.compareWithSite();
     }
 }

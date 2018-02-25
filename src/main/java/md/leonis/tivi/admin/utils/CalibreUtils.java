@@ -6,11 +6,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
 import javafx.util.Pair;
-import md.leonis.tivi.admin.model.calibre.ComparisionResult;
+import md.leonis.tivi.admin.model.ComparisionResult;
 import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.model.media.links.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
@@ -175,7 +174,7 @@ public class CalibreUtils {
         return calibreBooks;
     }
 
-    public static ComparisionResult compare(String oldBasePath, String newBasePath) {
+    public static ComparisionResult<CalibreBook> compare(String oldBasePath, String newBasePath) {
         String configUrl = Config.sqliteUrl;
         Config.sqliteUrl = oldBasePath;
         List<CalibreBook> oldBooks = readBooks();
@@ -217,7 +216,7 @@ public class CalibreUtils {
             return result;
         }));
 
-        return new ComparisionResult(addedBooks, deletedBooks, changedBooks);
+        return new ComparisionResult<>(addedBooks, deletedBooks, changedBooks);
     }
 
     public static <K, V> Collection<V> mapDifference(Map<? extends K, ? extends V> left, Map<? extends K, ? extends V> right) {
