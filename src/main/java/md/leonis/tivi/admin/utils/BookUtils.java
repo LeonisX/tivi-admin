@@ -33,7 +33,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -54,8 +53,9 @@ public class BookUtils {
     public static ListVideousSettings listBooksSettings = new ListVideousSettings();
 
     static {
-            Type type = new TypeToken<List<TableStatus>>() { }.getType();
-            tableStatuses = JsonUtils.gson.fromJson(queryRequest("SHOW TABLE STATUS"), type);
+        Type type = new TypeToken<List<TableStatus>>() {
+        }.getType();
+        tableStatuses = JsonUtils.gson.fromJson(queryRequest("SHOW TABLE STATUS"), type);
     }
 
     public static List<TableStatus> tableStatuses;
@@ -194,7 +194,8 @@ public class BookUtils {
         StringBuilder sb = new StringBuilder();
 
         boolean isFirst = true;
-        Type type = new TypeToken<List<Map<String, Object>>>() {}.getType();
+        Type type = new TypeToken<List<Map<String, Object>>>() {
+        }.getType();
         List<Map<String, Object>> rows = JsonUtils.gson.fromJson(json, type);
 
         if (rows != null) {
@@ -222,12 +223,13 @@ public class BookUtils {
         // RAW type -->> ideal for INSERT QUERY generation - all escaped
         String res = jsonToSqlInsertQuery(json, tableName, MediaResolver);
 
-        Type fieldType = new TypeToken<List<Video>>() {}.getType();
+        Type fieldType = new TypeToken<List<Video>>() {
+        }.getType();
         List<Video> vids = JsonUtils.gson.fromJson(json, fieldType);
 
         // Тоже работает :)
         json = JsonUtils.gson.toJson(vids, fieldType);
-        res =  jsonToSqlInsertQuery(json, tableName, MediaResolver);
+        res = jsonToSqlInsertQuery(json, tableName, MediaResolver);
 
         System.out.println(res);
         /*json = JsonUtils.gson.toJson(vids, fieldType);
@@ -583,9 +585,6 @@ public class BookUtils {
                 .entrySet().stream().filter(e -> e.getValue().size() == 2)
                 .map(e -> {
                     Video siteBook = e.getValue().get(0);
-                    /*LocalDateTime triggerTime = timestampToDate(siteBook.getDate(), 3);
-                    triggerTime.truncatedTo(ChronoUnit.DAYS);
-                    siteBook.setDate(triggerTime.toEpochSecond(ZoneOffset.ofHours(0)));*/
                     Video calibreBook = e.getValue().get(1);
                     calibreBook.setCategoryId(siteBook.getCategoryId());
                     calibreBook.setImage_align(siteBook.getImage_align());
@@ -600,15 +599,7 @@ public class BookUtils {
                     }
                     return new Pair<>(siteBook, calibreBook);
                 })
-                .filter(e -> {
-                    //System.out.println(e.getKey().getDate());
-                    //System.out.println(e.getValue().getDate());
-                    String oldDate = timestampToDate(e.getKey().getDate(), 0).toString();
-                    String newDate = timestampToDate(e.getValue().getDate(), 0).toString();
-                    System.out.println(oldDate);
-                    System.out.println(newDate);
-                    return !e.getKey().equals(e.getValue());
-                })
+                .filter(e -> !e.getKey().equals(e.getValue()))
                 .collect(toList());
 
         Map<Video, List<Pair<String, Pair<String, String>>>> changedBooks = changed.stream().collect(Collectors.toMap(Pair::getKey, pair -> {
@@ -641,8 +632,7 @@ public class BookUtils {
         calibreBooks = calibreBooks.stream().filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category)).collect(toList()); //TODO multi??
         Optional<Video> manual = siteBooks.stream().filter(b -> b.getCpu().equals(category + "_manuals")).findFirst();
         if (!calibreBooks.isEmpty() && !manual.isPresent()) {
-            //TODO add
-            //TODO all fields, normal descr
+            //add
             Video newManual = new Video();
             newManual.setTitle("Описания и прохождения игр " + categories.stream().filter(c -> c.getCatcpu().equals(category)).findFirst().get().getCatname());
             newManual.setText("<p><img style=\"float: right; margin: 5px;\" title=\"Solutions\" src=\"images/books/solutions.jpg\" alt=\"Прохождения, солюшены\" />Описания и прохождения игр от наших авторов</p>");
@@ -654,7 +644,7 @@ public class BookUtils {
             addedBooks.add(newManual);
             return;
         } else if (!calibreBooks.isEmpty() && manual.isPresent()) {
-            // TODO change
+            // change
             //TODO copy constructor
             Video newManual = new Video();
             newManual.setId(manual.get().getId());
@@ -663,7 +653,6 @@ public class BookUtils {
             newManual.setDate(manual.get().getDate());
             newManual.setUrl(manual.get().getUrl());
             newManual.setMirror(manual.get().getMirror());
-            //TODO all fields, normal descr
             newManual.setText("<p><img style=\"float: right; margin: 5px;\" title=\"Solutions\" src=\"images/books/solutions.jpg\" alt=\"Прохождения, солюшены\" />Описания и прохождения игр от наших авторов</p>");
             newManual.setFullText(calibreBooks.stream().map(b -> String.format("<p><a href=\"up/down/file/sol/3do/D.doc\"><img style=\"float: left; margin-right: 3px;\" src=\"images/book.png\" alt=\"\" /></a>%s (C) %s</p>",
                     b.getComment().replace("\n", ""), b.getAuthors().stream().map(Author::getName).collect(joining(", ")))).collect(joining("<br />")));
@@ -698,7 +687,8 @@ public class BookUtils {
         video.setAge(""); // extsize
         video.setDescription(getDescription(calibreBook));
         video.setKeywords(getKeywords(calibreBook));
-        //todo text = "";
+        //todo text = ""; - generate
+        //video.setText("");
         video.setFullText(calibreBook.getComment());
         video.setUserText("");
         video.setMirrorsname("");
