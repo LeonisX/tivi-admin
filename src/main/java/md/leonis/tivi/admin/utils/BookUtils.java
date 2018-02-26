@@ -699,13 +699,84 @@ public class BookUtils {
         return video;
     }
 
-    private static String getTextShort(CalibreBook calibreBook) {
-        //todo text = ""; - generate
-        String result = calibreBook.getTextShort();
-        if (calibreBook.getReleaseNote() != null) {
-            result = "<p>" + calibreBook.getReleaseNote() + "</p>" + result;
+    private static String getTextShort(CalibreBook book) {
+        StringBuilder sb = new StringBuilder();
+        //TODO
+        String imageLink = String.format("images/books/cover/%s.jpg", book.getCpu());
+        String imageThumb = String.format("images/books/thumb/%s.jpg", book.getCpu());
+        String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
+        String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
+        sb.append(String.format("<p><a href=\\\"%s\\\">", imageLink));
+        sb.append(String.format("<img style=\\\"border: 1px solid #aaaaaa; float: right; margin-left: 10px; margin-top: 4px;\\\" title=\\\"%s\\\" src=\\\"%s\\\" alt=\\\"%s\\\" /></a></p>\n", imageTitle, imageThumb, imageAlt));
+        sb.append("<ul class=\\\"file-info\\\">\n");
+        if (book.getOfficialTitle() != null) {
+            sb.append(String.format("<li><span>Название:</span> %s</li>\n", book.getOfficialTitle()));
         }
-        return result;
+        if (book.getFileName() != null) {
+            sb.append(String.format("<li><span>Неофициальное название:</span> %s</li>\n", book.getFileName()));
+        }
+        if (book.getSeries() != null) {
+            //TODO may be number, link in future
+            sb.append(String.format("<li><span>Серия:</span> %s</li>\n", book.getSeries()));
+        }
+        if (book.getCompany() != null) {
+            sb.append(String.format("<li><span>Компания:</span> %s</li>\n", book.getCompany()));
+        }
+        if (book.getAuthors() != null && !book.getAuthors().isEmpty()) {
+            String title = book.getAuthors().size() > 1 ? "ы" : "";
+            sb.append(String.format("<li><span>Автор%s:</span> %s</li>\n", title, book.getAuthors().stream().map(Author::getName).collect(joining(", "))));
+        }
+        sb.append(String.format("<li><span>Издательство:</span> %s</li>\n", book.getPublisher()));
+        if (book.getSignedInPrint() != null) {
+            String year = "";
+            if (book.getSignedInPrint().toLocalDate().isBefore(LocalDate.of(1000, 1, 1))) {
+                year = "???";
+            } else if (book.getSignedInPrint().getDayOfMonth() == 1 && book.getSignedInPrint().getMonthValue() == 1) {
+                year = Integer.toString(book.getSignedInPrint().getYear());
+            } else {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.mm.yyyy");
+                year = book.getSignedInPrint().toLocalDate().format(formatter);
+            }
+            sb.append(String.format("<li><span>Подписано в печать:</span> %s г.</li>\n", year));
+        }
+        if (book.getPages() != null && book.getPages() > 0) {
+            sb.append(String.format("<li><span>Объём:</span> %s страниц</li>\n", book.getPages()));
+        }
+
+
+        if (book.getIsbn() != null) {
+            sb.append(String.format("<li><span>ISBN:</span> %s</li>\n", book.getIsbn()));
+        }
+        if (book.getBbk() != null) {
+            sb.append(String.format("<li><span>ББК:</span> %s</li>\n", book.getBbk()));
+        }
+        if (book.getUdk() != null) {
+            sb.append(String.format("<li><span>УДК:</span> %s</li>\n", book.getUdk()));
+        }
+
+        if (book.getEdition() != null && book.getEdition() > 0) {
+            sb.append(String.format("<li><span>Тираж:</span> %s</li>\n", book.getEdition()));
+        }
+        if (book.getFormat() != null) {
+            sb.append(String.format("<li><span>Формат:</span> %s</li>\n", book.getFormat()));
+        }
+        if (book.getScannedBy() != null) {
+            sb.append(String.format("<li><span>Сканировал:</span> <a rel=\\\"nofollow\\\" href=\\\"%s\\\">%s</a>\n", book.getSource(), book.getScannedBy()));
+        }
+        if (book.getPostprocessing() != null) {
+            sb.append(String.format("<li><span>Постобработка:</span>%s\n", book.getPostprocessing()));
+        }
+
+        sb.append("</ul>\n");
+
+        if (book.getReleaseNote() != null) {
+            sb.append(String.format("<p>%s</p>\n", book.getReleaseNote()));
+        }
+        if (book.getTextShort() != null) {
+            sb.append(book.getTextShort()).append("\n");
+        }
+
+        return sb.toString();
     }
 
     private static String getTextMore(CalibreBook calibreBook) {
