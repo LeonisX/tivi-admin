@@ -185,8 +185,7 @@ public class SiteCompareController extends SubPane {
 
         String insertQueries = comparisionResult.getAddedBooks().stream().map(b -> BookUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(Collectors.joining("\n"));
         String deleteQueries = comparisionResult.getDeletedBooks().stream().map(b -> "DELETE FROM danny_media WHERE id=" + b.getId()).collect(Collectors.joining("\n"));
-        //TODO update queries
-        String updateQueries = "";
+        String updateQueries = comparisionResult.getChangedBooks().entrySet().stream().map(b -> BookUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(Collectors.joining("\n"));
 
         String query = insertQueries + "\n\n" + deleteQueries+ "\n\n" + updateQueries;
         String fileName = UUID.randomUUID().toString() + ".sql";
@@ -195,9 +194,6 @@ public class SiteCompareController extends SubPane {
         result = WebUtils.readFromUrl(Config.apiPath + "dumper.php?to=restore&file=" + fileName);
         System.out.println(result);
 
-        //TODO get new IDs for added
-        //Integer id = getIdByCpu("cpu");
-        //System.out.println(id);
         //TODO "IN" QUERY ??
         String configUrl = Config.sqliteUrl;
         Config.sqliteUrl = getJdbcString(calibreDir.getText());

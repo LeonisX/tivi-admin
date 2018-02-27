@@ -217,6 +217,13 @@ public class BookUtils {
         return sb.toString();
     }
 
+    public static String comparisionResultToSqlUpdateQuery(Map.Entry<Video, List<Pair<String, Pair<String, String>>>> entry, String tableName) {
+        List<String> ops = new ArrayList<>();
+        //TODO dates???
+        entry.getValue().forEach(e -> ops.add(e.getKey() + "='" + e.getValue().getValue() + "'"));
+        return String.format("UPDATE `%s` SET %s WHERE downid=%d", tableName, ops.stream().collect(joining(", ")), entry.getKey().getId());
+    }
+
     public static void dumpDB() throws FileNotFoundException {
         String tableName = "danny_media";
         String json = dumpBaseAsJson(tableStatuses.stream().filter(t -> t.getName().equals(tableName)).findFirst().get());
@@ -348,7 +355,6 @@ public class BookUtils {
     }
 
     static class LocalDateAdapter implements JsonSerializer<LocalDate> {
-
         public JsonElement serialize(LocalDate date, Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive(date.format(DateTimeFormatter.ISO_LOCAL_DATE)); // "yyyy-mm-dd"
         }
