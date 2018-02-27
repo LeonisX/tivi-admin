@@ -67,7 +67,7 @@ TODO DUMP BLOB (HEX OR NOT) - с сервера идут уже корявые �
  - [ ] unzip/unrar
 - [ ] Обновлять на сайте 33%
  - [x] added
- - [ ] updated - TODO check
+ - [x] updated
  - [x] deleted
  - [ ] images
  - [ ] files

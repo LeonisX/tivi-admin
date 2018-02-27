@@ -28,10 +28,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -80,7 +77,7 @@ public class BookUtils {
     public static String queryRequest(String query) {
         //System.out.println(query);
         try {
-            String requestURL = Config.apiPath + "media.php?to=query&query_string=" + URLEncoder.encode(query, Config.encoding);
+            String requestURL = Config.apiPath + "media.php?to=query&query_string=" + URLEncoder.encode(query, "cp1251");
             String jsonString = WebUtils.readFromUrl(requestURL);
             //String jsonString = ascii2Native(WebUtils.readFromUrl(requestURL));
             int len = jsonString.length() > 1024 ? 1024 : jsonString.length();
@@ -220,8 +217,8 @@ public class BookUtils {
     public static String comparisionResultToSqlUpdateQuery(Map.Entry<Video, List<Pair<String, Pair<String, String>>>> entry, String tableName) {
         List<String> ops = new ArrayList<>();
         //TODO dates???
-        entry.getValue().forEach(e -> ops.add(e.getKey() + "='" + e.getValue().getValue() + "'"));
-        return String.format("UPDATE `%s` SET %s WHERE downid=%d", tableName, ops.stream().collect(joining(", ")), entry.getKey().getId());
+        entry.getValue().forEach(e -> ops.add(e.getKey() + "='" + e.getValue().getValue().replace("'", "''") + "'"));
+        return String.format("UPDATE `%s` SET %s WHERE downid=%d;\n", tableName, ops.stream().collect(joining(", ")), entry.getKey().getId());
     }
 
     public static void dumpDB() throws FileNotFoundException {
@@ -546,7 +543,7 @@ public class BookUtils {
 
     public static ComparisionResult<Video> compare(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, List<BookCategory> categories, String category) {
         List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("book"))
-                .filter(CalibreBook::getOwn).collect(toList());
+                .filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
 
         List<String> multi = Arrays.asList("consoles", "computers"); //computers реально не задействован - только для журналов.
         if (multi.contains(category)) {
@@ -559,6 +556,14 @@ public class BookUtils {
         } else {
             calibreBooks = calibreBooks.stream().filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category)).collect(toList());
         }
+
+        //TODO подумать как убрать этот хак
+        calibreBooks.forEach(b -> {
+            if (b.getTextMore() == null) {
+                b.setTextMore("");
+            }
+        });
+
 
         siteBooks = siteBooks.stream().filter(b -> b.getCategoryId().equals(categories.stream().filter(c -> c.getCatcpu().equals(category)).map(BookCategory::getCatid).findFirst().get())).collect(toList());
 
@@ -615,14 +620,17 @@ public class BookUtils {
             oldJsonObject.entrySet().forEach(e -> {
                 if (!e.getValue().toString().equals(newJsonObject.get(e.getKey()).toString())) {
                     if (e.getKey().equals("public")) {
-                        String oldDate = timestampToDate(e.getValue().getAsLong(), 0).toString();
-                        String newDate = timestampToDate(newJsonObject.get(e.getKey()).getAsLong(), 1).toString();
+                        String oldDate = Long.toString(timestampToDate(e.getValue().getAsLong(), 0).toLocalDate().atStartOfDay(ZoneId.ofOffset("UTC", ZoneOffset.ofHours(0))).toEpochSecond());
+                        String newDate = Long.toString(timestampToDate(newJsonObject.get(e.getKey()).getAsLong(), 1).toLocalDate().atStartOfDay(ZoneId.ofOffset("UTC", ZoneOffset.ofHours(0))).toEpochSecond());
                         if (!oldDate.equals(newDate)) {
                             Pair<String, String> value = new Pair<>(oldDate, newDate);
                             res.add(new Pair<>(e.getKey(), value));
                         }
                     } else {
-                        Pair<String, String> value = new Pair<>(e.getValue().toString(), newJsonObject.get(e.getKey()).toString());
+                        Pair<String, String> value = new Pair<>(e.getValue().getAsString(), newJsonObject.get(e.getKey()).getAsString());
+                        System.out.println("====");
+                        System.out.println(value.getKey());
+                        System.out.println(value.getValue());
                         res.add(new Pair<>(e.getKey(), value));
                     }
                 }
@@ -640,6 +648,8 @@ public class BookUtils {
         if (!calibreBooks.isEmpty() && !manual.isPresent()) {
             //add
             Video newManual = new Video();
+            newManual.setCpu(category+ "_manuals");
+            newManual.setCategoryId(categories.stream().filter(c -> c.getCatcpu().equals(category)).map(BookCategory::getCatid).findFirst().get());
             newManual.setTitle("Описания и прохождения игр " + categories.stream().filter(c -> c.getCatcpu().equals(category)).findFirst().get().getCatname());
             newManual.setText("<p><img style=\"float: right; margin: 5px;\" title=\"Solutions\" src=\"images/books/solutions.jpg\" alt=\"Прохождения, солюшены\" />Описания и прохождения игр от наших авторов</p>");
             newManual.setFullText(calibreBooks.stream().map(b -> String.format("<p><a href=\"up/down/file/sol/3do/D.doc\"><img style=\"float: left; margin-right: 3px;\" src=\"images/book.png\" alt=\"\" /></a>%s (C) %s</p>",
@@ -656,9 +666,9 @@ public class BookUtils {
             newManual.setText("<p><img style=\"float: right; margin: 5px;\" title=\"Solutions\" src=\"images/books/solutions.jpg\" alt=\"Прохождения, солюшены\" />Описания и прохождения игр от наших авторов</p>");
             newManual.setFullText(calibreBooks.stream().map(b -> String.format("<p><a href=\"up/down/file/sol/3do/D.doc\"><img style=\"float: left; margin-right: 3px;\" src=\"images/book.png\" alt=\"\" /></a>%s (C) %s</p>",
                     b.getTextMore().replace("\n", ""), b.getAuthors().stream().map(Author::getName).collect(joining(", ")))).collect(joining("<br />")));
-            if (!manual.get().equals(newManual)) {
+            //if (!manual.get().equals(newManual)) {
                 oldBooks.add(newManual);
-            }
+            //}
         }
     }
 
@@ -712,9 +722,9 @@ public class BookUtils {
         String imageThumb = String.format("images/books/thumb/%s.jpg", book.getCpu());
         String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
         String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
-        sb.append(String.format("<p><a href=\\\"%s\\\">", imageLink));
-        sb.append(String.format("<img style=\\\"border: 1px solid #aaaaaa; float: right; margin-left: 10px; margin-top: 4px;\\\" title=\\\"%s\\\" src=\\\"%s\\\" alt=\\\"%s\\\" /></a></p>\n", imageTitle, imageThumb, imageAlt));
-        sb.append("<ul class=\\\"file-info\\\">\n");
+        sb.append(String.format("<p><a href=\"%s\">", imageLink));
+        sb.append(String.format("<img style=\"border: 1px solid #aaaaaa; float: right; margin-left: 10px; margin-top: 4px;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a></p>\n", imageTitle, imageThumb, imageAlt));
+        sb.append("<ul class=\"file-info\">\n");
         if (book.getOfficialTitle() != null) {
             sb.append(String.format("<li><span>Название:</span> %s</li>\n", book.getOfficialTitle()));
         }
@@ -723,7 +733,7 @@ public class BookUtils {
         }
         if (book.getSeries() != null) {
             //TODO may be number, link in future
-            sb.append(String.format("<li><span>Серия:</span> %s</li>\n", book.getSeries()));
+            sb.append(String.format("<li><span>Серия:</span> %s</li>\n", book.getSeries().getName()));
         }
         if (book.getCompany() != null) {
             sb.append(String.format("<li><span>Компания:</span> %s</li>\n", book.getCompany()));
@@ -732,7 +742,7 @@ public class BookUtils {
             String title = book.getAuthors().size() > 1 ? "ы" : "";
             sb.append(String.format("<li><span>Автор%s:</span> %s</li>\n", title, book.getAuthors().stream().map(Author::getName).collect(joining(", "))));
         }
-        sb.append(String.format("<li><span>Издательство:</span> %s</li>\n", book.getPublisher()));
+        sb.append(String.format("<li><span>Издательство:</span> %s</li>\n", book.getPublisher() == null ? "???" : book.getPublisher().getName()));
         if (book.getSignedInPrint() != null) {
             String year = "";
             if (book.getSignedInPrint().toLocalDate().isBefore(LocalDate.of(1000, 1, 1))) {
@@ -740,7 +750,7 @@ public class BookUtils {
             } else if (book.getSignedInPrint().getDayOfMonth() == 1 && book.getSignedInPrint().getMonthValue() == 1) {
                 year = Integer.toString(book.getSignedInPrint().getYear());
             } else {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.mm.yyyy");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
                 year = book.getSignedInPrint().toLocalDate().format(formatter);
             }
             sb.append(String.format("<li><span>Подписано в печать:</span> %s г.</li>\n", year));
@@ -748,7 +758,6 @@ public class BookUtils {
         if (book.getPages() != null && book.getPages() > 0) {
             sb.append(String.format("<li><span>Объём:</span> %s страниц</li>\n", book.getPages()));
         }
-
 
         if (book.getIsbn() != null) {
             sb.append(String.format("<li><span>ISBN:</span> %s</li>\n", book.getIsbn()));
@@ -767,7 +776,7 @@ public class BookUtils {
             sb.append(String.format("<li><span>Формат:</span> %s</li>\n", book.getFormat()));
         }
         if (book.getScannedBy() != null) {
-            sb.append(String.format("<li><span>Сканировал:</span> <a rel=\\\"nofollow\\\" href=\\\"%s\\\">%s</a>\n", book.getSource(), book.getScannedBy()));
+            sb.append(String.format("<li><span>Сканировал:</span> <a rel=\"nofollow\" href=\"%s\">%s</a>\n", book.getSource(), book.getScannedBy()));
         }
         if (book.getPostprocessing() != null) {
             sb.append(String.format("<li><span>Постобработка:</span>%s\n", book.getPostprocessing()));

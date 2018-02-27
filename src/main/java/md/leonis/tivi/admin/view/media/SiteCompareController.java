@@ -183,8 +183,20 @@ public class SiteCompareController extends SubPane {
         }
         ComparisionResult<Video> comparisionResult = BookUtils.compare(allСalibreBooks, siteBooks, categories, categoryCombobox.getValue().getCatcpu());
 
+        List<String> insertQueries = comparisionResult.getAddedBooks().stream().map(b -> BookUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(toList());
+        List<String> deleteQueries = comparisionResult.getDeletedBooks().stream().map(b -> "DELETE FROM `danny_media` WHERE downid=" + b.getId() + ";").collect(toList());
+        List<String> updateQueries = comparisionResult.getChangedBooks().entrySet().stream().map(b -> BookUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(toList());
+
+        List<String> results = deleteQueries.stream().map(query -> BookUtils.queryRequest(query)).collect(toList());
+        results.forEach(System.out::println);
+        results = insertQueries.stream().map(query -> BookUtils.queryRequest(query)).collect(toList());
+        results.forEach(System.out::println);
+        results = updateQueries.stream().map(query -> BookUtils.queryRequest(query)).collect(toList());
+        results.forEach(System.out::println);
+
+        /*
         String insertQueries = comparisionResult.getAddedBooks().stream().map(b -> BookUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(Collectors.joining("\n"));
-        String deleteQueries = comparisionResult.getDeletedBooks().stream().map(b -> "DELETE FROM danny_media WHERE id=" + b.getId()).collect(Collectors.joining("\n"));
+        String deleteQueries = comparisionResult.getDeletedBooks().stream().map(b -> "DELETE FROM `danny_media` WHERE downid=" + b.getId() + ";").collect(Collectors.joining("\n"));
         String updateQueries = comparisionResult.getChangedBooks().entrySet().stream().map(b -> BookUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(Collectors.joining("\n"));
 
         String query = insertQueries + "\n\n" + deleteQueries+ "\n\n" + updateQueries;
@@ -192,7 +204,7 @@ public class SiteCompareController extends SubPane {
         String result = BookUtils.upload("api2d/backup", fileName, new ByteArrayInputStream(query.getBytes(StandardCharsets.UTF_8)));
         System.out.println(result);
         result = WebUtils.readFromUrl(Config.apiPath + "dumper.php?to=restore&file=" + fileName);
-        System.out.println(result);
+        System.out.println(result);*/
 
         //TODO "IN" QUERY ??
         String configUrl = Config.sqliteUrl;

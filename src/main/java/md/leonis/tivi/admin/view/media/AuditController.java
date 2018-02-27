@@ -114,6 +114,7 @@ public class AuditController extends SubPane {
                 sourceId = id.longValue();
             }
             getScannerLinks().forEach(calibreBook -> {
+                //TODO check, probably update
                 String q = String.format("INSERT INTO `books_custom_column_12_link` VALUES (null, %d, %d)", calibreBook.getId(), sourceId);
                 System.out.println(q);
                 Integer id = CalibreUtils.executeInsertQuery(q);
