@@ -15,6 +15,8 @@ import md.leonis.tivi.admin.utils.Translit;
 
 import java.text.Normalizer;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -357,6 +359,7 @@ public class AuditController extends SubPane {
     public static boolean isValidCpu(String cpu) {
         return cpu.matches("^[a-z0-9_]+$")/* && cpu.length() < 64*/;
     }
+
     public static String toPrettyURL(String string) {
         return Normalizer.normalize(string.toLowerCase(), Normalizer.Form.NFD)
                 .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
@@ -387,7 +390,80 @@ public class AuditController extends SubPane {
         calibreBooks.forEach(calibreBook -> addLog(calibreBook.getTitle()));
     }
 
-    public void reloadSiteBooks() {
+
+    public void checkDirtyHtml() {
+        auditLog.clear();
+        for (CalibreBook calibreBook: getDirtyHtml()) {
+            addLog(calibreBook.getTitle());
+            if (calibreBook.getTextShort() != null && !calibreBook.getTextShort().isEmpty()) {
+                outText(calibreBook.getTextShort());
+                //outText(CalibreUtils.unify(calibreBook.getTextShort()));
+                //outText(CalibreUtils.sanitize(calibreBook.getTextShort()));
+            }
+            if (calibreBook.getReleaseNote() != null && !calibreBook.getReleaseNote().isEmpty()) {
+                outText(calibreBook.getReleaseNote());
+                //outText(CalibreUtils.unify(calibreBook.getReleaseNote()));
+                //outText(CalibreUtils.sanitize(calibreBook.getReleaseNote()));
+            }
+            if (calibreBook.getTextMore() != null && !calibreBook.getTextMore().isEmpty()) {
+                outText(calibreBook.getTextMore());
+                outText(CalibreUtils.unify(calibreBook.getTextMore()));
+                outText(CalibreUtils.sanitize(calibreBook.getTextMore()));
+            }
+            /*if (calibreBook.getId() > 10) {
+                break;
+            }*/
+        }
     }
 
+    private void outText(String text) {
+        int maxLength = 140;
+        Pattern p = Pattern.compile("\\G\\s*(.{1," + maxLength + "})(?=\\s|$)", Pattern.DOTALL);
+        Arrays.stream(text.substring(0, text.length() > maxLength * 3 ? maxLength * 3 : text.length() - 1).split("\n")).forEach(l -> {
+            Matcher m = p.matcher(l);
+            while (m.find()) {
+                addLog("    " + m.group(1));
+            }
+        });
+    }
+
+    public List<CalibreBook> getDirtyHtml() {
+        return calibreBooks.stream()
+                //.filter(b -> b.getTags() != null && b.getTags().stream().map(Tag::getName).collect(toList()).contains("3do"))
+                .filter(CalibreUtils::hasDirtyHtml).collect(toList());
+    }
+
+    public void fixDirtyHtml() {
+        //TODO
+        /*getDirtyHtml()*/calibreBooks.forEach(b -> {
+            if (b.getTextShort() != null && !b.getTextShort().isEmpty()) {
+                String q = String.format("UPDATE `custom_column_18` SET value='%s' WHERE book=%d", CalibreUtils.sanitize(b.getTextShort()).replace("'","''"), b.getId());
+                System.out.println(q);
+                Integer id = CalibreUtils.executeInsertQuery(q);
+                System.out.println(id);
+            }
+            if (b.getReleaseNote() != null && !b.getReleaseNote().isEmpty()) {
+                //TODO get ID first
+                Long rid = CalibreUtils.readObjectList("SELECT * FROM books_custom_column_20_link WHERE book=" + b.getId(), CustomColumn.class).get(0).getId();
+                String q = String.format("UPDATE `custom_column_20` SET value='%s' WHERE id=%d", CalibreUtils.sanitize(b.getReleaseNote()).replace("'","''"), rid);
+                System.out.println(q);
+                Integer id = CalibreUtils.executeInsertQuery(q);
+                System.out.println(id);
+            }
+            if (b.getTextMore() != null && !b.getTextMore().isEmpty()) {
+                String q = String.format("UPDATE `comments` SET text='%s' WHERE book=%d", CalibreUtils.sanitize(b.getTextMore()).replace("'","''"), b.getId());
+                System.out.println(q);
+                Integer id = CalibreUtils.executeInsertQuery(q);
+                System.out.println(id);
+            }
+        });
+    }
+
+
+
+
+
+
+    public void reloadSiteBooks() {
+    }
 }

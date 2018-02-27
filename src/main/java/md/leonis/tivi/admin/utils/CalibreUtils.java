@@ -8,7 +8,10 @@ import com.google.gson.reflect.TypeToken;
 import javafx.util.Pair;
 import md.leonis.tivi.admin.model.ComparisionResult;
 import md.leonis.tivi.admin.model.media.*;
+import md.leonis.tivi.admin.model.media.Comment;
 import md.leonis.tivi.admin.model.media.links.*;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.*;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -531,5 +534,116 @@ public class CalibreUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static boolean hasDirtyHtml(CalibreBook calibreBook) {
+        String initialHtmlText = unify(calibreBook.getTextMore());
+        String cleanedHtmlText = sanitize(calibreBook.getTextMore());
+        if (!initialHtmlText.equals(cleanedHtmlText)) {
+            return true;
+        }
+        initialHtmlText = unify(calibreBook.getTextShort());
+        cleanedHtmlText = sanitize(calibreBook.getTextShort());
+        if (!initialHtmlText.equals(cleanedHtmlText)) {
+            return true;
+        }
+        initialHtmlText = unify(calibreBook.getReleaseNote());
+        cleanedHtmlText = sanitize(calibreBook.getReleaseNote());
+        if (!initialHtmlText.equals(cleanedHtmlText)) {
+            return true;
+        }
+        return false;
+        //return !initialHtmlText.equals(cleanedHtmlText);
+    }
+
+    public static String unify(String htmlText) {
+        if (htmlText == null) {
+            return "";
+        }
+        Document doc = Jsoup.parseBodyFragment(htmlText);
+        doc.outputSettings().prettyPrint(true);
+        doc.outputSettings().outline(true);
+        doc.outputSettings().indentAmount(4);
+        Element element = doc.body();
+        return element.html();
+    }
+
+    public static String sanitize(String htmlText) {
+        if (htmlText == null) {
+            return "";
+        }
+        Document doc = Jsoup.parseBodyFragment(htmlText);
+        doc.outputSettings().prettyPrint(true);
+        doc.outputSettings().outline(true);
+        doc.outputSettings().indentAmount(4);
+        Node element = doc.body();
+        element = sanitizeElement(element, 0);
+        if (element.childNodeSize() == 1) {
+            if ((element.childNode(0) instanceof TextNode)) {
+                Element child = new Element("p");
+                child.appendChild(element.childNode(0));
+                Element root = new Element("div");
+                root.appendChild(child);
+                return root.outerHtml();
+            } else {
+                ((Element) element.childNode(0)).tagName("div");
+                return ((Element) element).html()
+                        .replaceAll("\\s*<p>\\s*<br>\\s*</p>\\s*", "").replaceAll("\\s*<p>\\s*</p>\\s*", "");
+            }
+        } else { // many children
+            ((Element) element).tagName("div");
+            return (element).outerHtml().replaceAll("\\s*<p>\\s*<br>\\s*</p>\\s*", "").replaceAll("\\s*<p>\\s*</p>\\s*", "");
+        }
+    }
+
+    private static Node sanitizeElement(Node node, int index) {
+        if (node instanceof Element) {
+            Element element = (Element) node;
+            /*if (element.tagName().equals("p")) {
+                element.tagName("div");
+                node = element;
+            }*/
+            if (element.tagName().equals("div")) {
+                element.tagName("p");
+                node = element;
+            }
+            if (element.tagName().equals("font")) {
+                element.tagName("span");
+                node = element;
+            }
+        }
+        //TODO remove \n from text nodes
+        if (node.nodeName().equals("#text")) {
+            TextNode textNode = (TextNode) node;
+            textNode.text(textNode.text().replace("\n", " ").replace("  ", " "));
+            node = textNode;
+        }
+        List<Attribute> attrs = new ArrayList<>();
+        node.attributes().forEach(attr -> {
+            if (!attr.getKey().equals("#text")) {
+                attrs.add(attr);
+            }
+        });
+        if (!attrs.isEmpty()) {
+            //System.out.println(attrs);
+        }
+        for (Attribute a : attrs) {
+            node.removeAttr(a.getKey());
+        }
+        if (node.childNodeSize() > 0) {
+            for (int i = 0; i < node.childNodes().size(); i++) {
+                sanitizeElement(node.childNode(i), i);
+            }
+        }
+        if (node.nodeName().equals("span")) {
+            /*if (node.childNodeSize() == 1 && node.childNode(0) instanceof TextNode) {
+                Element element = (Element) node;
+                node.parentNode().childNode(index).replaceWith(new TextNode(element.text()));
+            }*/
+            if (node.childNodeSize() == 1) {
+                node.parentNode().childNode(index).replaceWith(node.childNode(0));
+            }
+        }
+        return node;
     }
 }
