@@ -69,7 +69,7 @@ public class AuditController extends SubPane {
                 .filter(calibreBook -> !calibreBook.getDataList().isEmpty()
                         && ((calibreBook.getOwn() == null) || !calibreBook.getOwn())).forEach( b -> {
             String fileName = b.getFileName() == null ? b.getTitle() : b.getFileName();
-            if (fileName.contains("/") || fileName.contains("\\") || fileName.contains(":") || fileName.contains("\n")) {
+            if (fileName.contains("/") || fileName.contains("\\") || fileName.contains(":") || fileName.contains("\n") || fileName.contains("\"")) {
                 addLog(fileName);
             }
         });

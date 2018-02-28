@@ -78,7 +78,9 @@ public class ImagesTest {
 
         deleteFileOrFolder(booksDir.toPath());
 
-        BookUtils.calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).forEach(b -> {
+        /*List<CalibreBook> shallowCopy = BookUtils.calibreBooks.subList(0, BookUtils.calibreBooks.size());
+        Collections.reverse(shallowCopy);
+        shallowCopy*/BookUtils.calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).forEach(b -> {
             String system;
             if (b.getTags().size() > 1) {
                 system = "consoles"; //TODO computers
@@ -119,6 +121,9 @@ public class ImagesTest {
                     case "cbr":
                     case "doc":
                     case "jpg":
+                    case "scl":
+                    case "trd":
+                    case "chm":
                         copyFile(srcBook, destPath, fileName, data.getFormat());
                         break;
                     default:
@@ -137,7 +142,7 @@ public class ImagesTest {
             throw new RuntimeException(e);
         }
     }
-    private static Set<String> imgs = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "exe"));
+    private static Set<String> imgs = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "exe", "py"));
 
     private static boolean uncompress(List<String> fileNames) {
         Set<String> exts = fileNames.stream().map(SevenZipUtils::getExtension).collect(toSet());
