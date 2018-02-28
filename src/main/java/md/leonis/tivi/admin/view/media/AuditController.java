@@ -61,6 +61,21 @@ public class AuditController extends SubPane {
                         && ((calibreBook.getOwn() == null) || !calibreBook.getOwn())).collect(toList());
     }
 
+
+
+    public void checkFileNames() {
+        auditLog.clear();
+        calibreBooks.stream()
+                .filter(calibreBook -> !calibreBook.getDataList().isEmpty()
+                        && ((calibreBook.getOwn() == null) || !calibreBook.getOwn())).forEach( b -> {
+            String fileName = b.getFileName() == null ? b.getTitle() : b.getFileName();
+            if (fileName.contains("/") || fileName.contains("\\") || fileName.contains(":") || fileName.contains("\n")) {
+                addLog(fileName);
+            }
+        });
+    }
+
+
     public void fixFilesOwn() {
         getFilesOwn().forEach(calibreBook -> {
             if (calibreBook.getOwn() == null) {
@@ -464,7 +479,7 @@ public class AuditController extends SubPane {
 
 
 
-
     public void reloadSiteBooks() {
     }
+
 }

@@ -132,13 +132,13 @@
                   </HBox>
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="16">
                      <children>
-                        <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="..." />
+                        <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Имена файлов" />
                      </children>
                   </HBox>
                   <Button mnemonicParsing="false" onAction="#checkTiviIdOwn" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="13" />
                   <Button mnemonicParsing="false" onAction="#checkCpuOwn" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="14" />
                   <Button mnemonicParsing="false" onAction="#checkDirtyHtml" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="15" />
-                  <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="16" />
+                  <Button mnemonicParsing="false" onAction="#checkFileNames" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="16" />
                   <Button mnemonicParsing="false" onAction="#fixCpu" text="Fix" GridPane.columnIndex="2" GridPane.rowIndex="14" />
                   <Button mnemonicParsing="false" onAction="#fixDirtyHtml" text="Fix" GridPane.columnIndex="2" GridPane.rowIndex="15" />
                   </children>
