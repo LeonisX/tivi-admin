@@ -65,16 +65,30 @@ public class AuditController extends SubPane {
 
     public void checkFileNames() {
         auditLog.clear();
-        calibreBooks.stream()
-                .filter(calibreBook -> !calibreBook.getDataList().isEmpty()
-                        && ((calibreBook.getOwn() == null) || !calibreBook.getOwn())).forEach( b -> {
-            String fileName = b.getFileName() == null ? b.getTitle() : b.getFileName();
-            if (fileName.contains("/") || fileName.contains("\\") || fileName.contains(":") || fileName.contains("\n") || fileName.contains("\"")) {
-                addLog(fileName);
-            }
-        });
+        getFileNames().forEach(f -> addLog(f.getFileName()));
     }
 
+    public List<CalibreBook> getFileNames() {
+        return calibreBooks.stream()
+                .filter(calibreBook -> !calibreBook.getDataList().isEmpty()
+                        && (!(calibreBook.getOwn() == null) || calibreBook.getOwn())).filter(b -> b.getFileName() != null)
+                .filter(b -> b.getFileName().contains("/") || b.getFileName().contains("\\") || b.getFileName().contains(":") || b.getFileName().contains("\n") || b.getFileName().contains("\"")).collect(toList());
+    }
+
+    public void fixFileNames() {
+        getFileNames().forEach(b -> {
+            String query = String.format("SELECT * FROM `custom_column_6` WHERE value='%s'", b.getFileName().replace("'", "''"));
+            System.out.println(query);
+            CustomColumn source = CalibreUtils.readObject(query, CustomColumn.class);
+            Long id = source.getId();
+            System.out.println(id);
+            query = String.format("UPDATE `custom_column_6` SET value='%s' WHERE id=%d", b.getFileName().replace("/", "-")
+                    .replace("\\", "-").replace(":", " -").replace("\n", " ").replace("\"", "").replace("  ", " ").replace("'", "''"), id);
+            System.out.println(query);
+            id = (long) CalibreUtils.executeUpdateQuery(query);
+            System.out.println(id);
+        });
+    }
 
     public void fixFilesOwn() {
         getFilesOwn().forEach(calibreBook -> {
@@ -98,10 +112,10 @@ public class AuditController extends SubPane {
     }
 
     public List<CalibreBook> getScannerLinks() {
-        List<CalibreBook> books = calibreBooks.stream().filter(calibreBook -> calibreBook.getScannedBy() != null && calibreBook.getSource() == null)
-                .filter(calibreBook -> !calibreBook.getScannedBy().toLowerCase().contains(scannerName.getText())).collect(toList());
-        books.addAll(calibreBooks.stream().filter(calibreBook -> calibreBook.getPostprocessing() != null && calibreBook.getSource() == null)
-                .filter(calibreBook -> !calibreBook.getPostprocessing().toLowerCase().contains(scannerName.getText())).collect(toList()));
+        List<CalibreBook> books = calibreBooks.stream().filter(book -> book.getScannedBy() != null && book.getSource() == null)
+                .filter(book -> book.getScannedBy().toLowerCase().contains(scannerName.getText())).collect(toList());
+        books.addAll(calibreBooks.stream().filter(book -> book.getPostprocessing() != null && book.getSource() == null)
+                .filter(book -> book.getPostprocessing().toLowerCase().contains(scannerName.getText())).collect(toList()));
         return books;
     }
 
@@ -176,9 +190,9 @@ public class AuditController extends SubPane {
 
     public void checkOwnTags() {
         auditLog.clear();
-        calibreBooks.stream().filter(calibreBook -> calibreBook.getOwn() != null)
-                .filter(calibreBook -> calibreBook.getTags().isEmpty())
-                .forEach(calibreBook -> addLog(calibreBook.getTitle()));
+        calibreBooks.stream().filter(book -> book.getOwn() != null && book.getOwn())
+                .filter(book -> book.getTags().isEmpty())
+                .forEach(book -> addLog(book.getTitle()));
     }
 
     public void checkTitleFileNames() {
@@ -187,31 +201,25 @@ public class AuditController extends SubPane {
     }
 
     public List<CalibreBook> getTitleFileNames() {
-        return calibreBooks.stream().filter(calibreBook -> calibreBook.getFileName() != null)
-                .filter(calibreBook -> calibreBook.getFileName().equals(calibreBook.getTitle())).collect(toList());
+        return calibreBooks.stream().filter(book -> book.getFileName() == null).collect(toList());
     }
 
     public void fixTitleFileNames() {
-        getTitleFileNames().forEach(calibreBook -> {
-            String query = String.format("SELECT * FROM `custom_column_6` WHERE value='%s'", calibreBook.getFileName());
+        getTitleFileNames().forEach(book -> {
+            String query = String.format("SELECT * FROM `custom_column_6` WHERE value='%s'", book.getTitle().replace("'", "''"));
             System.out.println(query);
             CustomColumn source = CalibreUtils.readObject(query, CustomColumn.class);
-            Long fileNameId = source.getId();
-
-
-            query = String.format("DELETE FROM `books_custom_column_6_link` WHERE book=%d AND value=%d", calibreBook.getId(), fileNameId);
-            System.out.println(query);
-            Integer id = CalibreUtils.executeUpdateQuery(query);
-            System.out.println(id);
-
-            //TODO delete if no links
-            query = String.format("SELECT * FROM `books_custom_column_6_link` WHERE value=%d", fileNameId);
-            System.out.println(query);
-            List<CustomColumn> fileNames = CalibreUtils.readObjectList(query, CustomColumn.class);
-            if (fileNames.isEmpty()) {
-                query = String.format("DELETE FROM `custom_column_6` WHERE id=%d", fileNameId);
+            Integer id;
+            if (source == null) {
+                query = String.format("INSERT INTO `custom_column_6` VALUES (null, '%s')", book.getTitle().replace("'", "''"));
                 System.out.println(query);
-                id = CalibreUtils.executeUpdateQuery(query);
+                id = CalibreUtils.executeInsertQuery(query);
+            } else {
+                id = Math.toIntExact(source.getId());
+
+                query = String.format("INSERT INTO `books_custom_column_6_link` VALUES (null, %d, %d)", book.getId(), id);
+                System.out.println(query);
+                id = CalibreUtils.executeInsertQuery(query);
                 System.out.println(id);
             }
         });
