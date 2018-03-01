@@ -1,0 +1,24 @@
+/* Let TreeTableView rows look like TableView rows  */
+ .tree-table-row-cell {
+    -fx-background-color: -fx-table-cell-border-color, -fx-background;
+    -fx-background-insets: 0, 0 0 1 0;
+}
+/* Let odd rows look different */
+.tree-table-row-cell:odd {
+    -fx-background: -fx-control-inner-background-alt;
+}
+/* Selected when control is focused */
+.tree-table-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-table-row-cell:selected {
+    -fx-background: -fx-selection-bar;
+    -fx-table-cell-border-color: derive(-fx-selection-bar, 20%);
+}
+/* Selected when control is not focused */
+.tree-table-row-cell:filled:selected {
+    -fx-background: -fx-selection-bar-non-focused;
+    -fx-table-cell-border-color: derive(-fx-selection-bar-non-focused, 20%);
+}
+
+/*
+.tree-table-cell {
+    -fx-wrap-text: true;
+}*/

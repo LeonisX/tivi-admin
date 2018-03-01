@@ -4,7 +4,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.control.TreeTableView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -79,7 +79,6 @@
       </VBox>
    </top>
    <center>
-      <TreeView fx:id="treeView" prefHeight="661.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
-      </TreeView>
+      <TreeTableView fx:id="treeTableView" editable="true" prefHeight="200.0" prefWidth="200.0" showRoot="false" BorderPane.alignment="CENTER" />
    </center>
 </BorderPane>

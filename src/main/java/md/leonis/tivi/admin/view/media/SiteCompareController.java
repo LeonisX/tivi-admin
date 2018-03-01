@@ -1,9 +1,14 @@
 package md.leonis.tivi.admin.view.media;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Callback;
@@ -11,6 +16,7 @@ import javafx.util.StringConverter;
 import md.leonis.tivi.admin.model.BookCategory;
 import md.leonis.tivi.admin.model.ComparisionResult;
 import md.leonis.tivi.admin.model.Video;
+import md.leonis.tivi.admin.model.View;
 import md.leonis.tivi.admin.model.media.CalibreBook;
 import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.CalibreUtils;
@@ -29,11 +35,11 @@ public class SiteCompareController extends SubPane {
 
     @FXML
     public GridPane gridPane;
-    public TreeView<String> treeView;
     public TextField calibreDir;
     public Label calibreTotals;
     public Label siteTotals;
     public ComboBox<BookCategory> categoryCombobox;
+    public TreeTableView<View> treeTableView;
 
     //TODO move all lists and code to to BookUtils
     private List<Video> siteBooks;
@@ -42,14 +48,15 @@ public class SiteCompareController extends SubPane {
 
     private List<BookCategory> categories;
 
-
     @FXML
     private void initialize() {
         //TODO show totals
 
+        calibreDir.setText(Config.calibreDbPath);
+
         categories = BookUtils.readCategories().stream().sorted(Comparator.comparing(BookCategory::getCatcpu)).collect(toList());
-        //reloadSiteData();
         reloadCalibreData();
+        reloadSiteData();
 
         ObservableList<BookCategory> options = FXCollections.observableArrayList(categories);
         categoryCombobox.setItems(options);
@@ -97,7 +104,7 @@ public class SiteCompareController extends SubPane {
 
     public void selectCalibreDir() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setInitialDirectory(new File("E:\\"));
+        directoryChooser.setInitialDirectory(new File(Config.workPath));
         directoryChooser.setTitle("Select directory with Calibre DB");
         File selectedDirectory = directoryChooser.showDialog(null);
         calibreDir.setText(selectedDirectory.getAbsolutePath());
@@ -105,49 +112,128 @@ public class SiteCompareController extends SubPane {
     }
 
     public void compare() {
-        if (allCalibreBooks == null) {
-            reloadCalibreData();
-        }
-        if (siteBooks == null) {
-            reloadSiteData();
-        }
+        TreeTableColumn<View, String> titleCol = new TreeTableColumn<>("Title");
+        TreeTableColumn<View, String> leftCol = new TreeTableColumn<>("Left");
+        TreeTableColumn<View, String> rightCol = new TreeTableColumn<>("Right");
+        titleCol.setPrefWidth(250);
+        leftCol.setPrefWidth(400);
+        leftCol.setEditable(true);
+        rightCol.setEditable(true);
+        rightCol.setPrefWidth(400);
+        titleCol.setMaxWidth(500);
+        leftCol.setMaxWidth(900);
+        rightCol.setMaxWidth(900);
+
+        titleCol.setCellValueFactory(p -> new ReadOnlyStringWrapper(p.getValue().getValue().getTitle()));
+        leftCol.setCellValueFactory(new TreeItemPropertyValueFactory<>("leftValue"));
+        rightCol.setCellValueFactory(p -> new ReadOnlyStringWrapper(p.getValue().getValue().getRightValue()));
+
+        treeTableView.setEditable(true);
+        TreeTableView.TreeTableViewSelectionModel<View> selection = treeTableView.getSelectionModel();
+        selection.setSelectionMode(SelectionMode.MULTIPLE);
+
+        selection.setCellSelectionEnabled(true);
+
+        //leftCol.setEditable(true);
+        //rightCol.setEditable(true);
+
+        leftCol.setCellFactory(item -> {
+            TreeTableCell<View, String> treeCell = new TreeTableCell<View, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item != null && !empty)
+                        setText(item);
+                    else
+                        setText("");
+                }
+            };
+            //TODO generic
+            treeCell.addEventFilter(MouseEvent.MOUSE_CLICKED, t -> {
+                final Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(((TreeTableCell) t.getSource()).getText());
+                clipboard.setContent(content);
+            });
+            treeCell.setEditable(true);
+            treeCell.prefWidthProperty().bind(leftCol.widthProperty());
+            //treeCell.setTextOverrun(OverrunStyle.CLIP);
+            return treeCell;
+        });
+
+        rightCol.setCellFactory(item -> {
+            TreeTableCell<View, String> treeCell = new TreeTableCell<View, String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item != null && !empty)
+                        setText(item);
+                    else
+                        setText("");
+                }
+            };
+            treeCell.addEventFilter(MouseEvent.MOUSE_CLICKED, t -> {
+                final Clipboard clipboard = Clipboard.getSystemClipboard();
+                final ClipboardContent content = new ClipboardContent();
+                content.putString(((TreeTableCell) t.getSource()).getText());
+                clipboard.setContent(content);
+            });
+            treeCell.setEditable(true);
+            //treeCell.setTextOverrun(OverrunStyle.CLIP);
+            treeCell.prefWidthProperty().bind(leftCol.widthProperty());
+            return treeCell;
+        });
+
+        //treeTableView.setColumnResizePolicy(p -> true);
+
+        /*treeTableView.setRowFactory(treeTable -> {
+            TreeTableRow<View> row = new TreeTableRow<>();
+            row.setMaxHeight(1500);
+            row.setPrefWidth(500);
+            //row.setMinHeight(500);
+            row.prefHeightProperty().bind(leftCol.widthProperty());
+            return row ;
+        });*/
+        
+        treeTableView.getColumns().setAll(titleCol, leftCol, rightCol);
+
         ComparisionResult<Video> comparisionResult = BookUtils.compare(allCalibreBooks, siteBooks, categories, categoryCombobox.getValue().getCatcpu());
-        TreeItem<String> addedItem = new TreeItem<>("Added");
-        TreeItem<String> deletedItem = new TreeItem<>("Deleted");
-        TreeItem<String> changedItem = new TreeItem<>("Changed");
+        TreeItem<View> addedItem = new TreeItem<>(new View("Added"));
+        TreeItem<View> deletedItem = new TreeItem<>(new View("Deleted"));
+        TreeItem<View> changedItem = new TreeItem<>(new View("Changed"));
 
         addedItem.setExpanded(true);
         deletedItem.setExpanded(true);
         changedItem.setExpanded(true);
 
-        TreeItem<String> rootItem = new TreeItem<>("R00T");
+        TreeItem<View> rootItem = new TreeItem<>(new View("R00T"));
         rootItem.getChildren().addAll(addedItem, deletedItem, changedItem);
 
         addedItem.getChildren().addAll(comparisionResult.getAddedBooks().stream().map(b -> {
-            TreeItem<String> treeItem = new TreeItem<>(b.getTitle());
+            TreeItem<View> treeItem = new TreeItem<>(new View(b.getTitle())); //TODO may be add more properties
             treeItem.setExpanded(true);
             return treeItem;
         }).collect(toList()));
 
         deletedItem.getChildren().addAll(comparisionResult.getDeletedBooks().stream().map(b -> {
-            TreeItem<String> treeItem = new TreeItem<>(b.getTitle());
+            TreeItem<View> treeItem = new TreeItem<>(new View(b.getTitle())); //TODO may be add more properties
             treeItem.setExpanded(true);
             return treeItem;
         }).collect(toList()));
 
         changedItem.getChildren().addAll(comparisionResult.getChangedBooks().entrySet().stream().map(b -> {
-            TreeItem<String> treeItem = new TreeItem<>(b.getKey().getTitle());
+            TreeItem<View> treeItem = new TreeItem<>(new View(b.getKey().getTitle()));
             treeItem.setExpanded(true);
-            // changes
             b.getValue().forEach(c -> treeItem.getChildren().add(new TreeItem<>(
-                    String.format("%1$-15s %2$1s  ->  %3$1s", c.getKey(), c.getValue().getKey(), c.getValue().getValue())
+                    new View(c.getKey(), c.getValue().getKey(), c.getValue().getValue())
             )));
             return treeItem;
         }).collect(toList()));
 
-        treeView.setRoot(rootItem);
-        treeView.setShowRoot(false);
+        treeTableView.setRoot(rootItem);
+        //treeTableView.setShowRoot(false);
         rootItem.setExpanded(true);
+        //treeTableView.setEditable(true);
     }
 
     public void reloadSiteData() {
