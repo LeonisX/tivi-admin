@@ -1,13 +1,10 @@
 package md.leonis.tivi.admin.view.media;
 
-import com.google.gson.reflect.TypeToken;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
@@ -15,19 +12,15 @@ import md.leonis.tivi.admin.model.BookCategory;
 import md.leonis.tivi.admin.model.ComparisionResult;
 import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.model.media.CalibreBook;
-import md.leonis.tivi.admin.model.media.CustomColumn;
-import md.leonis.tivi.admin.model.mysql.TableStatus;
-import md.leonis.tivi.admin.utils.*;
+import md.leonis.tivi.admin.utils.BookUtils;
+import md.leonis.tivi.admin.utils.CalibreUtils;
+import md.leonis.tivi.admin.utils.Config;
+import md.leonis.tivi.admin.utils.SubPane;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
+import java.io.FileNotFoundException;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -41,11 +34,12 @@ public class SiteCompareController extends SubPane {
     public Label siteTotals;
     public ComboBox<BookCategory> categoryCombobox;
 
-    List<Video> siteBooks;
+    //TODO move all lists and code to to BookUtils
+    private List<Video> siteBooks;
 
-    List<CalibreBook> allСalibreBooks;
+    private List<CalibreBook> allCalibreBooks;
 
-    List<BookCategory> categories;
+    private List<BookCategory> categories;
 
 
     @FXML
@@ -53,7 +47,7 @@ public class SiteCompareController extends SubPane {
         //TODO show totals
 
         categories = BookUtils.readCategories().stream().sorted(Comparator.comparing(BookCategory::getCatcpu)).collect(toList());
-        reloadSiteData();
+        //reloadSiteData();
         reloadCalibreData();
 
         ObservableList<BookCategory> options = FXCollections.observableArrayList(categories);
@@ -103,19 +97,20 @@ public class SiteCompareController extends SubPane {
     public void selectCalibreDir() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setInitialDirectory(new File("E:\\"));
-        directoryChooser.setTitle("dassdasd");
+        directoryChooser.setTitle("Select directory with Calibre DB");
         File selectedDirectory = directoryChooser.showDialog(null);
         calibreDir.setText(selectedDirectory.getAbsolutePath());
+        reloadCalibreData();
     }
 
     public void compare() {
-        if (allСalibreBooks == null) {
+        if (allCalibreBooks == null) {
             reloadCalibreData();
         }
         if (siteBooks == null) {
             reloadSiteData();
         }
-        ComparisionResult<Video> comparisionResult = BookUtils.compare(allСalibreBooks, siteBooks, categories, categoryCombobox.getValue().getCatcpu());
+        ComparisionResult<Video> comparisionResult = BookUtils.compare(allCalibreBooks, siteBooks, categories, categoryCombobox.getValue().getCatcpu());
         TreeItem<String> addedItem = new TreeItem<>("Added");
         TreeItem<String> deletedItem = new TreeItem<>("Deleted");
         TreeItem<String> changedItem = new TreeItem<>("Changed");
@@ -154,82 +149,57 @@ public class SiteCompareController extends SubPane {
         rootItem.setExpanded(true);
     }
 
-    private String getJdbcString(String path) {
-        return String.format("jdbc:sqlite:%s%smetadata.db", path, File.separatorChar);
-    }
-
     public void reloadSiteData() {
         siteBooks = BookUtils.getAllBooks();
         siteTotals.setText("" + siteBooks.size());
     }
 
-
     private void reloadCalibreData() {
         String configUrl = Config.sqliteUrl;
-        Config.sqliteUrl = getJdbcString(calibreDir.getText());
+        Config.sqliteUrl = BookUtils.getJdbcString(calibreDir.getText());
         // TODO журналы в отдельную категорию. потом строить упоминания
         // TODO каталоги кидать в одну тему (island, ...)
-        allСalibreBooks = CalibreUtils.readBooks();
+        allCalibreBooks = CalibreUtils.readBooks();
         Config.sqliteUrl = configUrl;
-        calibreTotals.setText("" + allСalibreBooks.size());
+        calibreTotals.setText("" + allCalibreBooks.size());
     }
 
-    public void generate() throws IOException {
-        if (allСalibreBooks == null) {
+    public void generate() {
+        if (allCalibreBooks == null) {
             reloadCalibreData();
         }
         if (siteBooks == null) {
             reloadSiteData();
         }
-        ComparisionResult<Video> comparisionResult = BookUtils.compare(allСalibreBooks, siteBooks, categories, categoryCombobox.getValue().getCatcpu());
+        ComparisionResult<Video> comparisionResult = BookUtils.compare(allCalibreBooks, siteBooks, categories, categoryCombobox.getValue().getCatcpu());
 
-        List<String> insertQueries = comparisionResult.getAddedBooks().stream().map(b -> BookUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(toList());
-        List<String> deleteQueries = comparisionResult.getDeletedBooks().stream().map(b -> "DELETE FROM `danny_media` WHERE downid=" + b.getId() + ";").collect(toList());
-        List<String> updateQueries = comparisionResult.getChangedBooks().entrySet().stream().map(b -> BookUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(toList());
+        BookUtils.syncDataWithSite(comparisionResult, allCalibreBooks, calibreDir.getText());
+    }
 
-        List<String> results = deleteQueries.stream().map(query -> BookUtils.queryRequest(query)).collect(toList());
-        results.forEach(System.out::println);
-        results = insertQueries.stream().map(query -> BookUtils.queryRequest(query)).collect(toList());
-        results.forEach(System.out::println);
-        results = updateQueries.stream().map(query -> BookUtils.queryRequest(query)).collect(toList());
-        results.forEach(System.out::println);
+    public void dumpCalibreDB() {
+        CalibreUtils.dumpDB();
+    }
 
-        /*
-        String insertQueries = comparisionResult.getAddedBooks().stream().map(b -> BookUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(Collectors.joining("\n"));
-        String deleteQueries = comparisionResult.getDeletedBooks().stream().map(b -> "DELETE FROM `danny_media` WHERE downid=" + b.getId() + ";").collect(Collectors.joining("\n"));
-        String updateQueries = comparisionResult.getChangedBooks().entrySet().stream().map(b -> BookUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(Collectors.joining("\n"));
-
-        String query = insertQueries + "\n\n" + deleteQueries+ "\n\n" + updateQueries;
-        String fileName = UUID.randomUUID().toString() + ".sql";
-        String result = BookUtils.upload("api2d/backup", fileName, new ByteArrayInputStream(query.getBytes(StandardCharsets.UTF_8)));
-        System.out.println(result);
-        result = WebUtils.readFromUrl(Config.apiPath + "dumper.php?to=restore&file=" + fileName);
-        System.out.println(result);*/
-
-        //TODO "IN" QUERY ??
-        String configUrl = Config.sqliteUrl;
-        Config.sqliteUrl = getJdbcString(calibreDir.getText());
-        comparisionResult.getAddedBooks().forEach(b -> {
-            Type type = new TypeToken<List<Video>>() {
-            }.getType();
-            List<Video> videoList = JsonUtils.gson.fromJson(BookUtils.queryRequest("SELECT * FROM danny_media WHERE cpu='" + b.getCpu() + "' AND catid=" + b.getCategoryId()), type);
-            Integer tiviId = videoList.get(0).getId();
-            Long bookId = allСalibreBooks.stream().filter(cb -> cb.getCpu() != null && cb.getCpu().equals(b.getCpu())).findFirst().get().getId();
-
-            CustomColumn cb = CalibreUtils.readObject("SELECT * FROM `custom_column_17` WHERE book=" + bookId, CustomColumn.class);
-            if (cb == null) {
-                String q = String.format("INSERT INTO `custom_column_17` VALUES (null, %d, %d)", bookId, tiviId);
-                Integer newId = CalibreUtils.executeInsertQuery(q);
-                System.out.println(newId);
-            } else {
-                String q = String.format("UPDATE `custom_column_17` SET value=%d WHERE book=%d", tiviId, bookId);
-                Integer newId = CalibreUtils.executeUpdateQuery(q);
-                System.out.println(newId);
-            }
-        });
-        Config.sqliteUrl = configUrl;
+    public void dumpSiteDB() throws FileNotFoundException {
+        BookUtils.dumpDB();
     }
 
     public void onSelectCategory() {
+        //TODO ??
     }
+
+    public void dumpImages() {
+    }
+
+    public void dumpBooks() {
+    }
+
+    public void uploadImages() {
+        //TODO
+    }
+
+    public void uploadBooks() {
+        //TODO
+    }
+
 }

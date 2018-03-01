@@ -836,6 +836,46 @@ public class BookUtils {
         return chunks.stream().filter(s -> !s.isEmpty()).collect(joining(", "));
     }
 
+    public static void syncDataWithSite(ComparisionResult<Video> comparisionResult, List<CalibreBook> allCalibreBooks, String calibreDbDirectory) {
+        List<String> insertQueries = comparisionResult.getAddedBooks().stream().map(b -> BookUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(toList());
+        List<String> deleteQueries = comparisionResult.getDeletedBooks().stream().map(b -> "DELETE FROM `danny_media` WHERE downid=" + b.getId() + ";").collect(toList());
+        List<String> updateQueries = comparisionResult.getChangedBooks().entrySet().stream().map(b -> BookUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(toList());
+
+        List<String> results = deleteQueries.stream().map(BookUtils::queryRequest).collect(toList());
+        results.forEach(System.out::println);
+        results = insertQueries.stream().map(BookUtils::queryRequest).collect(toList());
+        results.forEach(System.out::println);
+        results = updateQueries.stream().map(BookUtils::queryRequest).collect(toList());
+        results.forEach(System.out::println);
+
+        //TODO "IN" QUERY ??
+        String configUrl = Config.sqliteUrl;
+        Config.sqliteUrl = getJdbcString(calibreDbDirectory);
+        comparisionResult.getAddedBooks().forEach(b -> {
+            Type type = new TypeToken<List<Video>>() {
+            }.getType();
+            List<Video> videoList = JsonUtils.gson.fromJson(BookUtils.queryRequest("SELECT * FROM danny_media WHERE cpu='" + b.getCpu() + "' AND catid=" + b.getCategoryId()), type);
+            Integer tiviId = videoList.get(0).getId();
+            Long bookId = allCalibreBooks.stream().filter(cb -> cb.getCpu() != null && cb.getCpu().equals(b.getCpu())).findFirst().get().getId();
+
+            CustomColumn cb = CalibreUtils.readObject("SELECT * FROM `custom_column_17` WHERE book=" + bookId, CustomColumn.class);
+            if (cb == null) {
+                String q = String.format("INSERT INTO `custom_column_17` VALUES (null, %d, %d)", bookId, tiviId);
+                Integer newId = CalibreUtils.executeInsertQuery(q);
+                System.out.println(newId);
+            } else {
+                String q = String.format("UPDATE `custom_column_17` SET value=%d WHERE book=%d", tiviId, bookId);
+                Integer newId = CalibreUtils.executeUpdateQuery(q);
+                System.out.println(newId);
+            }
+        });
+        Config.sqliteUrl = configUrl;
+    }
+
+    public static String getJdbcString(String path) {
+        return String.format("jdbc:sqlite:%s%smetadata.db", path, File.separatorChar);
+    }
+
     public static void readBooks(AuditController auditController) {
         ProgressForm pForm = new ProgressForm();
 
