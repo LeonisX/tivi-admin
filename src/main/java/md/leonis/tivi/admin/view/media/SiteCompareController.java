@@ -19,6 +19,7 @@ import md.leonis.tivi.admin.utils.SubPane;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -188,10 +189,12 @@ public class SiteCompareController extends SubPane {
         //TODO ??
     }
 
-    public void dumpImages() {
+    public void dumpImages() throws IOException {
+        CalibreUtils.dumpImages();
     }
 
-    public void dumpBooks() {
+    public void dumpBooks() throws IOException {
+        CalibreUtils.dumpBooks();
     }
 
     public void uploadImages() {
