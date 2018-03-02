@@ -575,8 +575,7 @@ public class BookUtils {
         List<Video> oldBooks = calibreBooks.stream().filter(b -> b.getTiviId() != null && b.getTiviId() > 0).map(b -> calibreToVideo(b, category)).collect(toList());
 
 
-        //TODO oldbooks - генерить
-        // TODO - упоминания в журналах,
+        //oldbooks - генерить
 
         // - и мануалами (солюшенами)
         generateManualsPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
@@ -587,6 +586,8 @@ public class BookUtils {
         // - так же страница с поиском книг
         generateSearchPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
 
+        // - упоминания в журналах
+        generateMagazinesPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
 
         //Если в Calibre нет нужного ID значит удалённые
         Map<Integer, Video> newIds = oldBooks.stream().collect(Collectors.toMap(Video::getId, Function.identity()));
@@ -746,6 +747,47 @@ public class BookUtils {
             //TODO link
             //TODO table with images
             calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"...\">%s</a></li>", b.getTitle())));
+            sb.append("</ul>\n");
+            newManual.setFullText(sb.toString());
+            oldBooks.add(newManual);
+        }
+    }
+
+    private static void generateMagazinesPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
+        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("magazine")).filter(b -> b.getOwn() == null).collect(toList());
+        Map<String, List<CalibreBook>> books = calibreBooks.stream().filter(b ->
+                b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
+                        (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category))).collect(groupingBy(calibreBook -> calibreBook.getSeries().getName())); //TODO multi??
+        //TODO group magazines
+        Optional<Video> manual = siteBooks.stream().filter(b -> b.getCpu().equals(category + "_magazines")).findFirst();
+        if (!books.isEmpty() && !manual.isPresent()) {
+            //add
+            Video newManual = new Video();
+            newManual.setCpu(category + "_magazines");
+            newManual.setCategoryId(getCategoryByCpu(category).getCatid());
+            newManual.setTitle("Упоминания в журналах");
+            newManual.setText(String.format("<p>Информацию об играх %s так же можно найти в журналах.</p>", getCategoryName(category)));
+            StringBuilder sb = new StringBuilder();
+            sb.append("<ul class=\"file-info\">\n");
+            //TODO link
+            //TODO table with images
+            books.forEach((key, value) -> sb.append(String.format("<li><a href=\"...\">%s</a></li>", key)));
+            sb.append("</ul>\n");
+            newManual.setFullText(sb.toString());
+            //TODO
+            newManual.setUrl("");
+            newManual.setMirror("http://tv-games.ru");
+            addedBooks.add(newManual);
+        } else if (!books.isEmpty() && manual.isPresent()) {
+            // change
+            Video newManual = new Video(manual.get());
+            newManual.setTitle("Упоминания в журналах");
+            newManual.setText(String.format("<p>Информацию об играх %s так же можно найти в журналах.</p>", getCategoryName(category)));
+            StringBuilder sb = new StringBuilder();
+            sb.append("<ul class=\"file-info\">\n");
+            //TODO link
+            //TODO table with images
+            books.forEach((key, value) -> sb.append(String.format("<li><a href=\"...\">%s</a></li>", key)));
             sb.append("</ul>\n");
             newManual.setFullText(sb.toString());
             oldBooks.add(newManual);
