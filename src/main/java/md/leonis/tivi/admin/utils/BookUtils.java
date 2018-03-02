@@ -578,13 +578,15 @@ public class BookUtils {
         //TODO oldbooks - генерить
         // TODO - упоминания в журналах,
 
-        // TODO - так же страница с поиском книг
-
         // - и мануалами (солюшенами)
         generateManualsPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
 
         // - других книгах,
         generateCitationsPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
+
+        // - так же страница с поиском книг
+        generateSearchPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
+
 
         //Если в Calibre нет нужного ID значит удалённые
         Map<Integer, Video> newIds = oldBooks.stream().collect(Collectors.toMap(Video::getId, Function.identity()));
@@ -703,6 +705,46 @@ public class BookUtils {
             StringBuilder sb = new StringBuilder();
             sb.append("<ul class=\"file-info\">\n");
             //TODO link
+            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"...\">%s</a></li>", b.getTitle())));
+            sb.append("</ul>\n");
+            newManual.setFullText(sb.toString());
+            oldBooks.add(newManual);
+        }
+    }
+
+    private static void generateSearchPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
+        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("book")).filter(b -> b.getOwn() == null).collect(toList());
+        calibreBooks = calibreBooks.stream().filter(b ->
+                b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
+                        (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category))).collect(toList()); //TODO multi??
+        Optional<Video> manual = siteBooks.stream().filter(b -> b.getCpu().equals(category + "_search")).findFirst();
+        if (!calibreBooks.isEmpty() && !manual.isPresent()) {
+            //add
+            Video newManual = new Video();
+            newManual.setCpu(category + "_search");
+            newManual.setCategoryId(getCategoryByCpu(category).getCatid());
+            newManual.setTitle("Книги в поиске");
+            newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже книг.</p>");
+            StringBuilder sb = new StringBuilder();
+            sb.append("<ul class=\"file-info\">\n");
+            //TODO link
+            //TODO table with images
+            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"...\">%s</a></li>", b.getTitle())));
+            sb.append("</ul>\n");
+            newManual.setFullText(sb.toString());
+            //TODO
+            newManual.setUrl("");
+            newManual.setMirror("http://tv-games.ru");
+            addedBooks.add(newManual);
+        } else if (!calibreBooks.isEmpty() && manual.isPresent()) {
+            // change
+            Video newManual = new Video(manual.get());
+            newManual.setTitle("Книги в поиске");
+            newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже книг.</p>");
+            StringBuilder sb = new StringBuilder();
+            sb.append("<ul class=\"file-info\">\n");
+            //TODO link
+            //TODO table with images
             calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"...\">%s</a></li>", b.getTitle())));
             sb.append("</ul>\n");
             newManual.setFullText(sb.toString());
