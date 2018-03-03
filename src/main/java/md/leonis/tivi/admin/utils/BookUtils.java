@@ -78,6 +78,7 @@ public class BookUtils {
         //System.out.println(query);
         try {
             String requestURL = Config.apiPath + "media.php?to=query&query_string=" + URLEncoder.encode(query, "cp1251");
+            System.out.println(requestURL);
             String jsonString = WebUtils.readFromUrl(requestURL);
             //String jsonString = ascii2Native(WebUtils.readFromUrl(requestURL));
             int len = jsonString.length() > 1024 ? 1024 : jsonString.length();
@@ -543,6 +544,7 @@ public class BookUtils {
 
     //TODO processing - тут могут сравниваться и журналы, например, GD. Подменять книгу на журнал
     public static ComparisionResult<Video> compare(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, List<BookCategory> categories, String category) {
+        BookUtils.categories = categories;
         if (getParentRoot(categories, category).getCatcpu().equals("magazines") && !category.equals("gd")) {
             return compareMagazines(allCalibreBooks, siteBooks, categories, category);
         }

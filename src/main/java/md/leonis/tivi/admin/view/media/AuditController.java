@@ -259,13 +259,13 @@ public class AuditController extends SubPane {
         calibreBooks.forEach(calibreBook -> addLog(calibreBook.getTitle()));
     }
 
-    public void checkCategories(ActionEvent actionEvent) {
+    public void checkCategories() {
         //BookUtils.addCategory(0, "test");
         /*BookUtils.countVideos();
         addLog(BookUtils.booksCount + "");*/
         BookUtils.listBooks();
         //BookUtils.siteBooks.forEach(b -> addLog(b.mixedTitleProperty().toString()));
-        addLog(BookUtils.siteBooks.size() + "");
+        addLog("Books on site: " + BookUtils.siteBooks.size());
         List<BookCategory> categories = BookUtils.readCategories();
         //System.out.println(categories);
         //TODO computers
