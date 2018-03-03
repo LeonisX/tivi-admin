@@ -541,7 +541,11 @@ public class BookUtils {
         }
     }
 
+    //TODO processing - тут могут сравниваться и журналы, например, GD. Подменять книгу на журнал
     public static ComparisionResult<Video> compare(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, List<BookCategory> categories, String category) {
+        if (getParentRoot(categories, category).getCatcpu().equals("magazines") && !category.equals("gd")) {
+            return compareMagazines(allCalibreBooks, siteBooks, categories, category);
+        }
         List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("book"))
                 .filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
 
@@ -646,6 +650,96 @@ public class BookUtils {
 
         return new ComparisionResult<>(addedBooks, deletedBooks, changedBooks);
     }
+
+    public static ComparisionResult<Video> compareMagazines(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, List<BookCategory> categories, String category) {
+        List<CalibreBook> calibreMagazines = allCalibreBooks.stream().filter(b -> b.getType().equals("magazine") && !category.equals("gd"))
+                .filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category))
+                .filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
+
+        Map<CalibreBook, List<CalibreBook>> groupedMagazines = calibreMagazines.stream().filter(b ->
+                b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
+                        (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)))
+                .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()))
+                .entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().get(0), Map.Entry::getValue));
+
+
+        //TODO подумать как убрать этот хак
+        groupedMagazines.forEach((key, value) -> {
+            if (key.getTextMore() == null) {
+                key.setTextMore("");
+            }
+        });
+
+        siteBooks = siteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryByCpu(category).getCatid())).collect(toList());
+
+        //Если в Calibre null, 0 - значит добавленные
+        Collection<Video> addedBooks = groupedMagazines.entrySet().stream().filter(b -> b.getKey().getTiviId() == null || b.getKey().getTiviId() < 1).map(b -> calibreMagazineToVideo(b, category))
+                .peek(b -> b.setCategoryId(getCategoryByCpu(category).getCatid())).collect(toList());
+
+        //calibre -> site
+        List<Video> oldBooks = groupedMagazines.entrySet().stream().filter(b -> b.getKey().getTiviId() != null && b.getKey().getTiviId() > 0).map(b -> calibreMagazineToVideo(b, category)).collect(toList());
+
+        // TODO страница с поиском журналов
+        generateMagazinesSearchPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
+
+        //Если в Calibre нет нужного ID значит удалённые
+        Map<Integer, Video> newIds = oldBooks.stream().collect(Collectors.toMap(Video::getId, Function.identity()));
+        Map<Integer, Video> oldIds = siteBooks.stream().collect(Collectors.toMap(Video::getId, Function.identity()));
+
+        Collection<Video> deletedBooks = CalibreUtils.mapDifference(oldIds, newIds);
+
+        //Разницу считаем только у тех, что имеют теги
+        List<Video> allBooks = new ArrayList<>(siteBooks);
+        allBooks.addAll(oldBooks);
+        List<Pair<Video, Video>> changed = allBooks.stream().collect(groupingBy(Video::getId))
+                .entrySet().stream().filter(e -> e.getValue().size() == 2)
+                .map(e -> {
+                    Video siteBook = e.getValue().get(0);
+                    Video calibreBook = e.getValue().get(1);
+                    calibreBook.setCategoryId(siteBook.getCategoryId());
+                    calibreBook.setImage_align(siteBook.getImage_align());
+                    calibreBook.setViews(siteBook.getViews());
+                    calibreBook.setLoads(siteBook.getLoads());
+                    calibreBook.setLastdown(siteBook.getLastdown());
+                    calibreBook.setRated_count(siteBook.getRated_count());
+                    calibreBook.setTotal_rating(siteBook.getTotal_rating());
+                    calibreBook.setComments(siteBook.getComments());
+                    if (Math.abs(siteBook.getDate() - calibreBook.getDate()) <= 24 * 60 * 60) {
+                        siteBook.setDate(calibreBook.getDate());
+                    }
+                    return new Pair<>(siteBook, calibreBook);
+                })
+                .filter(e -> !e.getKey().equals(e.getValue()))
+                .collect(toList());
+
+        Map<Video, List<Pair<String, Pair<String, String>>>> changedBooks = changed.stream().collect(Collectors.toMap(Pair::getKey, pair -> {
+            List<Pair<String, Pair<String, String>>> res = new ArrayList<>();
+            JsonObject oldJsonObject = JsonUtils.gson.toJsonTree(pair.getKey()).getAsJsonObject();
+            JsonObject newJsonObject = JsonUtils.gson.toJsonTree(pair.getValue()).getAsJsonObject();
+            oldJsonObject.entrySet().forEach(e -> {
+                if (!e.getValue().toString().equals(newJsonObject.get(e.getKey()).toString())) {
+                    if (e.getKey().equals("public")) {
+                        String oldDate = Long.toString(timestampToDate(e.getValue().getAsLong(), 0).toLocalDate().atStartOfDay(ZoneId.ofOffset("UTC", ZoneOffset.ofHours(0))).toEpochSecond());
+                        String newDate = Long.toString(timestampToDate(newJsonObject.get(e.getKey()).getAsLong(), 1).toLocalDate().atStartOfDay(ZoneId.ofOffset("UTC", ZoneOffset.ofHours(0))).toEpochSecond());
+                        if (!oldDate.equals(newDate)) {
+                            Pair<String, String> value = new Pair<>(oldDate, newDate);
+                            res.add(new Pair<>(e.getKey(), value));
+                        }
+                    } else {
+                        Pair<String, String> value = new Pair<>(e.getValue().getAsString(), newJsonObject.get(e.getKey()).getAsString());
+                        System.out.println("====");
+                        System.out.println(value.getKey());
+                        System.out.println(value.getValue());
+                        res.add(new Pair<>(e.getKey(), value));
+                    }
+                }
+            });
+            return res;
+        }));
+
+        return new ComparisionResult<>(addedBooks, deletedBooks, changedBooks);
+    }
+
 
     private static void generateManualsPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
         List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("manual")).collect(toList());
@@ -753,12 +847,63 @@ public class BookUtils {
         }
     }
 
+    private static void generateMagazinesSearchPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
+        List<CalibreBook> calibreMagazines = allCalibreBooks.stream().filter(b -> b.getType().equals("magazine") && !category.equals("gd"))
+                .filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category))
+                .filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
+
+        Map<CalibreBook, List<CalibreBook>> groupedMagazines = calibreMagazines.stream().filter(b ->
+                b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
+                        (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)))
+                .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()))
+                .entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().get(0), Map.Entry::getValue));
+
+        Optional<Video> manual = siteBooks.stream().filter(b -> b.getCpu().equals("magazines_in_search")).findFirst();
+        if (!groupedMagazines.isEmpty() && !manual.isPresent()) {
+            //add
+            Video newManual = new Video();
+            newManual.setCpu("magazines_in_search");
+            newManual.setCategoryId(getCategoryByCpu(category).getCatid());
+            newManual.setTitle("Разыскиваемые журналы");
+            newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже журналов.</p>");
+            StringBuilder sb = new StringBuilder();
+            //TODO link
+            //TODO table with images
+            groupedMagazines.forEach((key, value) -> {
+                sb.append(String.format("<h3>%s</h3>", key.getSeries().getName()));
+                sb.append("<ul class=\"file-info\">\n");
+                value.forEach(c -> sb.append(String.format("<li>%s</li>", c.getTitle())));
+                sb.append("</ul>\n");
+            });
+            newManual.setFullText(sb.toString());
+            //TODO
+            newManual.setUrl("");
+            newManual.setMirror("http://tv-games.ru");
+            addedBooks.add(newManual);
+        } else if (!groupedMagazines.isEmpty() && manual.isPresent()) {
+            // change
+            Video newManual = new Video(manual.get());
+            newManual.setTitle("Разыскиваемые журналы");
+            newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже журналов.</p>");
+            StringBuilder sb = new StringBuilder();
+            //TODO link
+            //TODO table with images
+            groupedMagazines.forEach((key, value) -> {
+                sb.append(String.format("<h3>%s</h3>", key.getSeries().getName()));
+                sb.append("<ul class=\"file-info\">\n");
+                value.forEach(c -> sb.append(String.format("<li>%s</li>", c.getTitle())));
+                sb.append("</ul>\n");
+            });
+            newManual.setFullText(sb.toString());
+            oldBooks.add(newManual);
+        }
+    }
+
     private static void generateMagazinesPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
         List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("magazine")).filter(b -> b.getOwn() == null).collect(toList());
         Map<String, List<CalibreBook>> books = calibreBooks.stream().filter(b ->
                 b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
                         (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category))).collect(groupingBy(calibreBook -> calibreBook.getSeries().getName())); //TODO multi??
-        //TODO group magazines
         Optional<Video> manual = siteBooks.stream().filter(b -> b.getCpu().equals(category + "_magazines")).findFirst();
         if (!books.isEmpty() && !manual.isPresent()) {
             //add
@@ -819,6 +964,51 @@ public class BookUtils {
         video.setDescription(getDescription(calibreBook, category));
         video.setKeywords(getKeywords(calibreBook, category));
         video.setText(getTextShort(calibreBook));
+        video.setFullText(getTextMore(calibreBook));
+        video.setUserText("");
+        video.setMirrorsname("");
+        video.setMirrorsurl("");
+        video.setPlatforms("");
+        video.setAuthor("");
+        video.setAuthorSite("");
+        video.setAuthorEmail("");
+        video.setImage("");
+        video.setOpenGraphImage(""); //image_thumb
+        video.setImageAlt("");
+        video.setActive(YesNo.yes);
+        video.setAccess(Access.all);
+        video.setListid(0);
+        // TODO tags = "";
+        return video;
+    }
+
+    private static Video calibreMagazineToVideo(Map.Entry<CalibreBook, List<CalibreBook>> groupedMagazines, String category) {
+        CalibreBook calibreBook = groupedMagazines.getKey();
+        Video video = new Video();
+        video.setTitle(calibreBook.getSeries().getName());
+        if (calibreBook.getTiviId() != null) {
+            video.setId(Math.toIntExact(calibreBook.getTiviId()));
+        }
+        if (calibreBook.getSignedInPrint() != null) {
+            video.setDate(calibreBook.getSignedInPrint().toEpochSecond(ZoneOffset.ofHours(-2)));
+        }
+        //TODO generate cpu
+        video.setCpu(calibreBook.getSeries().getName());
+        video.setStartDate(0L);
+        video.setEndDatedate(0L);
+
+        //TODO url; // locurl
+        video.setUrl("");
+        //TODO upload images, files
+        video.setMirror(""); // exturl
+        video.setAge(""); // extsize
+        //TODO custom
+        video.setDescription(getDescription(calibreBook, category));
+        //TODO custom
+        video.setKeywords(getKeywords(calibreBook, category));
+        //TODO custom, generate
+        video.setText(getTextShort(calibreBook));
+        //TODO custom, generate
         video.setFullText(getTextMore(calibreBook));
         video.setUserText("");
         video.setMirrorsname("");
