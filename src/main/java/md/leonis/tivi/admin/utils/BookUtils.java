@@ -662,7 +662,7 @@ public class BookUtils {
         List<CalibreBook> calibreMagazines = allCalibreBooks.stream().filter(b -> b.getType().equals("magazine") && !category.equals("gd"))
                 //.filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category))
                 .sorted(Comparator.comparing(Book::getSort))
-                .filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
+                /*.filter(b -> b.getOwn() != null && b.getOwn())*/.collect(toList());
 
         Map<CalibreBook, List<CalibreBook>> groupedMagazines = calibreMagazines.stream()/*.filter(b ->*/
                 /*b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
@@ -878,12 +878,12 @@ public class BookUtils {
 
     private static void generateMagazinesSearchPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
         List<CalibreBook> calibreMagazines = allCalibreBooks.stream().filter(b -> b.getType().equals("magazine") && !category.equals("gd"))
-                .filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category))
-                .filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
+                //.filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category))
+                .filter(b -> b.getOwn() == null || !b.getOwn()).sorted(Comparator.comparing(Book::getSort)).collect(toList());
 
-        Map<CalibreBook, List<CalibreBook>> groupedMagazines = calibreMagazines.stream().filter(b ->
-                b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
-                        (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)))
+        Map<CalibreBook, List<CalibreBook>> groupedMagazines = calibreMagazines.stream()//.filter(b ->
+                //b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
+                //        (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)))
                 .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()))
                 .entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().get(0), Map.Entry::getValue));
 
@@ -1036,10 +1036,11 @@ public class BookUtils {
         video.setDescription(getDescription(calibreBook, category));
         //TODO custom
         video.setKeywords(getKeywords(calibreBook, category));
-        //TODO custom, generate
+        //TODO что-то обобщённое. продумать что выводить.
         video.setText(getTextShort(calibreBook));
-        //TODO custom, generate
-        video.setFullText(getTextMore(calibreBook));
+        //TODO custom, generate - for all books
+        video.setFullText(groupedMagazines.getValue().stream().filter(b -> b.getOwn() != null && b.getOwn())
+                .map(b -> String.format("<h3>%s</h3>", b.getTitle()) + getTextShort(b) + getTextMore(b)).collect(joining("\n")));
         video.setUserText("");
         video.setMirrorsname("");
         video.setMirrorsurl("");
@@ -1222,7 +1223,7 @@ public class BookUtils {
         //TODO "IN" QUERY ??
         String configUrl = Config.sqliteUrl;
         Config.sqliteUrl = getJdbcString(calibreDbDirectory);
-        if (! category.equals("magazines")) {
+        if (!category.equals("magazines")) {
             comparisionResult.getAddedBooks().forEach(b -> {
                 if ((b.getCpu().split("_").length != 2) && !(b.getCpu().endsWith("manuals"))) {
                     Type type = new TypeToken<List<Video>>() {
@@ -1245,26 +1246,28 @@ public class BookUtils {
                 }
             });
         } else { // magazines
-            comparisionResult.getAddedBooks().forEach(b -> {
-                //TODO find first magazine in serie
-                Long bookId = allCalibreBooks.stream().filter(cb -> cb.getSeries() != null && generateCpu(cb.getSeries().getName()).equals(b.getCpu())).min(Comparator.comparing(Book::getSort)).get().getId();
-                Type type = new TypeToken<List<Video>>() {
-                }.getType();
-                List<Video> videoList = JsonUtils.gson.fromJson(BookUtils.queryRequest("SELECT * FROM danny_media WHERE cpu='" + b.getCpu() + "' AND catid=" + b.getCategoryId()), type);
-                Integer tiviId = videoList.get(0).getId();
-                System.out.println(tiviId);
+                comparisionResult.getAddedBooks().forEach(b -> {
+                    if (!b.getCpu().equals("magazines_in_search")) {
+                    //TODO find first magazine in serie
+                    Long bookId = allCalibreBooks.stream().filter(cb -> cb.getType().equals("magazine")).filter(cb -> cb.getSeries() != null && generateCpu(cb.getSeries().getName()).equals(b.getCpu())).min(Comparator.comparing(Book::getSort)).get().getId();
+                    Type type = new TypeToken<List<Video>>() {
+                    }.getType();
+                    List<Video> videoList = JsonUtils.gson.fromJson(BookUtils.queryRequest("SELECT * FROM danny_media WHERE cpu='" + b.getCpu() + "' AND catid=" + b.getCategoryId()), type);
+                    Integer tiviId = videoList.get(0).getId();
+                    System.out.println(tiviId);
 
-                CustomColumn cb = CalibreUtils.readObject("SELECT * FROM `custom_column_17` WHERE book=" + bookId, CustomColumn.class);
-                if (cb == null) {
-                    String q = String.format("INSERT INTO `custom_column_17` VALUES (null, %d, %d)", bookId, tiviId);
-                    Integer newId = CalibreUtils.executeInsertQuery(q);
-                    System.out.println(newId);
-                } else {
-                    String q = String.format("UPDATE `custom_column_17` SET value=%d WHERE book=%d", tiviId, bookId);
-                    Integer newId = CalibreUtils.executeUpdateQuery(q);
-                    System.out.println(newId);
-                }
-            });
+                    CustomColumn cb = CalibreUtils.readObject("SELECT * FROM `custom_column_17` WHERE book=" + bookId, CustomColumn.class);
+                    if (cb == null) {
+                        String q = String.format("INSERT INTO `custom_column_17` VALUES (null, %d, %d)", bookId, tiviId);
+                        Integer newId = CalibreUtils.executeInsertQuery(q);
+                        System.out.println(newId);
+                    } else {
+                        String q = String.format("UPDATE `custom_column_17` SET value=%d WHERE book=%d", tiviId, bookId);
+                        Integer newId = CalibreUtils.executeUpdateQuery(q);
+                        System.out.println(newId);
+                    }
+                    }
+                });
         }
         Config.sqliteUrl = configUrl;
     }
