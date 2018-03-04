@@ -28,6 +28,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.Normalizer;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -688,7 +689,7 @@ public class BookUtils {
         //calibre -> site
         List<Video> oldBooks = groupedMagazines.entrySet().stream().filter(b -> b.getKey().getTiviId() != null && b.getKey().getTiviId() > 0).map(b -> calibreMagazineToVideo(b, category)).collect(toList());
 
-        // TODO страница с поиском журналов
+        // страница с поиском журналов
         generateMagazinesSearchPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
 
         //Если в Calibre нет нужного ID значит удалённые
@@ -763,7 +764,6 @@ public class BookUtils {
             newManual.setText("<p><img style=\"float: right; margin: 5px;\" title=\"Solutions\" src=\"images/books/solutions.jpg\" alt=\"Прохождения, солюшены\" />Описания и прохождения игр от наших авторов</p>");
             newManual.setFullText(calibreBooks.stream().map(b -> String.format("<p><a href=\"up/down/file/sol/3do/D.doc\"><img style=\"float: left; margin-right: 3px;\" src=\"images/book.png\" alt=\"\" /></a>%s (C) %s</p>",
                     b.getTextMore().replace("\n", ""), b.getAuthors().stream().map(Author::getName).collect(joining(", ")))).collect(joining("<br />")));
-            //TODO
             newManual.setUrl("");
             newManual.setMirror("http://tv-games.ru");
             addedBooks.add(newManual);
@@ -834,14 +834,7 @@ public class BookUtils {
             newManual.setCategoryId(getCategoryByCpu(category).getCatid());
             newManual.setTitle("Книги в поиске");
             newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже книг.</p>");
-            StringBuilder sb = new StringBuilder();
-            sb.append("<ul class=\"file-info\">\n");
-            //TODO link
-            //TODO table with images
-            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"...\">%s</a></li>", b.getTitle())));
-            sb.append("</ul>\n");
-            newManual.setFullText(sb.toString());
-            //TODO
+            newManual.setFullText(generateTableView(calibreBooks));
             newManual.setUrl("");
             newManual.setMirror("http://tv-games.ru");
             addedBooks.add(newManual);
@@ -850,15 +843,38 @@ public class BookUtils {
             Video newManual = new Video(manual.get());
             newManual.setTitle("Книги в поиске");
             newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже книг.</p>");
-            StringBuilder sb = new StringBuilder();
-            sb.append("<ul class=\"file-info\">\n");
-            //TODO link
-            //TODO table with images
-            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"...\">%s</a></li>", b.getTitle())));
-            sb.append("</ul>\n");
-            newManual.setFullText(sb.toString());
+            newManual.setFullText(generateTableView(calibreBooks));
             oldBooks.add(newManual);
         }
+    }
+
+    private static String generateTableView(List<CalibreBook> books) {
+        int counter = 1;
+        StringBuilder sb = new StringBuilder();
+        sb.append("<table><tr>");
+        for (CalibreBook book : books) {
+            sb.append("<td>");
+            if (book.getHasCover() != 0) {
+                String imageThumb = String.format("images/books/thumb/%s.jpg", book.getCpu());
+                String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
+                String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
+                sb.append(String.format("<img title=\"%s\" src=\"%s\" alt=\"%s\" />", imageTitle, imageThumb, imageAlt));
+                sb.append(book.getTitle());
+            }
+            sb.append("</td>");
+            counter++;
+            if (counter > 3) {
+                sb.append("</tr><tr>");
+                counter = 1;
+            }
+        }
+        if (counter != 1) {
+            for (int i = counter; i <= 3; i++) {
+                sb.append("<td></td>");
+            }
+        }
+        sb.append("</tr></table>");
+        return sb.toString();
     }
 
     private static void generateMagazinesSearchPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
@@ -928,11 +944,9 @@ public class BookUtils {
             newManual.setText(String.format("<p>Информацию об играх для %s так же можно найти в периодических изданиях.</p>", getCategoryName(category)));
             StringBuilder sb = new StringBuilder();
             sb.append("<ul class=\"file-info\">\n");
-            //TODO link
-            books.forEach((key, value) -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", key)));
+            books.forEach((key, value) -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", generateCpu(key), key)));
             sb.append("</ul>\n");
             newManual.setFullText(sb.toString());
-            //TODO
             newManual.setUrl("");
             newManual.setMirror("http://tv-games.ru");
             addedBooks.add(newManual);
@@ -943,14 +957,19 @@ public class BookUtils {
             newManual.setText(String.format("<p>Информацию об играх для %s так же можно найти в периодических изданиях.</p>", getCategoryName(category)));
             StringBuilder sb = new StringBuilder();
             sb.append("<ul class=\"file-info\">\n");
-            //TODO link
-            //TODO table with images
-            books.forEach((key, value) -> sb.append(String.format("<li><a href=\"...\">%s</a></li>", key)));
+            books.forEach((key, value) -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", generateCpu(key), key)));
             sb.append("</ul>\n");
             newManual.setFullText(sb.toString());
             oldBooks.add(newManual);
         }
     }
+
+    public static String generateCpu(String title) {
+            return Normalizer.normalize(Translit.toTranslit(title.toLowerCase()), Normalizer.Form.NFD)
+                    .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                    .replaceAll("[^\\p{Alnum}]+", "_")
+                    .replaceAll("_*$", "");
+        }
 
     private static LocalDateTime timestampToDate(long timestamp, int offset) {
         return LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneOffset.ofHours(offset)).truncatedTo(ChronoUnit.DAYS);
@@ -1005,8 +1024,7 @@ public class BookUtils {
         if (calibreBook.getSignedInPrint() != null) {
             video.setDate(calibreBook.getSignedInPrint().toEpochSecond(ZoneOffset.ofHours(-2)));
         }
-        //TODO generate cpu
-        video.setCpu(calibreBook.getSeries().getName());
+        video.setCpu(generateCpu(calibreBook.getSeries().getName()));
         video.setStartDate(0L);
         video.setEndDatedate(0L);
 
@@ -1042,7 +1060,6 @@ public class BookUtils {
 
     private static String getTextShort(CalibreBook book) {
         StringBuilder sb = new StringBuilder();
-        //TODO
         String imageLink = String.format("images/books/cover/%s.jpg", book.getCpu());
         String imageThumb = String.format("images/books/thumb/%s.jpg", book.getCpu());
         String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();

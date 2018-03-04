@@ -318,7 +318,7 @@ public class AuditController extends SubPane {
     public List<CalibreBook> getCpuOwn() {
         return calibreBooks.stream()
                 .filter(calibreBook -> (calibreBook.getCpu() == null)
-                        && (calibreBook.getOwn() != null) && calibreBook.getOwn()).collect(toList());
+                        /*&& (calibreBook.getOwn() != null) && calibreBook.getOwn()*/).collect(toList());
     }
 
     public List<CalibreBook> getCpuValid() {
@@ -355,7 +355,7 @@ public class AuditController extends SubPane {
         getCpuOwn().forEach(calibreBook -> {
             //TODO generate
             String cpu = calibreBook.getFileName() == null ? calibreBook.getTitle() : calibreBook.getFileName();
-            cpu = toPrettyURL(Translit.toTranslit(cpu));
+            cpu = BookUtils.generateCpu(cpu);
             if (!isValidCpu(cpu)) {
                 System.out.println(cpu);
             }
@@ -382,13 +382,6 @@ public class AuditController extends SubPane {
 
     public static boolean isValidCpu(String cpu) {
         return cpu.matches("^[a-z0-9_]+$")/* && cpu.length() < 64*/;
-    }
-
-    public static String toPrettyURL(String string) {
-        return Normalizer.normalize(string.toLowerCase(), Normalizer.Form.NFD)
-                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
-                .replaceAll("[^\\p{Alnum}]+", "_")
-                .replaceAll("_*$", "");
     }
 
     // solutions, manuals???, docs, programming, ???
