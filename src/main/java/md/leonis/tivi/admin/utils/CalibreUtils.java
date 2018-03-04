@@ -665,16 +665,17 @@ public class CalibreUtils {
         deleteFileOrFolder(coversDir.toPath());
         deleteFileOrFolder(thumbsDir.toPath());
 
-        coversDir.mkdirs();
-        thumbsDir.mkdirs();
-
         BookUtils.calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).forEach(b -> {
             try {
+                File coversSubDir = new File(coversDir, BookUtils.getCategoryByTags(b));
+                coversSubDir.mkdirs();
                 Path srcCover = Paths.get(Config.calibreDbPath).resolve(b.getPath()).resolve("cover.jpg");
-                //TODO dir
-                Path destCover = coversDir.toPath().resolve(BookUtils.getCategoryByTags(b)).resolve(b.getCpu() + ".jpg");
+                Path destCover = coversSubDir.toPath().resolve(b.getCpu() + ".jpg");
                 Files.copy(srcCover, destCover, REPLACE_EXISTING);
-                Path destThumb = thumbsDir.toPath().resolve(b.getCpu() + ".jpg");
+
+                File thumbsSubDir = new File(thumbsDir, BookUtils.getCategoryByTags(b));
+                thumbsSubDir.mkdirs();
+                Path destThumb = thumbsSubDir.toPath().resolve(b.getCpu() + ".jpg");
                 ImageUtils.saveThumbnail(destCover.toFile(), destThumb.toString());
             } catch (IOException e) {
                 e.printStackTrace();
@@ -689,8 +690,10 @@ public class CalibreUtils {
         BookUtils.calibreBooks = CalibreUtils.readBooks();
 
         File booksDir = new File(Config.workPath + "books");
+        File magazinesDir = new File(Config.workPath + "magazines");
 
         deleteFileOrFolder(booksDir.toPath());
+        deleteFileOrFolder(magazinesDir.toPath());
 
         /*List<CalibreBook> shallowCopy = BookUtils.calibreBooks.subList(0, BookUtils.calibreBooks.size());
         Collections.reverse(shallowCopy);
@@ -701,13 +704,19 @@ public class CalibreUtils {
             } else {
                 system = b.getTags().get(0).getName();
             }
-            Path destPath = booksDir.toPath().resolve(system);
-            destPath.toFile().mkdirs();
+            Path destPath;
+            if (b.getType().equals("magazine")) {
+                //TODO may be languages in path
+                destPath = magazinesDir.toPath().resolve(b.getSeries().getName());
+                destPath.toFile().mkdirs();
+            } else {
+                destPath = booksDir.toPath().resolve(system);
+                destPath.toFile().mkdirs();
+            }
             final String fileName = b.getFileName() == null ? b.getTitle() : b.getFileName();
             b.getDataList().forEach(data -> {
                 //TODO uncompress
-                //TODO remove Calibre
-                Path srcBook = Paths.get(Config.calibreDbPath).resolve("Calibre").resolve(b.getPath()).resolve(data.getName() + "." + data.getFormat().toLowerCase());
+                Path srcBook = Paths.get(Config.calibreDbPath).resolve(b.getPath()).resolve(data.getName() + "." + data.getFormat().toLowerCase());
                 switch (data.getFormat().toLowerCase()) {
                     case "zip":
                         if (uncompress(SevenZipUtils.getZipFileList(srcBook.toFile()))) {
