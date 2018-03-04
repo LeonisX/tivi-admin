@@ -909,7 +909,7 @@ public class BookUtils {
     }
 
     private static void generateMagazinesPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
-        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("magazine")).filter(b -> b.getOwn() == null).collect(toList());
+        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("magazine")).filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
         Map<String, List<CalibreBook>> books = calibreBooks.stream().filter(b ->
                 b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
                         (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category))).collect(groupingBy(calibreBook -> calibreBook.getSeries().getName())); //TODO multi??

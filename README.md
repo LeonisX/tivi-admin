@@ -110,6 +110,9 @@ TODO compare - одного сравнения базы Calibre мало. над
 
 Резервная копия базы в каталоге с самой базой
 
+TODO audit - magazines without serie
+
+
 TODO cpu - искать вместе с платформой (уникальность)
 
 
