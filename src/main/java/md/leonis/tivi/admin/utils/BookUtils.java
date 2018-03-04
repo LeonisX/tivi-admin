@@ -78,6 +78,17 @@ public class BookUtils {
         //System.out.println(query);
         try {
             String requestURL = Config.apiPath + "media.php?to=query&query_string=" + URLEncoder.encode(query, "cp1251");
+            if (requestURL.length() > 8000) {
+                String fileName = UUID.randomUUID().toString() + ".sql";
+                //String result = BookUtils.upload("api2d/backup", fileName, new ByteArrayInputStream(query.getBytes(StandardCharsets.UTF_8)));
+                String result = BookUtils.upload("api2d/backup", fileName, new ByteArrayInputStream(query.getBytes("cp1251")));
+                System.out.println(result);
+                requestURL = Config.apiPath + "dumper.php?to=restoreRaw&file=" + fileName;
+                System.out.println(requestURL);
+                result = WebUtils.readFromUrl(requestURL);
+                System.out.println(result);
+                return result;
+            }
             System.out.println(requestURL);
             String jsonString = WebUtils.readFromUrl(requestURL);
             //String jsonString = ascii2Native(WebUtils.readFromUrl(requestURL));
@@ -582,16 +593,12 @@ public class BookUtils {
 
 
         //oldbooks - генерить
-
-        // - и мануалами (солюшенами)
+        // - мануалами (солюшенами)
         generateManualsPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
-
         // - других книгах,
         generateCitationsPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
-
         // - так же страница с поиском книг
         generateSearchPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
-
         // - упоминания в журналах
         generateMagazinesPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
 
@@ -810,7 +817,7 @@ public class BookUtils {
     }
 
     private static void generateSearchPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
-        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("book")).filter(b -> b.getOwn() == null).collect(toList());
+        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("book")).filter(b -> b.getOwn() == null || !b.getOwn()).collect(toList());
         calibreBooks = calibreBooks.stream().filter(b ->
                 b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
                         (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category))).collect(toList()); //TODO multi??
@@ -1196,21 +1203,24 @@ public class BookUtils {
         String configUrl = Config.sqliteUrl;
         Config.sqliteUrl = getJdbcString(calibreDbDirectory);
         comparisionResult.getAddedBooks().forEach(b -> {
-            Type type = new TypeToken<List<Video>>() {
-            }.getType();
-            List<Video> videoList = JsonUtils.gson.fromJson(BookUtils.queryRequest("SELECT * FROM danny_media WHERE cpu='" + b.getCpu() + "' AND catid=" + b.getCategoryId()), type);
-            Integer tiviId = videoList.get(0).getId();
-            Long bookId = allCalibreBooks.stream().filter(cb -> cb.getCpu() != null && cb.getCpu().equals(b.getCpu())).findFirst().get().getId();
+            if ((b.getCpu().split("_").length != 2) && !(b.getCpu().endsWith("manuals"))) {
+                Type type = new TypeToken<List<Video>>() {
+                }.getType();
+                List<Video> videoList = JsonUtils.gson.fromJson(BookUtils.queryRequest("SELECT * FROM danny_media WHERE cpu='" + b.getCpu() + "' AND catid=" + b.getCategoryId()), type);
+                Integer tiviId = videoList.get(0).getId();
+                System.out.println(tiviId);
+                Long bookId = allCalibreBooks.stream().filter(cb -> cb.getCpu() != null && cb.getCpu().equals(b.getCpu())).findFirst().get().getId();
 
-            CustomColumn cb = CalibreUtils.readObject("SELECT * FROM `custom_column_17` WHERE book=" + bookId, CustomColumn.class);
-            if (cb == null) {
-                String q = String.format("INSERT INTO `custom_column_17` VALUES (null, %d, %d)", bookId, tiviId);
-                Integer newId = CalibreUtils.executeInsertQuery(q);
-                System.out.println(newId);
-            } else {
-                String q = String.format("UPDATE `custom_column_17` SET value=%d WHERE book=%d", tiviId, bookId);
-                Integer newId = CalibreUtils.executeUpdateQuery(q);
-                System.out.println(newId);
+                CustomColumn cb = CalibreUtils.readObject("SELECT * FROM `custom_column_17` WHERE book=" + bookId, CustomColumn.class);
+                if (cb == null) {
+                    String q = String.format("INSERT INTO `custom_column_17` VALUES (null, %d, %d)", bookId, tiviId);
+                    Integer newId = CalibreUtils.executeInsertQuery(q);
+                    System.out.println(newId);
+                } else {
+                    String q = String.format("UPDATE `custom_column_17` SET value=%d WHERE book=%d", tiviId, bookId);
+                    Integer newId = CalibreUtils.executeUpdateQuery(q);
+                    System.out.println(newId);
+                }
             }
         });
         Config.sqliteUrl = configUrl;
