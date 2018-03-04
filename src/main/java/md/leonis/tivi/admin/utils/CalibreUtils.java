@@ -653,9 +653,10 @@ public class CalibreUtils {
     }
 
     public static void dumpImages() throws IOException {
+/*
         Config.loadProperties();
         Config.loadProtectedProperties();
-
+*/
         BookUtils.calibreBooks = CalibreUtils.readBooks();
 
         File coversDir = new File(Config.workPath + "covers");
@@ -669,9 +670,9 @@ public class CalibreUtils {
 
         BookUtils.calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).forEach(b -> {
             try {
-                //TODO remove Calibre
-                Path srcCover = Paths.get(Config.calibreDbPath).resolve("Calibre").resolve(b.getPath()).resolve("cover.jpg");
-                Path destCover = coversDir.toPath().resolve(b.getCpu() + ".jpg");
+                Path srcCover = Paths.get(Config.calibreDbPath).resolve(b.getPath()).resolve("cover.jpg");
+                //TODO dir
+                Path destCover = coversDir.toPath().resolve(BookUtils.getCategoryByTags(b)).resolve(b.getCpu() + ".jpg");
                 Files.copy(srcCover, destCover, REPLACE_EXISTING);
                 Path destThumb = thumbsDir.toPath().resolve(b.getCpu() + ".jpg");
                 ImageUtils.saveThumbnail(destCover.toFile(), destThumb.toString());

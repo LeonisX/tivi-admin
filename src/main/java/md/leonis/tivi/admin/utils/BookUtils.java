@@ -813,7 +813,7 @@ public class BookUtils {
         }
     }
 
-    private static String getCategoryByTags(CalibreBook book) {
+    public static String getCategoryByTags(CalibreBook book) {
         if (book.getTags().size() == 1) {
             return book.getTags().get(0).getName();
         } else {
@@ -855,10 +855,11 @@ public class BookUtils {
         for (CalibreBook book : books) {
             sb.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\">");
             if (book.getHasCover() != 0) {
-                String imageThumb = String.format("images/books/thumb/%s.jpg", book.getCpu());
+                String imageLink = String.format("images/books/cover/%s/%s.jpg", BookUtils.getCategoryByTags(book), book.getCpu());
+                String imageThumb = String.format("images/books/thumb/%s/%s.jpg", BookUtils.getCategoryByTags(book), book.getCpu());
                 String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
                 String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
-                sb.append(String.format("<img title=\"%s\" src=\"%s\" alt=\"%s\" /><br /><br />", imageTitle, imageThumb, imageAlt));
+                sb.append(String.format("<a href=\"%s\"><img style=\"border: 1px solid #aaaaaa;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a><br /><br />", imageLink, imageTitle, imageThumb, imageAlt));
                 sb.append(book.getTitle());
             }
             sb.append("</td>");
@@ -1060,8 +1061,8 @@ public class BookUtils {
 
     private static String getTextShort(CalibreBook book) {
         StringBuilder sb = new StringBuilder();
-        String imageLink = String.format("images/books/cover/%s.jpg", book.getCpu());
-        String imageThumb = String.format("images/books/thumb/%s.jpg", book.getCpu());
+        String imageLink = String.format("images/books/cover/%s/%s.jpg", BookUtils.getCategoryByTags(book), book.getCpu());
+        String imageThumb = String.format("images/books/thumb/%s/%s.jpg", BookUtils.getCategoryByTags(book), book.getCpu());
         String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
         String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
         sb.append(String.format("<p><a href=\"%s\">", imageLink));
