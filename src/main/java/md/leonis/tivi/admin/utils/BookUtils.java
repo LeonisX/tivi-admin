@@ -794,11 +794,9 @@ public class BookUtils {
             newManual.setText(String.format("<p>В этих книгах так же можно найти информацию об играх для %s</p>", getCategoryName(category)));
             StringBuilder sb = new StringBuilder();
             sb.append("<ul class=\"file-info\">\n");
-            //TODO link
-            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"...\">%s</a></li>", b.getTitle())));
+            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", b.getCpu(), b.getTitle())));
             sb.append("</ul>\n");
             newManual.setFullText(sb.toString());
-            //TODO
             newManual.setUrl("");
             newManual.setMirror("http://tv-games.ru");
             addedBooks.add(newManual);
@@ -808,11 +806,18 @@ public class BookUtils {
             newManual.setText(String.format("<p>В этих книгах так же можно найти информацию об играх для %s</p>", getCategoryName(category)));
             StringBuilder sb = new StringBuilder();
             sb.append("<ul class=\"file-info\">\n");
-            //TODO link
-            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"...\">%s</a></li>", b.getTitle())));
+            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", b.getCpu(), b.getTitle())));
             sb.append("</ul>\n");
             newManual.setFullText(sb.toString());
             oldBooks.add(newManual);
+        }
+    }
+
+    private static String getCategoryByTags(CalibreBook book) {
+        if (book.getTags().size() == 1) {
+            return book.getTags().get(0).getName();
+        } else {
+            return "consoles"; //TODO detect - consoles or computers
         }
     }
 
@@ -920,12 +925,11 @@ public class BookUtils {
             newManual.setCpu(category + "_magazines");
             newManual.setCategoryId(getCategoryByCpu(category).getCatid());
             newManual.setTitle("Упоминания в журналах");
-            newManual.setText(String.format("<p>Информацию об играх %s так же можно найти в журналах.</p>", getCategoryName(category)));
+            newManual.setText(String.format("<p>Информацию об играх для %s так же можно найти в периодических изданиях.</p>", getCategoryName(category)));
             StringBuilder sb = new StringBuilder();
             sb.append("<ul class=\"file-info\">\n");
             //TODO link
-            //TODO table with images
-            books.forEach((key, value) -> sb.append(String.format("<li><a href=\"...\">%s</a></li>", key)));
+            books.forEach((key, value) -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", key)));
             sb.append("</ul>\n");
             newManual.setFullText(sb.toString());
             //TODO
@@ -936,7 +940,7 @@ public class BookUtils {
             // change
             Video newManual = new Video(manual.get());
             newManual.setTitle("Упоминания в журналах");
-            newManual.setText(String.format("<p>Информацию об играх %s так же можно найти в журналах.</p>", getCategoryName(category)));
+            newManual.setText(String.format("<p>Информацию об играх для %s так же можно найти в периодических изданиях.</p>", getCategoryName(category)));
             StringBuilder sb = new StringBuilder();
             sb.append("<ul class=\"file-info\">\n");
             //TODO link

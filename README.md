@@ -101,6 +101,8 @@ TODO рейтинги обратно в calibre (when update)
 
 Open Graph - подумать.
 
+TODO у всех искусственных страниц продумать описани и ключевые слова
+
 CALIBRE DB: manual clean cpus, add new books, journal.
 total audit
 
