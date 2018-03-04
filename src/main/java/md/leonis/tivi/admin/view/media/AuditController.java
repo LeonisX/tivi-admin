@@ -83,7 +83,7 @@ public class AuditController extends SubPane {
             query = String.format("UPDATE `custom_column_6` SET value='%s' WHERE id=%d", b.getFileName().replace("/", "-")
                     .replace("\\", "-").replace(":", " -").replace("\t", " ")
                     .replace("\r", " ").replace("\n", " ").replace("\"", "")
-                    .replace("  ", " ").replace("'", "''"), id);
+                    .replace("  ", " ").replace("  ", " ").replace("'", "''"), id);
             System.out.println(query);
             id = (long) CalibreUtils.executeUpdateQuery(query);
             System.out.println(id);
