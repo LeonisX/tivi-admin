@@ -851,14 +851,15 @@ public class BookUtils {
     private static String generateTableView(List<CalibreBook> books) {
         int counter = 1;
         StringBuilder sb = new StringBuilder();
-        sb.append("<table><tr>");
+        sb.append("<table style=\"width:600px\"><tr>");
         for (CalibreBook book : books) {
-            sb.append("<td>");
+            sb.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\">");
             if (book.getHasCover() != 0) {
+                //TODO center, bottom
                 String imageThumb = String.format("images/books/thumb/%s.jpg", book.getCpu());
                 String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
                 String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
-                sb.append(String.format("<img title=\"%s\" src=\"%s\" alt=\"%s\" />", imageTitle, imageThumb, imageAlt));
+                sb.append(String.format("<img title=\"%s\" src=\"%s\" alt=\"%s\" /><br /><br />", imageTitle, imageThumb, imageAlt));
                 sb.append(book.getTitle());
             }
             sb.append("</td>");
@@ -869,8 +870,8 @@ public class BookUtils {
             }
         }
         if (counter != 1) {
-            for (int i = counter; i <= 3; i++) {
-                sb.append("<td></td>");
+            for (int i = counter - 1; i <= 3; i++) {
+                sb.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\"></td>");
             }
         }
         sb.append("</tr></table>");
