@@ -659,24 +659,26 @@ public class CalibreUtils {
 */
         BookUtils.calibreBooks = CalibreUtils.readBooks();
 
-        File coversDir = new File(Config.workPath + "covers");
-        File thumbsDir = new File(Config.workPath + "thumbs");
+        File coversDir = new File(Config.workPath + "cover");
+        File thumbsDir = new File(Config.workPath + "thumb");
 
         deleteFileOrFolder(coversDir.toPath());
         deleteFileOrFolder(thumbsDir.toPath());
 
-        BookUtils.calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).forEach(b -> {
+        BookUtils.calibreBooks/*.stream().filter(b -> b.getOwn() != null && b.getOwn())*/.forEach(b -> {
             try {
                 File coversSubDir = new File(coversDir, BookUtils.getCategoryByTags(b));
-                coversSubDir.mkdirs();
                 Path srcCover = Paths.get(Config.calibreDbPath).resolve(b.getPath()).resolve("cover.jpg");
-                Path destCover = coversSubDir.toPath().resolve(b.getCpu() + ".jpg");
-                Files.copy(srcCover, destCover, REPLACE_EXISTING);
+                if (Files.exists(srcCover)) {
+                    coversSubDir.mkdirs();
+                    Path destCover = coversSubDir.toPath().resolve(b.getCpu() + ".jpg");
+                    Files.copy(srcCover, destCover, REPLACE_EXISTING);
 
-                File thumbsSubDir = new File(thumbsDir, BookUtils.getCategoryByTags(b));
-                thumbsSubDir.mkdirs();
-                Path destThumb = thumbsSubDir.toPath().resolve(b.getCpu() + ".jpg");
-                ImageUtils.saveThumbnail(destCover.toFile(), destThumb.toString());
+                    File thumbsSubDir = new File(thumbsDir, BookUtils.getCategoryByTags(b));
+                    thumbsSubDir.mkdirs();
+                    Path destThumb = thumbsSubDir.toPath().resolve(b.getCpu() + ".jpg");
+                    ImageUtils.saveThumbnail(destCover.toFile(), destThumb.toString());
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
