@@ -691,9 +691,11 @@ public class CalibreUtils {
 
         File booksDir = new File(Config.workPath + "books");
         File magazinesDir = new File(Config.workPath + "magazines");
+        File manualsDir = new File(Config.workPath + "manuals");
 
         deleteFileOrFolder(booksDir.toPath());
         deleteFileOrFolder(magazinesDir.toPath());
+        deleteFileOrFolder(manualsDir.toPath());
 
         /*List<CalibreBook> shallowCopy = BookUtils.calibreBooks.subList(0, BookUtils.calibreBooks.size());
         Collections.reverse(shallowCopy);
@@ -708,6 +710,10 @@ public class CalibreUtils {
             if (b.getType().equals("magazine")) {
                 //TODO may be languages in path
                 destPath = magazinesDir.toPath().resolve(b.getSeries().getName());
+                destPath.toFile().mkdirs();
+            } else if (b.getType().equals("manual")) {
+                //TODO may be languages in path
+                destPath = manualsDir.toPath().resolve(system);
                 destPath.toFile().mkdirs();
             } else {
                 destPath = booksDir.toPath().resolve(system);
@@ -748,6 +754,7 @@ public class CalibreUtils {
                     case "scl":
                     case "trd":
                     case "chm":
+                    case "txt":
                         copyFile(srcBook, destPath, fileName, data.getFormat());
                         break;
                     default:
@@ -766,7 +773,7 @@ public class CalibreUtils {
             throw new RuntimeException(e);
         }
     }
-    private static Set<String> imgs = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "exe", "py"));
+    private static Set<String> imgs = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "exe", "py", "html"));
 
     private static boolean uncompress(List<String> fileNames) {
         Set<String> exts = fileNames.stream().map(SevenZipUtils::getExtension).map(String::toLowerCase).collect(toSet());

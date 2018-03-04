@@ -760,8 +760,8 @@ public class BookUtils {
             newManual.setCategoryId(getCategoryByCpu(category).getCatid());
             newManual.setTitle("Описания и прохождения игр " + getCategoryName(category));
             newManual.setText("<p><img style=\"float: right; margin: 5px;\" title=\"Solutions\" src=\"images/books/solutions.jpg\" alt=\"Прохождения, солюшены\" />Описания и прохождения игр от наших авторов</p>");
-            newManual.setFullText(calibreBooks.stream().map(b -> String.format("<p><a href=\"up/down/file/sol/3do/D.doc\"><img style=\"float: left; margin-right: 3px;\" src=\"images/book.png\" alt=\"\" /></a>%s (C) %s</p>",
-                    b.getTextMore().replace("\n", ""), b.getAuthors().stream().map(Author::getName).collect(joining(", ")))).collect(joining("<br />")));
+            newManual.setFullText(calibreBooks.stream().map(b -> String.format("<p><a href=\"up/down/file/sol/%s/%s.%s\"><img style=\"float: left; margin-right: 3px;\" src=\"images/book.png\" alt=\"\" /></a>%s (C) %s</p>",
+                    b.getCpu(), b.getFileName() != null? b.getFileName(): b.getTitle(), b.getDataList().get(0).getFormat().toLowerCase(), b.getTextMore().replace("\n", ""), b.getAuthors().stream().map(Author::getName).collect(joining(", ")))).collect(joining("<br />")));
             newManual.setUrl("");
             newManual.setMirror("http://tv-games.ru");
             addedBooks.add(newManual);
