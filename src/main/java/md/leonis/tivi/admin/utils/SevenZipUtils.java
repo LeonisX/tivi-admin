@@ -131,7 +131,13 @@ public class SevenZipUtils {
 
 
     public static Path findFreeFileName(Path path, String fileName, String ext, int incr) {
-        Path result = path.resolve(fileName + incrToString(incr) + "." + ext);
+        Path result;
+        //TODO remove try
+        try {
+            result = path.resolve(fileName + incrToString(incr) + "." + ext);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         if (Files.exists(result)) {
             return findFreeFileName(path, fileName, ext, ++incr);
         }
