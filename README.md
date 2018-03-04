@@ -92,6 +92,7 @@ solutions, manuals???, docs, programming, ???~~
 
 - TODO compare - сортировать по названию
 
+TODO magazines - если больше определённого количества - оформлять как категорию.
 
 - шерстить cbr на наличие tiff
 

@@ -661,6 +661,7 @@ public class BookUtils {
     public static ComparisionResult<Video> compareMagazines(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, List<BookCategory> categories, String category) {
         List<CalibreBook> calibreMagazines = allCalibreBooks.stream().filter(b -> b.getType().equals("magazine") && !category.equals("gd"))
                 //.filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category))
+                .sorted(Comparator.comparing(Book::getSort))
                 .filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
 
         Map<CalibreBook, List<CalibreBook>> groupedMagazines = calibreMagazines.stream()/*.filter(b ->*/

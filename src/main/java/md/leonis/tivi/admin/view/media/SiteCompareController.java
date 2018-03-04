@@ -90,7 +90,7 @@ public class SiteCompareController extends SubPane {
                 return null;
             }
         });
-        categoryCombobox.setValue(categories.stream().filter(c -> c.getCatcpu().equals("3do")).findFirst().get());
+        categoryCombobox.setValue(categories.stream().filter(c -> c.getCatcpu().equals("magazines")).findFirst().get());
 
         System.out.println("initialize()");
     }
