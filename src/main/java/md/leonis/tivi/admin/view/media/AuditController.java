@@ -1,6 +1,5 @@
 package md.leonis.tivi.admin.view.media;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
@@ -11,9 +10,7 @@ import md.leonis.tivi.admin.model.media.Language;
 import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.CalibreUtils;
 import md.leonis.tivi.admin.utils.SubPane;
-import md.leonis.tivi.admin.utils.Translit;
 
-import java.text.Normalizer;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,7 +69,8 @@ public class AuditController extends SubPane {
         return calibreBooks.stream()
                 .filter(calibreBook -> !calibreBook.getDataList().isEmpty()
                         && (!(calibreBook.getOwn() == null) || calibreBook.getOwn())).filter(b -> b.getFileName() != null)
-                .filter(b -> b.getFileName().contains("/") || b.getFileName().contains("\\") || b.getFileName().contains(":") || b.getFileName().contains("\n") || b.getFileName().contains("\"")).collect(toList());
+                .filter(b -> b.getFileName().contains("/") || b.getFileName().contains("\\") || b.getFileName().contains(":") || b.getFileName().contains("\t")
+                        || b.getFileName().contains("\n") || b.getFileName().contains("\r") || b.getFileName().contains("\"")).collect(toList());
     }
 
     public void fixFileNames() {
@@ -83,7 +81,9 @@ public class AuditController extends SubPane {
             Long id = source.getId();
             System.out.println(id);
             query = String.format("UPDATE `custom_column_6` SET value='%s' WHERE id=%d", b.getFileName().replace("/", "-")
-                    .replace("\\", "-").replace(":", " -").replace("\n", " ").replace("\"", "").replace("  ", " ").replace("'", "''"), id);
+                    .replace("\\", "-").replace(":", " -").replace("\t", " ")
+                    .replace("\r", " ").replace("\n", " ").replace("\"", "")
+                    .replace("  ", " ").replace("'", "''"), id);
             System.out.println(query);
             id = (long) CalibreUtils.executeUpdateQuery(query);
             System.out.println(id);
