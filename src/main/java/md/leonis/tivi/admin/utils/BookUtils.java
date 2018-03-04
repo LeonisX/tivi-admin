@@ -855,7 +855,6 @@ public class BookUtils {
         for (CalibreBook book : books) {
             sb.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\">");
             if (book.getHasCover() != 0) {
-                //TODO center, bottom
                 String imageThumb = String.format("images/books/thumb/%s.jpg", book.getCpu());
                 String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
                 String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
