@@ -743,6 +743,7 @@ public class CalibreUtils {
                     case "djvu":
                     case "cbr":
                     case "doc":
+                    case "docx":
                     case "jpg":
                     case "scl":
                     case "trd":
@@ -768,7 +769,7 @@ public class CalibreUtils {
     private static Set<String> imgs = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "exe", "py"));
 
     private static boolean uncompress(List<String> fileNames) {
-        Set<String> exts = fileNames.stream().map(SevenZipUtils::getExtension).collect(toSet());
+        Set<String> exts = fileNames.stream().map(SevenZipUtils::getExtension).map(String::toLowerCase).collect(toSet());
         return Collections.disjoint(exts, imgs);
     }
 
