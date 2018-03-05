@@ -612,6 +612,10 @@ public class CalibreUtils {
                 element.tagName("p");
                 node = element;
             }
+            if (element.tagName().equals("center")) {
+                element.tagName("p");
+                node = element;
+            }
             if (element.tagName().equals("font")) {
                 element.tagName("span");
                 node = element;
