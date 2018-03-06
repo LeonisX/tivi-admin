@@ -698,10 +698,12 @@ public class CalibreUtils {
         File booksDir = new File(Config.workPath + "books");
         File magazinesDir = new File(Config.workPath + "magazines");
         File manualsDir = new File(Config.workPath + "manuals");
+        File comixesDir = new File(Config.workPath + "comixes");
 
         deleteFileOrFolder(booksDir.toPath());
         deleteFileOrFolder(magazinesDir.toPath());
         deleteFileOrFolder(manualsDir.toPath());
+        deleteFileOrFolder(comixesDir.toPath());
 
         /*List<CalibreBook> shallowCopy = BookUtils.calibreBooks.subList(0, BookUtils.calibreBooks.size());
         Collections.reverse(shallowCopy);
@@ -713,17 +715,26 @@ public class CalibreUtils {
                 system = b.getTags().get(0).getName();
             }
             Path destPath;
-            if (b.getType().equals("magazine")) {
-                //TODO may be languages in path
-                destPath = magazinesDir.toPath().resolve(b.getSeries().getName());
-                destPath.toFile().mkdirs();
-            } else if (b.getType().equals("manual")) {
-                //TODO may be languages in path
-                destPath = manualsDir.toPath().resolve(system);
-                destPath.toFile().mkdirs();
-            } else {
-                destPath = booksDir.toPath().resolve(system);
-                destPath.toFile().mkdirs();
+            switch (b.getType()) {
+                case "magazine":
+                    //TODO may be languages in path
+                    destPath = magazinesDir.toPath().resolve(b.getSeries().getName());
+                    destPath.toFile().mkdirs();
+                    break;
+                case "manual":
+                    //TODO may be languages in path
+                    destPath = manualsDir.toPath().resolve(system);
+                    destPath.toFile().mkdirs();
+                    break;
+                case "comix":
+                    //TODO may be languages in path
+                    destPath = comixesDir.toPath().resolve(system);
+                    destPath.toFile().mkdirs();
+                    break;
+                default:
+                    destPath = booksDir.toPath().resolve(system);
+                    destPath.toFile().mkdirs();
+                    break;
             }
             final String fileName = b.getFileName() == null ? b.getTitle() : b.getFileName();
             b.getDataList().forEach(data -> {
