@@ -109,6 +109,7 @@ TODO correct dump manuals, docs, solutions, ... also images
 
 TODO добавить GD в базу
 
+TODO радио - прошерстить все номера, взять выпуски про ZX, PC, может другие платформы тоже
 
 Документация по Nintendo / Dendy
 Комиксы и манга по играм игр Nintendo (NES, Famicom)
