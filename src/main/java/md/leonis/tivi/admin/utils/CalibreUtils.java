@@ -708,9 +708,10 @@ public class CalibreUtils {
         deleteFileOrFolder(manualsDir.toPath());
         deleteFileOrFolder(comixesDir.toPath());
 
-        List<CalibreBook> shallowCopy = BookUtils.calibreBooks.subList(0, BookUtils.calibreBooks.size());
+        List<CalibreBook> shallowCopy = BookUtils.calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
         Collections.reverse(shallowCopy);
-        shallowCopy/*BookUtils.calibreBooks*/.stream().filter(b -> b.getOwn() != null && b.getOwn()).forEach(b -> {
+        int i = 1;
+        for (CalibreBook b : shallowCopy) {
             String system;
             if (b.getTags().size() > 1) {
                 system = "consoles"; //TODO computers
@@ -755,8 +756,7 @@ public class CalibreUtils {
                     break;
             }
             final String fileName = b.getFileName() == null ? b.getTitle() : b.getFileName();
-            b.getDataList().forEach(data -> {
-                //TODO uncompress
+            for (Data data : b.getDataList()) {//TODO uncompress
                 Path srcBook = Paths.get(Config.calibreDbPath).resolve(b.getPath()).resolve(data.getName() + "." + data.getFormat().toLowerCase());
                 switch (data.getFormat().toLowerCase()) {
                     case "zip":
@@ -790,17 +790,18 @@ public class CalibreUtils {
                     case "trd":
                     case "chm":
                     case "txt":
+                        System.out.println(String.format("%d of %d: Copy: %s", i, shallowCopy.size(), srcBook));
                         copyFile(srcBook, destPath, fileName, data.getFormat());
                         break;
                     default:
                         throw new RuntimeException(data.toString());
                 }
-            });
-        });
+            }
+            i++;
+        }
     }
 
     private static void copyFile(Path srcBook, Path destPath, String fileName, String ext) {
-        System.out.println("Copy: " + srcBook);
         Path destBook = SevenZipUtils.findFreeFileName(destPath, fileName, ext.toLowerCase(), 0);
         try {
             Files.copy(srcBook, destBook, REPLACE_EXISTING);
