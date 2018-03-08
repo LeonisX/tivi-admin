@@ -699,15 +699,18 @@ public class CalibreUtils {
         File magazinesDir = new File(Config.workPath + "magazines");
         File manualsDir = new File(Config.workPath + "manuals");
         File comixesDir = new File(Config.workPath + "comixes");
+        File guidesDir = new File(Config.workPath + "guides");
+        File docsDir = new File(Config.workPath + "docs");
+        File emulatorsDir = new File(Config.workPath + "emulators");
 
         deleteFileOrFolder(booksDir.toPath());
         deleteFileOrFolder(magazinesDir.toPath());
         deleteFileOrFolder(manualsDir.toPath());
         deleteFileOrFolder(comixesDir.toPath());
 
-        /*List<CalibreBook> shallowCopy = BookUtils.calibreBooks.subList(0, BookUtils.calibreBooks.size());
+        List<CalibreBook> shallowCopy = BookUtils.calibreBooks.subList(0, BookUtils.calibreBooks.size());
         Collections.reverse(shallowCopy);
-        shallowCopy*/BookUtils.calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).forEach(b -> {
+        shallowCopy/*BookUtils.calibreBooks*/.stream().filter(b -> b.getOwn() != null && b.getOwn()).forEach(b -> {
             String system;
             if (b.getTags().size() > 1) {
                 system = "consoles"; //TODO computers
@@ -729,6 +732,21 @@ public class CalibreUtils {
                 case "comix":
                     //TODO may be languages in path
                     destPath = comixesDir.toPath().resolve(system);
+                    destPath.toFile().mkdirs();
+                    break;
+                case "guide":
+                    //TODO may be languages in path
+                    destPath = guidesDir.toPath().resolve(system);
+                    destPath.toFile().mkdirs();
+                    break;
+                case "doc":
+                    //TODO may be languages in path
+                    destPath = docsDir.toPath().resolve(system);
+                    destPath.toFile().mkdirs();
+                    break;
+                case "emulator":
+                    //TODO may be languages in path
+                    destPath = emulatorsDir.toPath().resolve(system);
                     destPath.toFile().mkdirs();
                     break;
                 default:
@@ -790,7 +808,7 @@ public class CalibreUtils {
             throw new RuntimeException(e);
         }
     }
-    private static Set<String> imgs = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "exe", "py", "html"));
+    private static Set<String> imgs = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "exe", "py", "html", "diz"));
 
     private static boolean uncompress(List<String> fileNames) {
         Set<String> exts = fileNames.stream().map(SevenZipUtils::getExtension).map(String::toLowerCase).collect(toSet());
