@@ -54,7 +54,8 @@ public class BookUtils {
         tableStatuses = JsonUtils.gson.fromJson(queryRequest("SHOW TABLE STATUS"), type);
     }
 
-    private static Type videosType = new TypeToken<List<Video>>() {}.getType();
+    private static Type videosType = new TypeToken<List<Video>>() {
+    }.getType();
 
     public static List<TableStatus> tableStatuses;
 
@@ -589,7 +590,7 @@ public class BookUtils {
 
         //oldbooks - генерить
         // - мануалами (солюшенами) и другими страницами
-        for (String type: listTypeTranslationMap.keySet()) { //doc, emu, giude, manual
+        for (String type : listTypeTranslationMap.keySet()) { //doc, emu, giude, manual
             generateManualsPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks, type);
         }
         // - других книгах,
@@ -597,7 +598,7 @@ public class BookUtils {
         // - так же страница с поиском книг
         generateSearchPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
         // - упоминания в журналах
-        for (String type: viewTypeTranslationMap.keySet()) { //magazines, comix
+        for (String type : viewTypeTranslationMap.keySet()) { //magazines, comix
             generateMagazinesPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks, type);
         }
 
@@ -1027,7 +1028,7 @@ public class BookUtils {
         video.setAge(""); // extsize
         video.setDescription(getDescription(calibreBook, category));
         video.setKeywords(getKeywords(calibreBook, category));
-        video.setText(getTextShort(calibreBook));
+        video.setText(getTextShort(calibreBook, calibreBook.getCpu()));
         video.setFullText(getTextMore(calibreBook, category));
         video.setUserText("");
         video.setMirrorsname("");
@@ -1068,23 +1069,36 @@ public class BookUtils {
         //TODO custom
         video.setKeywords(getKeywords(calibreBook, category));
         //TODO что-то обобщённое. продумать что выводить. нужен издатель, с какого года, платформы (все альт), описание
-        video.setText(getTextShort(calibreBook));
-        //TODO image
-        if (calibreBook.getHasCover().equals(0)) {
-            video.setText(video.getText().replace(calibreBook.getCpu(), groupedMagazines.getValue().stream().filter(b -> b.getHasCover() > 0).findFirst().get().getCpu()));
+        if (!calibreBook.getOwn()) {
+            calibreBook.setHasCover(0);
         }
+        String cpu = calibreBook.getHasCover().equals(0) ? groupedMagazines.getValue().stream()
+                .filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0)
+                .sorted(Comparator.comparing(Book::getSort)).map(CalibreBook::getCpu).findFirst().orElse(null) :calibreBook.getCpu();
+        video.setText(getTextShort(calibreBook, cpu));
+        /*if (calibreBook.getHasCover().equals(0)) {
+            CalibreBook bookWithCover = groupedMagazines.getValue().stream().filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0).sorted(Comparator.comparing(Book::getSort)).findFirst().orElse(null);
+            if (bookWithCover != null) {
+                bookWithCover.setHasCover(0);
+                video.setText(video.getText().replace(calibreBook.getCpu(), bookWithCover.getCpu()));
+            }
+        } else {
+            groupedMagazines.getValue().get(0).setHasCover(0);
+        }*/
         //TODO custom, generate - for all books
         //TODO right file, if year > 2007 -> remote
-        String fullText = groupedMagazines.getValue().stream().filter(b -> b.getOwn() != null && b.getOwn())
+        String fullText = groupedMagazines.getValue().stream().filter(b -> b.getOwn() != null && b.getOwn()).sorted(Comparator.comparing(Book::getSort))
                 .map(b -> {
-                    String textMore = String.format("<h3>%s</h3>", b.getTitle()) + getTextShort(b) + getTextMore(b, category);
                     String imageTitle = b.getOfficialTitle() == null ? b.getTitle() : b.getOfficialTitle();
                     String imageAlt = b.getFileName() == null ? b.getTitle() : b.getFileName();
                     String image = String.format("<img style=\"vertical-align: middle;\" width=\"20\" height=\"20\" title=\"%s\" src=\"images/save.png\" alt=\"%s\" />\n", imageTitle, imageAlt);
-                    return textMore + String.format("<p>%s<a href=\"up/media/%s/%s/%s.%s\" target=\"_blank\"> Скачать %s</a></p>", image, category, b.getSeries().getName(),
-                                            b.getFileName() == null ? b.getTitle() : b.getFileName(), b.getDataList().get(0).getFormat().toLowerCase(), b.getTitle());
+                    String textMore = String.format("<h3>%s</h3>", b.getTitle()) + getTextShort(b, b.getCpu().equals(cpu) ? null : b.getCpu())
+
+                            + "<span class=\"spoiler\" style=\"display: none;\">" + getTextMore(b, category) + "</span>";
+                    return textMore + String.format("<p>%s<a href=\"up/media/%s/%s/%s.%s\" target=\"_blank\"> Скачать %s</a></p><p><br /></p>", image, category, b.getSeries().getName(),
+                            b.getFileName() == null ? b.getTitle() : b.getFileName(), b.getDataList().get(0).getFormat().toLowerCase(), b.getTitle());
                 })
-                                .collect(joining("\n"));
+                .collect(joining("\n"));
 
         video.setFullText(fullText);
         video.setUserText("");
@@ -1104,14 +1118,16 @@ public class BookUtils {
         return video;
     }
 
-    private static String getTextShort(CalibreBook book) {
+    private static String getTextShort(CalibreBook book, String cpu) {
         StringBuilder sb = new StringBuilder();
-        String imageLink = String.format("images/books/cover/%s/%s.jpg", BookUtils.getCategoryByTags(book), book.getCpu());
-        String imageThumb = String.format("images/books/thumb/%s/%s.jpg", BookUtils.getCategoryByTags(book), book.getCpu());
-        String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
-        String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
-        sb.append(String.format("<p><a href=\"%s\">", imageLink));
-        sb.append(String.format("<img style=\"border: 1px solid #aaaaaa; float: right; margin-left: 10px; margin-top: 4px;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a></p>\n", imageTitle, imageThumb, imageAlt));
+        if (cpu != null) {
+            String imageLink = String.format("images/books/cover/%s/%s.jpg", BookUtils.getCategoryByTags(book), cpu);
+            String imageThumb = String.format("images/books/thumb/%s/%s.jpg", BookUtils.getCategoryByTags(book), cpu);
+            String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
+            String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
+            sb.append(String.format("<p><a href=\"%s\">", imageLink));
+            sb.append(String.format("<img style=\"border: 1px solid #aaaaaa; float: right; margin-left: 10px; margin-top: 4px;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a></p>\n", imageTitle, imageThumb, imageAlt));
+        }
         sb.append("<ul class=\"file-info\">\n");
         if (book.getOfficialTitle() != null) {
             sb.append(String.format("<li><span>Название:</span> %s</li>\n", book.getOfficialTitle()));
@@ -1130,7 +1146,7 @@ public class BookUtils {
             String title = book.getAuthors().size() > 1 || book.getAuthors().stream().map(Author::getName).collect(Collectors.joining()).contains("|") ? "ы" : "";
             sb.append(String.format("<li><span>Автор%s:</span> %s</li>\n", title, book.getAuthors().stream().map(Author::getName).collect(joining(", ")).replace("|", ",")));
         }
-        if ( book.getPublisher() != null && !book.getPublisher().getName().equals("???")) {
+        if (book.getPublisher() != null && !book.getPublisher().getName().equals("???")) {
             sb.append(String.format("<li><span>Издательство:</span> %s</li>\n", /*book.getPublisher() == null ? "???" :*/ book.getPublisher().getName()));
         }
         if (book.getSignedInPrint() != null) {
@@ -1265,8 +1281,8 @@ public class BookUtils {
         if (!category.equals("magazines")) {
             comparisionResult.getAddedBooks().forEach(b -> {
 
-                if ((b.getCpu().split("_").length != 2) && !(b.getCpu().endsWith("manuals"))  && !(b.getCpu().endsWith("comixes"))
-                        && !(b.getCpu().endsWith("docs")  && !(b.getCpu().endsWith("guides")  && !(b.getCpu().endsWith("emulators"))))) {
+                if ((b.getCpu().split("_").length != 2) && !(b.getCpu().endsWith("manuals")) && !(b.getCpu().endsWith("comixes"))
+                        && !(b.getCpu().endsWith("docs") && !(b.getCpu().endsWith("guides") && !(b.getCpu().endsWith("emulators"))))) {
                     List<Video> videoList = JsonUtils.gson.fromJson(BookUtils.queryRequest("SELECT * FROM danny_media WHERE cpu='" + b.getCpu() + "' AND catid=" + b.getCategoryId()), videosType);
                     Integer tiviId = videoList.get(0).getId();
                     System.out.println(tiviId);
