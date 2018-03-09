@@ -598,7 +598,7 @@ public class BookUtils {
         // - так же страница с поиском книг
         generateSearchPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks);
         // - упоминания в журналах
-        for (String type : viewTypeTranslationMap.keySet()) { //magazines, comix
+        for (String type : viewTypeTranslationMap.keySet()) { //magazines, comics
             generateMagazinesPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks, type);
         }
 
@@ -761,7 +761,7 @@ public class BookUtils {
         listTypeTranslationMap.put("guide", new TypeTranslation("guides", "Solutions", "Прохождения, солюшены", "Описания и прохождения игр", ""));
         listTypeTranslationMap.put("manual", new TypeTranslation("manuals", "Manuals", "Мануалы, учебники", "Мануалы", ""));
 
-        viewTypeTranslationMap.put("comix", new TypeTranslation("comixes", "", "", "Комиксы, связанные с", "<p>Мы собрали небольшую коллекцию комиксов, связанных с %s.</p>"));
+        viewTypeTranslationMap.put("comics", new TypeTranslation("comics", "", "", "Комиксы, связанные с", "<p>Мы собрали небольшую коллекцию комиксов, связанных с %s.</p>"));
         viewTypeTranslationMap.put("magazine", new TypeTranslation("magazines", "", "", "Упоминания в журналах", "<p>Информацию об играх для %s так же можно найти в периодических изданиях.</p>"));
     }
 
@@ -1016,7 +1016,11 @@ public class BookUtils {
         if (calibreBook.getSignedInPrint() != null) {
             video.setDate(calibreBook.getSignedInPrint().toEpochSecond(ZoneOffset.ofHours(-2)));
         }
-        video.setCpu(calibreBook.getCpu());
+        if (calibreBook.getTags().size() > 1 && calibreBook.getTags().stream().map(Tag::getName).collect(toList()).contains(category)) {
+            video.setCpu(category + "_" + calibreBook.getCpu());
+        } else {
+            video.setCpu(calibreBook.getCpu());
+        }
         video.setStartDate(0L);
         video.setEndDatedate(0L);
 
@@ -1281,7 +1285,7 @@ public class BookUtils {
         if (!category.equals("magazines")) {
             comparisionResult.getAddedBooks().forEach(b -> {
 
-                if ((b.getCpu().split("_").length != 2) && !(b.getCpu().endsWith("manuals")) && !(b.getCpu().endsWith("comixes"))
+                if ((b.getCpu().split("_").length != 2) && !(b.getCpu().endsWith("manuals")) && !(b.getCpu().endsWith("comics"))
                         && !(b.getCpu().endsWith("docs") && !(b.getCpu().endsWith("guides") && !(b.getCpu().endsWith("emulators"))))) {
                     List<Video> videoList = JsonUtils.gson.fromJson(BookUtils.queryRequest("SELECT * FROM danny_media WHERE cpu='" + b.getCpu() + "' AND catid=" + b.getCategoryId()), videosType);
                     Integer tiviId = videoList.get(0).getId();

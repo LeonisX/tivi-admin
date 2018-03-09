@@ -698,7 +698,7 @@ public class CalibreUtils {
         File booksDir = new File(Config.workPath + "books");
         File magazinesDir = new File(Config.workPath + "magazines");
         File manualsDir = new File(Config.workPath + "manuals");
-        File comixesDir = new File(Config.workPath + "comixes");
+        File comicsDir = new File(Config.workPath + "comics");
         File guidesDir = new File(Config.workPath + "guides");
         File docsDir = new File(Config.workPath + "docs");
         File emulatorsDir = new File(Config.workPath + "emulators");
@@ -706,7 +706,7 @@ public class CalibreUtils {
         deleteFileOrFolder(booksDir.toPath());
         deleteFileOrFolder(magazinesDir.toPath());
         deleteFileOrFolder(manualsDir.toPath());
-        deleteFileOrFolder(comixesDir.toPath());
+        deleteFileOrFolder(comicsDir.toPath());
 
         List<CalibreBook> shallowCopy = BookUtils.calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
         Collections.reverse(shallowCopy);
@@ -730,9 +730,9 @@ public class CalibreUtils {
                     destPath = manualsDir.toPath().resolve(system);
                     destPath.toFile().mkdirs();
                     break;
-                case "comix":
+                case "comics":
                     //TODO may be languages in path
-                    destPath = comixesDir.toPath().resolve(system);
+                    destPath = comicsDir.toPath().resolve(system);
                     destPath.toFile().mkdirs();
                     break;
                 case "guide":
