@@ -423,7 +423,7 @@ public class AuditController extends SubPane {
                 //outText(CalibreUtils.sanitize(calibreBook.getReleaseNote()));
             }
             if (calibreBook.getTextMore() != null && !calibreBook.getTextMore().isEmpty()) {
-                outText(calibreBook.getTextMore());
+                //outText(calibreBook.getTextMore());
                 outText(CalibreUtils.unify(calibreBook.getTextMore()));
                 outText(CalibreUtils.sanitize(calibreBook.getTextMore()));
             }
