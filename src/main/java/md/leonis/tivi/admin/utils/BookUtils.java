@@ -769,8 +769,8 @@ public class BookUtils {
         listTypeTranslationMap.put("guide", new TypeTranslation("guides", "Solutions", "Прохождения, солюшены", "Описания и прохождения игр", ""));
         listTypeTranslationMap.put("manual", new TypeTranslation("manuals", "Manuals", "Мануалы, учебники", "Мануалы", ""));
 
-        viewTypeTranslationMap.put("comics", new TypeTranslation("comics", "", "", "Комиксы, связанные с", "<p>Мы собрали небольшую коллекцию комиксов, связанных с %s.</p>"));
-        viewTypeTranslationMap.put("magazine", new TypeTranslation("magazines", "", "", "Упоминания в журналах", "<p>Информацию об играх для %s так же можно найти в периодических изданиях.</p>"));
+        viewTypeTranslationMap.put("comics", new TypeTranslation("comics", "", "", "Комиксы и манга по мотивам игр %s", "<p>Мы собрали небольшую коллекцию комиксов, связанных с %s.</p>"));
+        viewTypeTranslationMap.put("magazine", new TypeTranslation("magazines", "", "", "Упоминания %s в журналах", "<p>Информацию об играх для %s так же можно найти в периодических изданиях.</p>"));
     }
 
     private static void generateManualsPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, String type) {
@@ -832,7 +832,7 @@ public class BookUtils {
                 }
             }).collect(joining());
         } else {
-            return doTrimHtmlTags(((Element) node).child(0));
+            return doTrimHtmlTags(node.childNodes().get(0));
         }
     }
 
@@ -1014,6 +1014,8 @@ public class BookUtils {
         Map<String, List<CalibreBook>> books = calibreBooks.stream().filter(b ->
                 b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
                         (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)))
+                .peek(b -> {if (b.getSeries() == null) {
+            b.setSeries(new PublisherSeries(0L, b.getTitle(), ""));}})
                 .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()));
         Optional<Video> manual = siteBooks.stream().filter(b -> b.getCpu().equals(category + "_" + translation.getPlural())).findFirst();
         if (!books.isEmpty() && !manual.isPresent()) {
@@ -1034,7 +1036,7 @@ public class BookUtils {
     }
 
     private static void setMagazineText(Map<String, List<CalibreBook>> books, Video manual, String category, TypeTranslation translation) {
-        manual.setTitle(translation.getShortText());
+        manual.setTitle(String.format(translation.getShortText(), getCategoryByCpu(category).getCatname()));
         manual.setText(String.format(translation.getText(), getCategoryName(category)));
         StringBuilder sb = new StringBuilder();
         sb.append("<ul class=\"file-info\">\n");

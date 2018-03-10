@@ -629,13 +629,11 @@ public class CalibreUtils {
         }
         List<Attribute> attrs = new ArrayList<>();
         node.attributes().forEach(attr -> {
-            if (!attr.getKey().equals("#text")) {
+            if (!attr.getKey().equals("#text") && !attr.getKey().equals("href") && !attr.getKey().equals("alt") && !attr.getKey().equals("title") && !attr.getKey().equals("src")
+                    && !(attr.getKey().equals("class") && attr.getValue().equals("spoiler"))) {
                 attrs.add(attr);
             }
         });
-        if (!attrs.isEmpty()) {
-            //System.out.println(attrs);
-        }
         for (Attribute a : attrs) {
             node.removeAttr(a.getKey());
         }

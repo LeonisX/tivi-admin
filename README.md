@@ -150,6 +150,8 @@ https://stackoverflow.com/questions/36868013/editing-jpeg-exif-data-with-java
 
 TODO генерить новостные анонсы по изменениям
 
+TODO картинки для комиксов, журналов
+
 TODO рейтинги обратно в calibre (when update)
 
 TODO высший пилотаж - перелинковать книги где необходимо (например, 50 игр для 3DO), волшебный мир, итд.
