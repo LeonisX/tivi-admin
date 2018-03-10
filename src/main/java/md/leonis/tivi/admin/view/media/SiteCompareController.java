@@ -261,6 +261,7 @@ public class SiteCompareController extends SubPane {
         ComparisionResult<Video> comparisionResult = BookUtils.compare(allCalibreBooks, siteBooks, categories, categoryCombobox.getValue().getCatcpu());
 
         BookUtils.syncDataWithSite(comparisionResult, allCalibreBooks, calibreDir.getText(), categoryCombobox.getValue().getCatcpu());
+        reloadSiteData();
     }
 
     public void dumpCalibreDB() {

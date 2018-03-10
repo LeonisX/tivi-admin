@@ -20,6 +20,10 @@ import md.leonis.tivi.admin.model.*;
 import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.model.mysql.TableStatus;
 import md.leonis.tivi.admin.view.media.AuditController;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -561,7 +565,7 @@ public class BookUtils {
         List<String> multi = Arrays.asList("consoles", "computers"); //computers реально не задействован - только для журналов.
         if (multi.contains(category)) {
             // При multi не нужно искать упоминания в журналах
-            calibreBooks = calibreBooks.stream().filter(b -> b.getTags().size() > 1).filter(b -> {
+            calibreBooks = calibreBooks.stream().filter(b -> /*b.getTags().size() > 1 ||*/ (b.getTags().size() == 1 && multi.contains(b.getTags().get(0).getName()))).filter(b -> {
                 List<String> p = b.getTags().stream().map(Tag::getName)
                         .map(t -> getParentRoot(categories, t)).map(BookCategory::getCatcpu).distinct().collect(toList());
                 return p.size() == 1 && p.contains(category);
@@ -604,19 +608,23 @@ public class BookUtils {
 
         //Если в Calibre нет нужного ID значит удалённые
         Map<Integer, Video> newIds = oldBooks.stream().collect(Collectors.toMap(Video::getId, Function.identity()));
-        Map<Integer, Video> oldIds = siteBooks.stream().collect(Collectors.toMap(Video::getId, Function.identity()));
+        Map<Integer, Video> oldIds = siteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryByCpu(category).getCatid())).collect(Collectors.toMap(Video::getId, Function.identity()));
 
         Collection<Video> deletedBooks = CalibreUtils.mapDifference(oldIds, newIds);
 
         //Разницу считаем только у тех, что имеют теги
         List<Video> allBooks = new ArrayList<>(siteBooks);
         allBooks.addAll(oldBooks);
+        /*allBooks.addAll(allCalibreBooks.stream()*//*.filter(b -> b.getType().equals("book"))*//*
+                .filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getTiviId() != null && b.getTiviId() > 0)
+                .map(b -> calibreToVideo(b, category)).collect(toList()));*/
         List<Pair<Video, Video>> changed = allBooks.stream().collect(groupingBy(Video::getId))
                 .entrySet().stream().filter(e -> e.getValue().size() == 2)
                 .map(e -> {
                     Video siteBook = e.getValue().get(0);
                     Video calibreBook = e.getValue().get(1);
                     calibreBook.setCategoryId(siteBook.getCategoryId());
+                    //calibreBook.setCategoryId(getCategoryByCpu(category).getCatid());
                     calibreBook.setImage_align(siteBook.getImage_align());
                     calibreBook.setViews(siteBook.getViews());
                     calibreBook.setLoads(siteBook.getLoads());
@@ -756,7 +764,7 @@ public class BookUtils {
 
 
     static {
-        listTypeTranslationMap.put("doc", new TypeTranslation("docs", "Documentation", "Документация", "Документация о", ""));
+        listTypeTranslationMap.put("doc", new TypeTranslation("docs", "Documentation", "Документация", "Документация", ""));
         listTypeTranslationMap.put("emulator", new TypeTranslation("emulators", "Emulators descriptions", "Описания эмуляторов", "Описания эмуляторов", ""));
         listTypeTranslationMap.put("guide", new TypeTranslation("guides", "Solutions", "Прохождения, солюшены", "Описания и прохождения игр", ""));
         listTypeTranslationMap.put("manual", new TypeTranslation("manuals", "Manuals", "Мануалы, учебники", "Мануалы", ""));
@@ -791,16 +799,41 @@ public class BookUtils {
     }
 
     private static void setManualText(List<CalibreBook> calibreBooks, Video manual, String category, TypeTranslation translation) {
-        manual.setTitle(translation.getShortText() + " " + getCategoryByCpu(category).getCatname());
-        manual.setText(String.format("<p><img style=\"float: right; margin: 5px;\" title=\"%s\" src=\"images/books/%s.jpg\" alt=\"%s\" />%s %s</p>",
+        manual.setTitle(translation.getShortText() + " " + getCategoryByCpu(category).getCatname() + ".");
+        manual.setText(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"images/books/%s.jpg\" alt=\"%s\" />%s %s</p>",
                 translation.getImageTitle(), translation.getPlural(), translation.getImageAlt(), translation.getShortText(), getCategoryByCpu(category).getCatname()));
         //TODO download or link
         manual.setFullText(calibreBooks.stream().map(b -> {
-            String date = DateTimeFormatter.ofPattern("dd.MM.yyyy").format(b.getSignedInPrint());
-            return String.format("<p><a href=\"up/media/%s/%s/%s.%s\"><img style=\"float: left; margin-right: 3px;\" src=\"images/book.png\" alt=\"download\" /></a>%s (C) %s, %s</p>",
+            String authors = b.getAuthors().stream().map(Author::getName).collect(joining(", ")).replace("|", ",");
+            if (authors.equalsIgnoreCase("неизвестный")) {
+                authors = b.getPublisher().getName();
+            }
+            return String.format("<p><a href=\"up/media/%s/%s/%s.%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" /></a>%s (C) %s, %s</p>",
                     translation.getPlural(), category, b.getFileName() != null ? b.getFileName() : b.getTitle(), b.getDataList().get(0).getFormat().toLowerCase(),
-                    b.getTextMore().replace("\n", ""), date, b.getAuthors().stream().map(Author::getName).collect(joining(", ")));
-        }).collect(joining("<br />")));
+                    trimHtmlTags(b.getTextMore().replace("\n", "")), formatDate(b.getSignedInPrint()), authors);
+        }).collect(joining()));
+    }
+
+    private static String trimHtmlTags(String text) {
+        Element element = Jsoup.parseBodyFragment(text).body();
+        return doTrimHtmlTags(element);
+    }
+
+    private static String doTrimHtmlTags(Node node) {
+        if (node instanceof TextNode) {
+            return "<p>" + ((TextNode) node).text() + "</p>";
+        }
+        if (node.childNodeSize() > 1) {
+            return ((Element) node).childNodes().stream().map(c -> {
+                if (c instanceof TextNode) {
+                    return ((TextNode) c).text();
+                } else {
+                    return c.outerHtml();
+                }
+            }).collect(joining());
+        } else {
+            return doTrimHtmlTags(((Element) node).child(0));
+        }
     }
 
     private static void generateCitationsPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
@@ -816,7 +849,7 @@ public class BookUtils {
             newManual.setCpu(category + "_citation");
             newManual.setCategoryId(getCategoryByCpu(category).getCatid());
             newManual.setTitle("Упоминания в других книгах");
-            newManual.setText(String.format("<p>В этих книгах так же можно найти информацию об играх для %s</p>", getCategoryName(category)));
+            newManual.setText(String.format("<p>В этих книгах так же можно найти информацию об играх для %s.</p>", getCategoryName(category)));
             StringBuilder sb = new StringBuilder();
             sb.append("<ul class=\"file-info\">\n");
             calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", b.getCpu(), b.getTitle())));
@@ -828,7 +861,7 @@ public class BookUtils {
         } else if (!calibreBooks.isEmpty()) {
             // change
             Video newManual = new Video(manual.get());
-            newManual.setText(String.format("<p>В этих книгах так же можно найти информацию об играх для %s</p>", getCategoryName(category)));
+            newManual.setText(String.format("<p>В этих книгах так же можно найти информацию об играх для %s.</p>", getCategoryName(category)));
             StringBuilder sb = new StringBuilder();
             sb.append("<ul class=\"file-info\">\n");
             calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", b.getCpu(), b.getTitle())));
@@ -878,16 +911,24 @@ public class BookUtils {
         StringBuilder sb = new StringBuilder();
         StringBuilder sbi = new StringBuilder();
         StringBuilder sbt = new StringBuilder();
-        sb.append("<table style=\"width:600px;\"><tr>");
+        sb.append("<p><table style=\"width:600px;\">");
         for (CalibreBook book : books) {
+            if (counter == 1) {
+                sb.append("<tr>");
+            }
             sbi.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\">");
-            sbt.append("<td style=\"text-align:center;\">");
+            sbt.append("<td style=\"text-align:center; padding-top: 5px; padding-bottom: 10px;\">");
             if (book.getHasCover() != 0) {
                 String imageLink = String.format("images/books/cover/%s/%s.jpg", BookUtils.getCategoryByTags(book), book.getCpu());
                 String imageThumb = String.format("images/books/thumb/%s/%s.jpg", BookUtils.getCategoryByTags(book), book.getCpu());
                 String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
                 String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
                 sbi.append(String.format("<a href=\"%s\"><img style=\"border: 1px solid #aaaaaa;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a>", imageLink, imageTitle, imageThumb, imageAlt));
+            } else {
+                String imageThumb = "images/books/nocover.png";
+                String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
+                String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
+                sbi.append(String.format("<img style=\"border: 1px solid #aaaaaa;\" title=\"%s\" src=\"%s\" alt=\"%s\" />", imageTitle, imageThumb, imageAlt));
             }
             sbt.append(book.getTitle());
             sbi.append("</td>");
@@ -895,8 +936,10 @@ public class BookUtils {
             counter++;
             if (counter > 3) {
                 sbi.append("</tr><tr>");
-                sbt.append("</tr><tr>");
+                sbt.append("</tr>");
                 sb.append(sbi).append(sbt);
+                sbi = new StringBuilder();
+                sbt = new StringBuilder();
                 counter = 1;
             }
         }
@@ -906,7 +949,10 @@ public class BookUtils {
                 sbt.append("<td style=\"text-align:center;\"></td>");
             }
         }
-        sb.append(sbi).append("</tr>").append(sbt).append("</tr>").append("</table>");
+        if (!sbi.toString().isEmpty()) {
+            sb.append(sbi).append("</tr>").append(sbt).append("</tr>");
+        }
+        sb.append("</table></p>");
         return sb.toString();
     }
 
@@ -976,6 +1022,7 @@ public class BookUtils {
             newManual.setCpu(category + "_" + translation.getPlural());
             newManual.setCategoryId(getCategoryByCpu(category).getCatid());
             setMagazineText(books, newManual, category, translation);
+            newManual.setUrl("");
             newManual.setMirror("http://tv-games.ru");
             addedBooks.add(newManual);
         } else if (!books.isEmpty()) {
@@ -1014,7 +1061,11 @@ public class BookUtils {
             video.setId(Math.toIntExact(calibreBook.getTiviId()));
         }
         if (calibreBook.getSignedInPrint() != null) {
-            video.setDate(calibreBook.getSignedInPrint().toEpochSecond(ZoneOffset.ofHours(-2)));
+            if (calibreBook.getSignedInPrint().isBefore(LocalDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.ofNanoOfDay(0)))) {
+                video.setDate(4294967295L + 24*60*60 + calibreBook.getSignedInPrint().toEpochSecond(ZoneOffset.ofHours(-2)));
+            } else {
+                video.setDate(calibreBook.getSignedInPrint().toEpochSecond(ZoneOffset.ofHours(-2)));
+            }
         }
         if (calibreBook.getTags().size() > 1 && calibreBook.getTags().stream().map(Tag::getName).collect(toList()).contains(category)) {
             video.setCpu(category + "_" + calibreBook.getCpu());
@@ -1026,7 +1077,11 @@ public class BookUtils {
 
         //TODO url; // locurl //TODO if year > 2007 ==> external
         //TODO right file
-        video.setUrl(String.format("up/media/%ss/%s/%s.%s", calibreBook.getType(), category, calibreBook.getFileName() == null ? calibreBook.getTitle() : calibreBook.getFileName(), calibreBook.getDataList().get(0).getFormat().toLowerCase()));
+        if (calibreBook.getDataList().isEmpty()) {
+            video.setUrl("");
+        } else {
+            video.setUrl(String.format("up/media/%ss/%s/%s.%s", calibreBook.getType(), category, calibreBook.getFileName() == null ? calibreBook.getTitle() : calibreBook.getFileName(), calibreBook.getDataList().get(0).getFormat().toLowerCase()));
+        }
         //TODO upload images, files
         video.setMirror(""); // exturl
         video.setAge(""); // extsize
@@ -1133,10 +1188,10 @@ public class BookUtils {
             sb.append(String.format("<img style=\"border: 1px solid #aaaaaa; float: right; margin-left: 10px; margin-top: 4px;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a></p>\n", imageTitle, imageThumb, imageAlt));
         }
         sb.append("<ul class=\"file-info\">\n");
-        if (book.getOfficialTitle() != null) {
+        if (book.getOfficialTitle() != null && !book.getOfficialTitle().equals(book.getTitle())) {
             sb.append(String.format("<li><span>Название:</span> %s</li>\n", book.getOfficialTitle()));
         }
-        if (book.getFileName() != null && !book.getFileName().equals(book.getTitle())) {
+        if (book.getFileName() != null && !book.getFileName().equals(book.getTitle()) && !book.getFileName().equals(book.getOfficialTitle())) {
             sb.append(String.format("<li><span>Неофициальное название:</span> %s</li>\n", book.getFileName()));
         }
         if (book.getSeries() != null) {
@@ -1154,16 +1209,7 @@ public class BookUtils {
             sb.append(String.format("<li><span>Издательство:</span> %s</li>\n", /*book.getPublisher() == null ? "???" :*/ book.getPublisher().getName()));
         }
         if (book.getSignedInPrint() != null) {
-            String year = "";
-            if (book.getSignedInPrint().toLocalDate().isBefore(LocalDate.of(1000, 1, 1))) {
-                year = "???";
-            } else if (book.getSignedInPrint().plusHours(2).getDayOfMonth() == 1 && book.getSignedInPrint().plusHours(2).getMonthValue() == 1) {
-                year = Integer.toString(book.getSignedInPrint().plusHours(2).getYear());
-            } else {
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-                year = book.getSignedInPrint().plusHours(2).toLocalDate().format(formatter);
-            }
-            sb.append(String.format("<li><span>Подписано в печать:</span> %s г.</li>\n", year));
+            sb.append(String.format("<li><span>Подписано в печать:</span> %s г.</li>\n", formatDate(book.getSignedInPrint())));
         }
         if (book.getPages() != null && book.getPages() > 0) {
             sb.append(String.format("<li><span>Объём:</span> %s страниц</li>\n", book.getPages()));
@@ -1194,25 +1240,51 @@ public class BookUtils {
 
         sb.append("</ul>\n");
 
-        if (book.getReleaseNote() != null) {
-            sb.append(String.format("<p>%s</p>\n", book.getReleaseNote()));
-        }
         if (book.getTextShort() != null) {
             sb.append(book.getTextShort()).append("\n");
         }
+        if (book.getReleaseNote() != null) {
+            sb.append(String.format("<p>%s</p>\n", book.getReleaseNote()));
+        }
 
+        PlatformsTranslation translation = platformsTranslationMap.get(book.getType());
+        if (book.getTags() != null && book.getTags().size() > 1) {
+            String platforms = book.getTags().stream().map(b -> getCategoryName(b.getName())).collect(joining(", "));
+            sb.append(String.format(translation.getPlatforms(), platforms));
+        }
+        if (book.getAltTags() != null && !book.getAltTags().isEmpty()) {
+            String platforms = book.getAltTags().stream().map(b -> getCategoryName(b.getValue())).collect(joining(", "));
+            if (book.getTags() == null || book.getTags().size() == 1) {
+                sb.append(String.format(translation.getPlatforms(), platforms));
+            } else {
+                sb.append(String.format(translation.getAltPlatforms(), platforms));
+            }
+        }
         return sb.toString();
     }
 
-    private static String getTextMore(CalibreBook book, String category) {
-        PlatformsTranslation translation = platformsTranslationMap.get(book.getType());
-        String result = book.getTextMore();
-        String platforms = book.getTags().stream().map(b -> getCategoryName(b.getName())).collect(joining(", "));
-        result += String.format(translation.getPlatforms(), platforms);
-        if (book.getAltTags() != null && !book.getAltTags().isEmpty()) {
-            platforms = book.getTags().stream().map(b -> getCategoryName(b.getName())).collect(joining(", "));
-            result += String.format(translation.getAltPlatforms(), platforms);
+    private static String formatDate(LocalDateTime dateTime) {
+        if (dateTime.toLocalDate().isBefore(LocalDate.of(1000, 1, 1))) {
+            return "???";
+        } else if (dateTime.plusHours(4).getDayOfMonth() == 1 && dateTime.plusHours(4).getMonthValue() == 1) {
+            return Integer.toString(dateTime.plusHours(4).getYear());
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            return dateTime.plusHours(4).toLocalDate().format(formatter);
         }
+    }
+
+    private static String getTextMore(CalibreBook book, String category) {
+        //PlatformsTranslation translation = platformsTranslationMap.get(book.getType());
+        String result = book.getTextMore();
+        /*if (book.getTags() != null && book.getTags().size() > 1) {
+            String platforms = book.getTags().stream().map(b -> getCategoryName(b.getName())).collect(joining(", "));
+            result += String.format(translation.getPlatforms(), platforms);
+        }
+        if (book.getAltTags() != null && !book.getAltTags().isEmpty()) {
+            String platforms = book.getAltTags().stream().map(b -> getCategoryName(b.getValue())).collect(joining(", "));
+            result += String.format(translation.getAltPlatforms(), platforms);
+        }*/
         return result;
     }
 
@@ -1226,21 +1298,30 @@ public class BookUtils {
 
     private static String getDescription(CalibreBook book, String category) {
         PlatformsTranslation translation = platformsTranslationMap.get(book.getType());
-        return String.format(translation.getDescription(), ((book.getOfficialTitle() == null) ? book.getTitle() : book.getOfficialTitle()), getCategoryName(category));
+        /*System.out.println(book.getTitle());
+        System.out.println(book.getOfficialTitle());
+        System.out.println(book.getType());
+        System.out.println(translation);*/
+        return String.format(translation.getDescription(), ((book.getOfficialTitle() == null) ? book.getTitle() : book.getOfficialTitle()),
+                getCategoryName(category));
     }
 
     private static Map<String, PlatformsTranslation> platformsTranslationMap = new HashMap<>();
 
     //TODO другие типы
     static {
-        platformsTranslationMap.put("book", new PlatformsTranslation("Книга", "<p>В этой книге представлены описания игр для %s</p>",
+        platformsTranslationMap.put("book", new PlatformsTranslation("Книга", "<p>В книге представлены описания игр для %s</p>",
                 "<p>Так же здесь можно найти описания для %s</p>", "Книга %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
-        platformsTranslationMap.put("magazine", new PlatformsTranslation("Журнал", "<p>В этом журнале представлены описания игр для %s</p>",
+        platformsTranslationMap.put("magazine", new PlatformsTranslation("Журнал", "<p>В журнале представлены описания игр для %s</p>",
                 "<p>Так же здесь можно найти описания для %s</p>", "Журнал %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
         platformsTranslationMap.put("manual", new PlatformsTranslation("Сервисный мануал", "<p>Этот мануал покрывает платформы %s</p>",
                 "<p>Так же здесь можно найти информацию о %s</p>", "Мануал %s с описаниями для %s", "описание, устройство, эксплуатация, управление"));
         platformsTranslationMap.put("guide", new PlatformsTranslation("Мануал", "<p>Этот мануал покрывает платформы %s</p>",
                 "<p>Так же здесь можно найти информацию о %s</p>", "Мануал %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
+
+        platformsTranslationMap.put("doc", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
+        platformsTranslationMap.put("emulator", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
+        platformsTranslationMap.put("comics", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
     }
 
     private static String getKeywords(CalibreBook book, String category) {
@@ -1270,7 +1351,7 @@ public class BookUtils {
     public static void syncDataWithSite(ComparisionResult<Video> comparisionResult, List<CalibreBook> allCalibreBooks, String calibreDbDirectory, String category) {
         List<String> insertQueries = comparisionResult.getAddedBooks().stream().map(b -> BookUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(toList());
         List<String> deleteQueries = comparisionResult.getDeletedBooks().stream().map(b -> "DELETE FROM `danny_media` WHERE downid=" + b.getId() + ";").collect(toList());
-        List<String> updateQueries = comparisionResult.getChangedBooks().entrySet().stream().map(b -> BookUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(toList());
+        List<String> updateQueries = comparisionResult.getChangedBooks().entrySet().stream().filter(b -> !b.getValue().isEmpty()).map(b -> BookUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(toList());
 
         List<String> results = deleteQueries.stream().map(BookUtils::queryRequest).collect(toList());
         results.forEach(System.out::println);
@@ -1285,8 +1366,8 @@ public class BookUtils {
         if (!category.equals("magazines")) {
             comparisionResult.getAddedBooks().forEach(b -> {
 
-                if ((b.getCpu().split("_").length != 2) && !(b.getCpu().endsWith("manuals")) && !(b.getCpu().endsWith("comics"))
-                        && !(b.getCpu().endsWith("docs") && !(b.getCpu().endsWith("guides") && !(b.getCpu().endsWith("emulators"))))) {
+                if (!(b.getCpu().startsWith(category + "_")) && !(b.getCpu().endsWith("_manuals")) && !(b.getCpu().endsWith("_comics"))
+                        && !(b.getCpu().endsWith("_docs") && !(b.getCpu().endsWith("_guides") && !(b.getCpu().endsWith("_emulators"))))) {
                     List<Video> videoList = JsonUtils.gson.fromJson(BookUtils.queryRequest("SELECT * FROM danny_media WHERE cpu='" + b.getCpu() + "' AND catid=" + b.getCategoryId()), videosType);
                     Integer tiviId = videoList.get(0).getId();
                     System.out.println(tiviId);
