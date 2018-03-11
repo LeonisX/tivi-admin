@@ -800,7 +800,7 @@ public class BookUtils {
     }
 
     private static void setManualText(List<CalibreBook> calibreBooks, Video manual, String category, TypeTranslation translation) {
-        manual.setTitle(translation.getShortText() + " " + getCategoryByCpu(category).getCatname() + ".");
+        manual.setTitle(translation.getShortText() + " " + getCategoryByCpu(category).getCatname());
         manual.setText(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"images/books/%s.jpg\" alt=\"%s\" />%s %s</p>",
                 translation.getImageTitle(), translation.getPlural(), translation.getImageAlt(), translation.getShortText(), getCategoryByCpu(category).getCatname()));
         //TODO download or link
@@ -1267,7 +1267,9 @@ public class BookUtils {
     }
 
     private static String formatDate(LocalDateTime dateTime) {
-        if (dateTime.toLocalDate().isBefore(LocalDate.of(1000, 1, 1))) {
+        if (dateTime == null) {
+            return "???";
+        } else if (dateTime.toLocalDate().isBefore(LocalDate.of(1000, 1, 1))) {
             return "???";
         } else if (dateTime.plusHours(4).getDayOfMonth() == 1 && dateTime.plusHours(4).getMonthValue() == 1) {
             return Integer.toString(dateTime.plusHours(4).getYear());

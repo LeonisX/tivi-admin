@@ -50,10 +50,7 @@ public class SiteCompareController extends SubPane {
 
     @FXML
     private void initialize() {
-        //TODO show totals
-
         calibreDir.setText(Config.calibreDbPath);
-
         categories = BookUtils.readCategories().stream().sorted(Comparator.comparing(BookCategory::getCatcpu)).collect(toList());
         reloadCalibreData();
         reloadSiteData();
@@ -241,11 +238,9 @@ public class SiteCompareController extends SubPane {
         siteTotals.setText("" + siteBooks.size());
     }
 
-    private void reloadCalibreData() {
+    public void reloadCalibreData() {
         String configUrl = Config.sqliteUrl;
         Config.sqliteUrl = BookUtils.getJdbcString(calibreDir.getText());
-        // TODO журналы в отдельную категорию. потом строить упоминания
-        // TODO каталоги кидать в одну тему (island, ...)
         allCalibreBooks = CalibreUtils.readBooks();
         Config.sqliteUrl = configUrl;
         calibreTotals.setText("" + allCalibreBooks.size());

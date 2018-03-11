@@ -629,7 +629,7 @@ public class CalibreUtils {
         }
         List<Attribute> attrs = new ArrayList<>();
         node.attributes().forEach(attr -> {
-            if (!attr.getKey().equals("#text") && !attr.getKey().equals("href") && !attr.getKey().equals("alt") && !attr.getKey().equals("title") && !attr.getKey().equals("src")
+            if (!attr.getKey().equals("#text") && !attr.getKey().equals("href") && !attr.getKey().equals("rel") && !attr.getKey().equals("alt") && !attr.getKey().equals("title") && !attr.getKey().equals("src")
                     && !(attr.getKey().equals("class") && attr.getValue().equals("spoiler"))) {
                 attrs.add(attr);
             }
