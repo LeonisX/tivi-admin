@@ -613,7 +613,7 @@ public class BookUtils {
         Map<Integer, Video> newIds = oldBooks.stream().collect(Collectors.toMap(Video::getId, Function.identity()));
         Map<Integer, Video> oldIds = siteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryByCpu(category).getCatid())).collect(Collectors.toMap(Video::getId, Function.identity()));
 
-        Collection<Video> deletedBooks = CalibreUtils.mapDifference(oldIds, newIds);
+        Collection<Video> deletedBooks = new ArrayList<>(CalibreUtils.mapDifference(oldIds, newIds));
 
         //Разницу считаем только у тех, что имеют теги
         List<Video> allBooks = new ArrayList<>(siteBooks);
@@ -792,11 +792,12 @@ public class BookUtils {
         String catName = getCategoryByCpu(category).getCatname();
         Declension declension = StringUtils.getDeclension(category);
         manual.setTitle(translation.getShortText() + " " + declension.getRod());
-        //TODO real image of first book
 
+        CalibreBook book = calibreBooks.stream().filter(cb -> cb.getHasCover() != 0).findFirst().get();
+        String imageLink = String.format("images/books/cover/%s/%s.jpg", BookUtils.getCategoryByTags(book), book.getCpu());
 
-        manual.setText(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"images/books/%s.jpg\" alt=\"%s\" />%s %s</p>",
-                translation.getImageTitle() + catName, translation.getPlural(), translation.getImageAlt() + declension.getRod(), translation.getShortText(), declension.getRod()));
+        manual.setText(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"%s\" alt=\"%s\" />%s %s</p>",
+                translation.getImageTitle() + catName, imageLink, translation.getImageAlt() + declension.getRod(), translation.getShortText(), declension.getRod()));
         //TODO download or link
         manual.setFullText(calibreBooks.stream().map(b -> {
             String authors = b.getAuthors().stream().map(Author::getName).collect(joining(", ")).replace("|", ",");

@@ -26,8 +26,7 @@ import md.leonis.tivi.admin.utils.SubPane;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
@@ -52,10 +51,12 @@ public class SiteCompareController extends SubPane {
     private void initialize() {
         calibreDir.setText(Config.calibreDbPath);
         categories = BookUtils.readCategories().stream().sorted(Comparator.comparing(BookCategory::getCatcpu)).collect(toList());
+        List<BookCategory> observableCategories = new ArrayList<>(categories);
+        observableCategories.add(0, new BookCategory(null, null, null, null, null, null, null, null, null,null, null, null));
         reloadCalibreData();
         reloadSiteData();
 
-        ObservableList<BookCategory> options = FXCollections.observableArrayList(categories);
+        ObservableList<BookCategory> options = FXCollections.observableArrayList(observableCategories);
         categoryCombobox.setItems(options);
         categoryCombobox.setCellFactory(new Callback<ListView<BookCategory>, ListCell<BookCategory>>() {
             @Override
@@ -87,7 +88,7 @@ public class SiteCompareController extends SubPane {
                 return null;
             }
         });
-        categoryCombobox.setValue(categories.stream().filter(c -> c.getCatcpu().equals("magazines")).findFirst().get());
+        categoryCombobox.setValue(observableCategories.stream().filter(c -> c.getCatid() == null).findFirst().get());
 
         System.out.println("initialize()");
     }
@@ -194,7 +195,25 @@ public class SiteCompareController extends SubPane {
         
         treeTableView.getColumns().setAll(titleCol, leftCol, rightCol);
 
-        ComparisionResult<Video> comparisionResult = BookUtils.compare(allCalibreBooks, siteBooks, categories, categoryCombobox.getValue().getCatcpu());
+        ComparisionResult<Video> comparisionResult = null;
+        if (categoryCombobox.getValue().getCatcpu() == null) {
+            for (int i = 0; i < categories.size(); i++) {
+                System.out.println(i);
+                System.out.println(categories.get(i));
+                System.out.println(categories.get(i).getCatcpu());
+                ComparisionResult<Video> result = BookUtils.compare(allCalibreBooks, siteBooks, categories, categories.get(i).getCatcpu());
+                if (comparisionResult == null) {
+                    comparisionResult = result;
+                } else {
+                    comparisionResult.getAddedBooks().addAll(result.getAddedBooks());
+                    comparisionResult.getChangedBooks().putAll(result.getChangedBooks());
+                    comparisionResult.getDeletedBooks().addAll(result.getDeletedBooks());
+                }
+            }
+        } else {
+            comparisionResult = BookUtils.compare(allCalibreBooks, siteBooks, categories, categoryCombobox.getValue().getCatcpu());
+        }
+
         TreeItem<View> addedItem = new TreeItem<>(new View("Added"));
         TreeItem<View> deletedItem = new TreeItem<>(new View("Deleted"));
         TreeItem<View> changedItem = new TreeItem<>(new View("Changed"));
