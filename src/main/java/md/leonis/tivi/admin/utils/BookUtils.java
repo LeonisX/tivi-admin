@@ -560,7 +560,7 @@ public class BookUtils {
             return compareMagazines(allCalibreBooks, siteBooks, categories, category);
         }
         List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("book"))
-                .filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
+                .filter(b -> b.getOwn() != null && b.getOwn()).sorted(Comparator.comparing(Book::getTitle)).collect(toList());
 
         List<String> multi = Arrays.asList("consoles", "computers"); //computers реально не задействован - только для журналов.
         if (multi.contains(category)) {
@@ -884,7 +884,8 @@ public class BookUtils {
         List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("book")).filter(b -> b.getOwn() == null || !b.getOwn()).collect(toList());
         calibreBooks = calibreBooks.stream().filter(b ->
                 b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
-                        (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category))).collect(toList()); //TODO multi??
+                        (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)) ||
+                        (b.getReleaseNote() != null && !b.getReleaseNote().isEmpty())).collect(toList());
         Optional<Video> manual = siteBooks.stream().filter(b -> b.getCpu().equals(category + "_search")).findFirst();
         if (!calibreBooks.isEmpty() && !manual.isPresent()) {
             //add
@@ -1047,7 +1048,7 @@ public class BookUtils {
     }
 
     public static String generateCpu(String title) {
-        return Normalizer.normalize(Translit.toTranslit(title.toLowerCase()), Normalizer.Form.NFD)
+        return Normalizer.normalize(StringUtils.toTranslit(title.toLowerCase()), Normalizer.Form.NFD)
                 .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
                 .replaceAll("[^\\p{Alnum}]+", "_")
                 .replaceAll("_*$", "");
@@ -1215,7 +1216,7 @@ public class BookUtils {
             sb.append(String.format("<li><span>Подписано в печать:</span> %s г.</li>\n", formatDate(book.getSignedInPrint())));
         }
         if (book.getPages() != null && book.getPages() > 0) {
-            sb.append(String.format("<li><span>Объём:</span> %s страниц</li>\n", book.getPages()));
+            sb.append(String.format("<li><span>Объём:</span> %s</li>\n", StringUtils.choosePluralMerge(book.getPages(), "страница", "страницы", "страниц")));
         }
 
         if (book.getIsbn() != null) {

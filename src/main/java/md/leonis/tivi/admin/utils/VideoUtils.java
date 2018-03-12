@@ -84,7 +84,7 @@ public class VideoUtils {
             video.setAuthor(div.select("a.yt-uix-sessionlink").get(1).text());
             video.setAuthorSite(aURL.getProtocol() + "://" + aURL.getAuthority() + div.select("a.yt-uix-sessionlink").get(1).attr("href"));
             // TODO резать длинные названия
-            video.setCpu(Translit.toTranslit(video.getTitle()).toLowerCase().replace(' ', '_').replaceAll("[^\\w\\s]", "").replace("__", "_"));
+            video.setCpu(StringUtils.toTranslit(video.getTitle()).toLowerCase().replace(' ', '_').replaceAll("[^\\w\\s]", "").replace("__", "_"));
             // TODO keywords - add own, generate
             video.setKeywords(doc.select("meta[name=keywords]").first().attr("content"));
             video.setDescription(doc.select("meta[name=description]").get(0).attr("content"));
