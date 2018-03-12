@@ -39,6 +39,9 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import static java.util.stream.Collectors.*;
+import static md.leonis.tivi.admin.utils.StringUtils.listTypeTranslationMap;
+import static md.leonis.tivi.admin.utils.StringUtils.platformsTranslationMap;
+import static md.leonis.tivi.admin.utils.StringUtils.viewTypeTranslationMap;
 
 public class BookUtils {
 
@@ -594,7 +597,7 @@ public class BookUtils {
 
         //oldbooks - генерить
         // - мануалами (солюшенами) и другими страницами
-        for (String type : listTypeTranslationMap.keySet()) { //doc, emu, giude, manual
+        for (String type : listTypeTranslationMap.keySet()) { //doc, emu, guide, manual
             generateManualsPage(allCalibreBooks, siteBooks, category, addedBooks, oldBooks, type);
         }
         // - других книгах,
@@ -759,20 +762,6 @@ public class BookUtils {
         return new ComparisionResult<>(addedBooks, deletedBooks, changedBooks);
     }
 
-    private static Map<String, TypeTranslation> listTypeTranslationMap = new HashMap<>();
-    private static Map<String, TypeTranslation> viewTypeTranslationMap = new HashMap<>();
-
-
-    static {
-        listTypeTranslationMap.put("doc", new TypeTranslation("docs", "Documentation", "Документация", "Документация", ""));
-        listTypeTranslationMap.put("emulator", new TypeTranslation("emulators", "Emulators descriptions", "Описания эмуляторов", "Описания эмуляторов", ""));
-        listTypeTranslationMap.put("guide", new TypeTranslation("guides", "Solutions", "Прохождения, солюшены", "Описания и прохождения игр", ""));
-        listTypeTranslationMap.put("manual", new TypeTranslation("manuals", "Manuals", "Мануалы, учебники", "Мануалы", ""));
-
-        viewTypeTranslationMap.put("comics", new TypeTranslation("comics", "", "", "Комиксы и манга по мотивам игр %s", "<p>Мы собрали небольшую коллекцию комиксов, связанных с %s.</p>"));
-        viewTypeTranslationMap.put("magazine", new TypeTranslation("magazines", "", "", "Упоминания %s в журналах", "<p>Информацию об играх для %s так же можно найти в периодических изданиях.</p>"));
-    }
-
     private static void generateManualsPage(List<CalibreBook> allCalibreBooks, List<Video> siteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, String type) {
         TypeTranslation translation = listTypeTranslationMap.get(type);
         List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals(type)).collect(toList());
@@ -800,9 +789,14 @@ public class BookUtils {
     }
 
     private static void setManualText(List<CalibreBook> calibreBooks, Video manual, String category, TypeTranslation translation) {
-        manual.setTitle(translation.getShortText() + " " + getCategoryByCpu(category).getCatname());
+        String catName = getCategoryByCpu(category).getCatname();
+        Declension declension = StringUtils.getDeclension(category);
+        manual.setTitle(translation.getShortText() + " " + declension.getRod());
+        //TODO real image of first book
+
+
         manual.setText(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"images/books/%s.jpg\" alt=\"%s\" />%s %s</p>",
-                translation.getImageTitle(), translation.getPlural(), translation.getImageAlt(), translation.getShortText(), getCategoryByCpu(category).getCatname()));
+                translation.getImageTitle() + catName, translation.getPlural(), translation.getImageAlt() + declension.getRod(), translation.getShortText(), declension.getRod()));
         //TODO download or link
         manual.setFullText(calibreBooks.stream().map(b -> {
             String authors = b.getAuthors().stream().map(Author::getName).collect(joining(", ")).replace("|", ",");
@@ -1038,8 +1032,9 @@ public class BookUtils {
     }
 
     private static void setMagazineText(Map<String, List<CalibreBook>> books, Video manual, String category, TypeTranslation translation) {
-        manual.setTitle(String.format(translation.getShortText(), getCategoryByCpu(category).getCatname()));
-        manual.setText(String.format(translation.getText(), getCategoryName(category)));
+        Declension declension = StringUtils.getDeclension(getCategoryName(category));
+        manual.setTitle(String.format(translation.getShortText(), declension.getRod()));
+        manual.setText(String.format(translation.getText(), declension.getRod()));
         StringBuilder sb = new StringBuilder();
         sb.append("<ul class=\"file-info\">\n");
         books.forEach((key, value) -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", generateCpu(key), key)));
@@ -1310,24 +1305,6 @@ public class BookUtils {
         System.out.println(translation);*/
         return String.format(translation.getDescription(), ((book.getOfficialTitle() == null) ? book.getTitle() : book.getOfficialTitle()),
                 getCategoryName(category));
-    }
-
-    private static Map<String, PlatformsTranslation> platformsTranslationMap = new HashMap<>();
-
-    //TODO другие типы
-    static {
-        platformsTranslationMap.put("book", new PlatformsTranslation("Книга", "<p>В книге представлены описания игр для %s</p>",
-                "<p>Так же здесь можно найти описания для %s</p>", "Книга %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
-        platformsTranslationMap.put("magazine", new PlatformsTranslation("Журнал", "<p>В журнале представлены описания игр для %s</p>",
-                "<p>Так же здесь можно найти описания для %s</p>", "Журнал %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
-        platformsTranslationMap.put("manual", new PlatformsTranslation("Сервисный мануал", "<p>Этот мануал покрывает платформы %s</p>",
-                "<p>Так же здесь можно найти информацию о %s</p>", "Мануал %s с описаниями для %s", "описание, устройство, эксплуатация, управление"));
-        platformsTranslationMap.put("guide", new PlatformsTranslation("Мануал", "<p>Этот мануал покрывает платформы %s</p>",
-                "<p>Так же здесь можно найти информацию о %s</p>", "Мануал %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
-
-        platformsTranslationMap.put("doc", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
-        platformsTranslationMap.put("emulator", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
-        platformsTranslationMap.put("comics", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
     }
 
     private static String getKeywords(CalibreBook book, String category) {

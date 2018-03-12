@@ -1,5 +1,15 @@
 package md.leonis.tivi.admin.utils;
 
+import md.leonis.tivi.admin.model.Declension;
+import md.leonis.tivi.admin.model.media.PlatformsTranslation;
+import md.leonis.tivi.admin.model.media.TypeTranslation;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
  * Класс переводит русский текст в транслит. Например, строка "Текст" будет
  * преобразована в "Tekst".
@@ -105,4 +115,59 @@ public class StringUtils {
 
         return str;
     }
+
+    private static List<Declension> declensions = new ArrayList<>();
+    private static Map<String, Declension> declensionMap;
+
+    static {
+        declensions.add(new Declension("компьютеры", "компьютеров", "компьютерам", "компьютеры", "компьютерами", "о компьютерах"));
+        declensions.add(new Declension("приставки", "приставок", "приставкам", "приставки", "приставками", "о приставках"));
+        declensions.add(new Declension("arcade", "игровых автоматов", "игровым автоматам", "игровые автоматы", "игровыми автоматами", "об игровых автоматах"));
+
+        // 1. Именительный - КТО ? ЧТО ?
+        // 2. Родительный - КОГО ? ЧЕГО ?
+        // 3. Дательный - КОМУ ? ЧЕМУ ?
+        // 4. Винительный - КОГО ? ЧТО ?
+        // 5. Творительный - КЕМ ? ЧЕМ ?
+        // 6. Предложный - О КОМ ? О ЧЕМ ?
+
+        declensionMap = declensions.stream().collect(Collectors.toMap(Declension::getIm, item -> item));
+    }
+
+    public static Declension getDeclension(String term) {
+        term = term.toLowerCase();
+        return declensionMap.getOrDefault(term, new Declension(term, term, term, term, term, term));
+    }
+
+    public static Map<String, TypeTranslation> listTypeTranslationMap = new HashMap<>();
+    public static Map<String, TypeTranslation> viewTypeTranslationMap = new HashMap<>();
+
+    static {
+        listTypeTranslationMap.put("doc", new TypeTranslation("docs", "Documentation for", "Документация для", "Документация для", "")); // род
+        listTypeTranslationMap.put("emulator", new TypeTranslation("emulators", "Emulators descriptions for", "Описания эмуляторов", "Описания эмуляторов", "")); // род
+        listTypeTranslationMap.put("guide", new TypeTranslation("guides", "Solutions for", "Прохождения, солюшены игр для", "Описания и прохождения игр", "")); // род
+        listTypeTranslationMap.put("manual", new TypeTranslation("manuals", "Manuals for", "Мануалы, учебники для", "Мануалы для", "")); // род
+
+        viewTypeTranslationMap.put("comics", new TypeTranslation("comics", "", "", "Комиксы и манга по мотивам игр %s", "<p>Мы собрали небольшую коллекцию комиксов, связанных с %s.</p>"));
+        viewTypeTranslationMap.put("magazine", new TypeTranslation("magazines", "", "", "Упоминания %s в журналах", "<p>Информацию об играх для %s так же можно найти в периодических изданиях.</p>"));
+    }
+
+    public static Map<String, PlatformsTranslation> platformsTranslationMap = new HashMap<>();
+
+    //TODO другие типы
+    static {
+        platformsTranslationMap.put("book", new PlatformsTranslation("Книга", "<p>В книге представлены описания игр для %s</p>",
+                "<p>Так же здесь можно найти описания для %s</p>", "Книга %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
+        platformsTranslationMap.put("magazine", new PlatformsTranslation("Журнал", "<p>В журнале представлены описания игр для %s</p>",
+                "<p>Так же здесь можно найти описания для %s</p>", "Журнал %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
+        platformsTranslationMap.put("manual", new PlatformsTranslation("Сервисный мануал", "<p>Этот мануал покрывает платформы %s</p>",
+                "<p>Так же здесь можно найти информацию о %s</p>", "Мануал %s с описаниями для %s", "описание, устройство, эксплуатация, управление"));
+        platformsTranslationMap.put("guide", new PlatformsTranslation("Мануал", "<p>Этот мануал покрывает платформы %s</p>",
+                "<p>Так же здесь можно найти информацию о %s</p>", "Мануал %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
+
+        platformsTranslationMap.put("doc", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
+        platformsTranslationMap.put("emulator", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
+        platformsTranslationMap.put("comics", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
+    }
+
 }
