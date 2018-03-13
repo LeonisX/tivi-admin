@@ -38,7 +38,7 @@ public class CalibreCompareController extends SubPane {
     public void selectOldDir() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setInitialDirectory(new File(Config.workPath));
-        directoryChooser.setTitle("dassdasd");
+        directoryChooser.setTitle("dassdasd"); //TODO
         File selectedDirectory = directoryChooser.showDialog(null);
         oldDir.setText(selectedDirectory.getAbsolutePath());
     }
@@ -46,14 +46,14 @@ public class CalibreCompareController extends SubPane {
     public void selectNewDir() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setInitialDirectory(new File(Config.workPath));
-        directoryChooser.setTitle("dassdasd");
+        directoryChooser.setTitle("dassdasd");//TODO
         File selectedDirectory = directoryChooser.showDialog(null);
         newDir.setText(selectedDirectory.getAbsolutePath());
     }
 
     public void compareDbs() {
         ComparisionResult<CalibreBook> comparisionResult = CalibreUtils.compare(getJdbcString(oldDir.getText()), getJdbcString(newDir.getText()));
-        //TODO show
+
         TreeItem<String> addedItem = new TreeItem<>("Added");
         TreeItem<String> deletedItem = new TreeItem<>("Deleted");
         TreeItem<String> changedItem = new TreeItem<>("Changed");

@@ -1,4 +1,4 @@
-package md.leonis.tivi.admin.utils;
+package md.leonis.tivi.admin.utils.archive;
 
 import lombok.SneakyThrows;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;

@@ -62,7 +62,7 @@
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="4">
                      <children>
                         <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Фильтр по платформе:" />
-                        <ComboBox fx:id="categoryCombobox" onAction="#onSelectCategory" prefHeight="25.0" prefWidth="237281.0" />
+                        <ComboBox fx:id="categoryComboBox" onAction="#onSelectCategory" prefHeight="25.0" prefWidth="237281.0" />
                      </children>
                   </HBox>
                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Обложки и превьюшки" GridPane.rowIndex="5" />

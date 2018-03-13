@@ -12,16 +12,12 @@ import static md.leonis.tivi.admin.utils.BookUtils.queryRequest;
 
 public class ColumnsResolver {
 
-    private final String tableName;
-
     private final List<Field> fields;
     private final List<String> numericColumns;
     private final List<String> floatColumns;
     private final List<String> blobColumns;
 
     public ColumnsResolver(String tableName) {
-        this.tableName = tableName;
-
         String result = queryRequest(String.format("SHOW COLUMNS FROM `%s`", tableName));
         Type fieldType = new TypeToken<List<Field>>() {}.getType();
         fields = JsonUtils.gson.fromJson(result, fieldType);

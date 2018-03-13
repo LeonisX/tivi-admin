@@ -10,6 +10,8 @@ import md.leonis.tivi.admin.model.ComparisionResult;
 import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.model.media.Comment;
 import md.leonis.tivi.admin.model.media.links.*;
+import md.leonis.tivi.admin.utils.archive.RarUtils;
+import md.leonis.tivi.admin.utils.archive.SevenZipUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
 
@@ -205,8 +207,6 @@ public class CalibreUtils {
         List<CalibreBook> newBooks = readBooks();
         Config.sqliteUrl = configUrl;
 
-        //TODO added
-        //TODO deleted
         Map<Long, CalibreBook> oldIds = oldBooks.stream().collect(Collectors.toMap(CalibreBook::getId, Function.identity()));
         Map<Long, CalibreBook> newIds = newBooks.stream().collect(Collectors.toMap(CalibreBook::getId, Function.identity()));
 

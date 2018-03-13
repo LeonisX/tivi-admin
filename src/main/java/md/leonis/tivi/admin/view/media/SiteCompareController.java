@@ -17,7 +17,6 @@ import md.leonis.tivi.admin.model.BookCategory;
 import md.leonis.tivi.admin.model.ComparisionResult;
 import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.model.View;
-import md.leonis.tivi.admin.model.media.CalibreBook;
 import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.CalibreUtils;
 import md.leonis.tivi.admin.utils.Config;
@@ -26,9 +25,11 @@ import md.leonis.tivi.admin.utils.SubPane;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static md.leonis.tivi.admin.utils.BookUtils.*;
 
 public class SiteCompareController extends SubPane {
 
@@ -37,28 +38,91 @@ public class SiteCompareController extends SubPane {
     public TextField calibreDir;
     public Label calibreTotals;
     public Label siteTotals;
-    public ComboBox<BookCategory> categoryCombobox;
+    public ComboBox<BookCategory> categoryComboBox;
     public TreeTableView<View> treeTableView;
-
-    //TODO move all lists and code to to BookUtils
-    private List<Video> siteBooks;
-
-    private List<CalibreBook> allCalibreBooks;
-
-    private List<BookCategory> categories;
 
     @FXML
     private void initialize() {
-        calibreDir.setText(Config.calibreDbPath);
-        categories = BookUtils.readCategories().stream().sorted(Comparator.comparing(BookCategory::getCatcpu)).collect(toList());
-        List<BookCategory> observableCategories = new ArrayList<>(categories);
-        observableCategories.add(0, new BookCategory(null, null, null, null, null, null, null, null, null,null, null, null));
         reloadCalibreData();
         reloadSiteData();
+        BookUtils.readCategories();
 
+        setupCategoryComboBox();
+        calibreDir.setText(Config.calibreDbPath);
+        System.out.println("initialize()");
+    }
+
+    @Override
+    public void init() {
+        System.out.println("init()");
+    }
+
+    public void selectCalibreDir() {
+        DirectoryChooser directoryChooser = getDirectoryChooser();
+        File selectedDirectory = directoryChooser.showDialog(null);
+        Config.workPath = selectedDirectory.getAbsolutePath();
+        calibreDir.setText(Config.workPath);
+        reloadCalibreData();
+    }
+
+    public void reloadSiteData() {
+        BookUtils.getSiteBooks();
+        siteTotals.setText("" + siteBooks.size());
+    }
+
+    public void reloadCalibreData() {
+        calibreBooks = CalibreUtils.readBooks();
+        calibreTotals.setText("" + calibreBooks.size());
+    }
+
+    public void compare() {
+        setupTreeTableView();
+        fillTreeTableView(BookUtils.compare(categoryComboBox.getValue().getCatcpu()));
+    }
+
+    public void generate() {
+        ComparisionResult<Video> comparisionResult = BookUtils.compare(categoryComboBox.getValue().getCatcpu());
+        BookUtils.syncDataWithSite(comparisionResult, calibreDir.getText(), categoryComboBox.getValue().getCatcpu());
+        reloadSiteData();
+    }
+
+    public void dumpCalibreDB() {
+        CalibreUtils.dumpDB();
+    }
+
+    public void dumpSiteDB() throws FileNotFoundException {
+        BookUtils.dumpDB();
+    }
+
+    public void dumpImages() throws IOException {
+        CalibreUtils.dumpImages();
+    }
+
+    public void dumpBooks() throws IOException {
+        CalibreUtils.dumpBooks();
+    }
+
+    public void onSelectCategory() {
+        //TODO ??
+    }
+
+    public void uploadImages() {
+        //TODO
+    }
+
+    public void uploadBooks() {
+        //TODO
+    }
+
+
+    private void setupCategoryComboBox() {
+        List<BookCategory> observableCategories = new ArrayList<>(categories);
+        observableCategories.add(0, new BookCategory());
         ObservableList<BookCategory> options = FXCollections.observableArrayList(observableCategories);
-        categoryCombobox.setItems(options);
-        categoryCombobox.setCellFactory(new Callback<ListView<BookCategory>, ListCell<BookCategory>>() {
+        categoryComboBox.setItems(options);
+        categoryComboBox.setValue(observableCategories.get(0));
+
+        categoryComboBox.setCellFactory(new Callback<ListView<BookCategory>, ListCell<BookCategory>>() {
             @Override
             public ListCell<BookCategory> call(ListView<BookCategory> p) {
                 return new ListCell<BookCategory>() {
@@ -74,42 +138,27 @@ public class SiteCompareController extends SubPane {
                 };
             }
         });
-        categoryCombobox.setConverter(new StringConverter<BookCategory>() {
+
+        categoryComboBox.setConverter(new StringConverter<BookCategory>() {
             @Override
             public String toString(BookCategory category) {
-                if (category == null){
-                    return null;
-                } else {
-                    return category.getCatcpu();
-                }
+                return category == null ? null : category.getCatcpu();
             }
             @Override
             public BookCategory fromString(String catName) {
                 return null;
             }
         });
-        categoryCombobox.setValue(observableCategories.stream().filter(c -> c.getCatid() == null).findFirst().get());
-
-        System.out.println("initialize()");
     }
 
-
-    @Override
-    public void init() {
-        System.out.println("init()");
-    }
-
-
-    public void selectCalibreDir() {
+    private DirectoryChooser getDirectoryChooser() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setInitialDirectory(new File(Config.workPath));
         directoryChooser.setTitle("Select directory with Calibre DB");
-        File selectedDirectory = directoryChooser.showDialog(null);
-        calibreDir.setText(selectedDirectory.getAbsolutePath());
-        reloadCalibreData();
+        return directoryChooser;
     }
 
-    public void compare() {
+    private void setupTreeTableView() {
         TreeTableColumn<View, String> titleCol = new TreeTableColumn<>("Title");
         TreeTableColumn<View, String> leftCol = new TreeTableColumn<>("Left");
         TreeTableColumn<View, String> rightCol = new TreeTableColumn<>("Right");
@@ -192,28 +241,13 @@ public class SiteCompareController extends SubPane {
             row.prefHeightProperty().bind(leftCol.widthProperty());
             return row ;
         });*/
-        
+
         treeTableView.getColumns().setAll(titleCol, leftCol, rightCol);
+    }
 
-        ComparisionResult<Video> comparisionResult = null;
-        if (categoryCombobox.getValue().getCatcpu() == null) {
-            for (int i = 0; i < categories.size(); i++) {
-                System.out.println(i);
-                System.out.println(categories.get(i));
-                System.out.println(categories.get(i).getCatcpu());
-                ComparisionResult<Video> result = BookUtils.compare(allCalibreBooks, siteBooks, categories, categories.get(i).getCatcpu());
-                if (comparisionResult == null) {
-                    comparisionResult = result;
-                } else {
-                    comparisionResult.getAddedBooks().addAll(result.getAddedBooks());
-                    comparisionResult.getChangedBooks().putAll(result.getChangedBooks());
-                    comparisionResult.getDeletedBooks().addAll(result.getDeletedBooks());
-                }
-            }
-        } else {
-            comparisionResult = BookUtils.compare(allCalibreBooks, siteBooks, categories, categoryCombobox.getValue().getCatcpu());
-        }
 
+
+    private void fillTreeTableView(ComparisionResult<Video> comparisionResult) {
         TreeItem<View> addedItem = new TreeItem<>(new View("Added"));
         TreeItem<View> deletedItem = new TreeItem<>(new View("Deleted"));
         TreeItem<View> changedItem = new TreeItem<>(new View("Changed"));
@@ -252,58 +286,33 @@ public class SiteCompareController extends SubPane {
         //treeTableView.setEditable(true);
     }
 
-    public void reloadSiteData() {
-        siteBooks = BookUtils.getAllBooks();
-        siteTotals.setText("" + siteBooks.size());
-    }
-
-    public void reloadCalibreData() {
-        String configUrl = Config.sqliteUrl;
-        Config.sqliteUrl = BookUtils.getJdbcString(calibreDir.getText());
-        allCalibreBooks = CalibreUtils.readBooks();
-        Config.sqliteUrl = configUrl;
-        calibreTotals.setText("" + allCalibreBooks.size());
-    }
-
-    public void generate() {
-        if (allCalibreBooks == null) {
-            reloadCalibreData();
+    /*private static class CategoryComboBoxCellFactory implements Callback<ListView<BookCategory>, ListCell<BookCategory>> {
+        @Override
+        public ListCell<BookCategory> call(ListView<BookCategory> listView) {
+            return new ListCell<BookCategory>() {
+                @Override
+                protected void updateItem(BookCategory item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setGraphic(null);
+                    } else {
+                        setText(item.getCatcpu());
+                    }
+                }
+            };
         }
-        if (siteBooks == null) {
-            reloadSiteData();
+    }
+
+    private static class CategoryComboBoxConverter extends StringConverter<BookCategory> {
+
+        @Override
+        public String toString(BookCategory category) {
+            return category == null ? null : category.getCatcpu();
         }
-        ComparisionResult<Video> comparisionResult = BookUtils.compare(allCalibreBooks, siteBooks, categories, categoryCombobox.getValue().getCatcpu());
 
-        BookUtils.syncDataWithSite(comparisionResult, allCalibreBooks, calibreDir.getText(), categoryCombobox.getValue().getCatcpu());
-        reloadSiteData();
-    }
-
-    public void dumpCalibreDB() {
-        CalibreUtils.dumpDB();
-    }
-
-    public void dumpSiteDB() throws FileNotFoundException {
-        BookUtils.dumpDB();
-    }
-
-    public void onSelectCategory() {
-        //TODO ??
-    }
-
-    public void dumpImages() throws IOException {
-        CalibreUtils.dumpImages();
-    }
-
-    public void dumpBooks() throws IOException {
-        CalibreUtils.dumpBooks();
-    }
-
-    public void uploadImages() {
-        //TODO
-    }
-
-    public void uploadBooks() {
-        //TODO
-    }
-
+        @Override
+        public BookCategory fromString(String catName) {
+            return null;
+        }
+    }*/
 }

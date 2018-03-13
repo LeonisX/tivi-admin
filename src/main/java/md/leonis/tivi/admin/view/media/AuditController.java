@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static md.leonis.tivi.admin.utils.BookUtils.calibreBooks;
+import static md.leonis.tivi.admin.utils.BookUtils.categories;
 
 public class AuditController extends SubPane {
 
@@ -32,7 +33,7 @@ public class AuditController extends SubPane {
 
     @FXML
     private void initialize() {
-        if (BookUtils.calibreBooks.isEmpty()) {
+        if (calibreBooks.isEmpty()) {
             reloadCalibreBooks();
         }
         System.out.println("initialize()");
@@ -266,10 +267,8 @@ public class AuditController extends SubPane {
         BookUtils.listBooks();
         //BookUtils.siteBooks.forEach(b -> addLog(b.mixedTitleProperty().toString()));
         addLog("Books on site: " + BookUtils.siteBooks.size());
-        List<BookCategory> categories = BookUtils.readCategories();
+        BookUtils.readCategories();
         //System.out.println(categories);
-        //TODO computers
-        //TODO manuals, solutions, ...
         List<String> siteCatNames = categories.stream().map(BookCategory::getCatcpu).collect(toList());
         List<String> catNames = calibreBooks.stream().map(this::catName).filter(Objects::nonNull).distinct().collect(toList());
         catNames = catNames.stream().filter(cat -> !siteCatNames.contains(cat)).collect(toList());
@@ -278,8 +277,6 @@ public class AuditController extends SubPane {
         //TODO add cats
     }
 
-
-    //TODO tiviid, own
     public void checkTiviIdOwn() {
         auditLog.clear();
         addLog("TiviId / владею");
@@ -295,7 +292,6 @@ public class AuditController extends SubPane {
                 .forEach(calibreBook -> addLog("   - " + calibreBook.getTitle() + " (" + calibreBook.getTiviId() + ")"));
     }
 
-    //TODO cpu - own
     public void checkCpuOwn() {
         auditLog.clear();
         addLog("ЧПУ / владею");
@@ -303,7 +299,6 @@ public class AuditController extends SubPane {
         addLog("ЧПУ / валидность");
         getCpuValid().forEach(calibreBook -> addLog("   - " + calibreBook.getTitle() + " (" + calibreBook.getCpu() + ")"));
         addLog("ЧПУ / уникальность");
-        //TODO если теги разные то уникальны
         calibreBooks.stream()
                 .filter(calibreBook -> calibreBook.getCpu() != null)
                 .collect(Collectors.groupingBy(CalibreBook::getCpu))
@@ -315,19 +310,18 @@ public class AuditController extends SubPane {
         return books.stream().collect(Collectors.groupingBy(calibreBook -> calibreBook.getTags().toString())).size();
     }
 
-    public List<CalibreBook> getCpuOwn() {
+    private List<CalibreBook> getCpuOwn() {
         return calibreBooks.stream()
                 .filter(calibreBook -> (calibreBook.getCpu() == null)
                         /*&& (calibreBook.getOwn() != null) && calibreBook.getOwn()*/).collect(toList());
     }
 
-    public List<CalibreBook> getCpuValid() {
+    private List<CalibreBook> getCpuValid() {
         return calibreBooks.stream()
                 .filter(calibreBook -> (calibreBook.getCpu() != null) && !isValidCpu(calibreBook.getCpu())).collect(toList());
     }
 
     public void fixCpu() {
-        //TODO delete invalid
         getCpuValid().forEach(calibreBook -> {
             String query = String.format("SELECT * FROM `custom_column_16` WHERE value='%s'", calibreBook.getCpu());
             System.out.println(query);
@@ -339,7 +333,6 @@ public class AuditController extends SubPane {
             Integer id = CalibreUtils.executeUpdateQuery(query);
             System.out.println(id);
 
-            //TODO delete if no links
             query = String.format("SELECT * FROM `books_custom_column_16_link` WHERE value=%d", cpuId);
             System.out.println(query);
             List<CustomColumn> fileNames = CalibreUtils.readObjectList(query, CustomColumn.class);
@@ -353,7 +346,6 @@ public class AuditController extends SubPane {
 
 
         getCpuOwn().forEach(calibreBook -> {
-            //TODO generate
             String cpu = calibreBook.getFileName() == null ? calibreBook.getTitle() : calibreBook.getFileName();
             cpu = BookUtils.generateCpu(cpu);
             if (!isValidCpu(cpu)) {
@@ -380,7 +372,7 @@ public class AuditController extends SubPane {
         });
     }
 
-    public static boolean isValidCpu(String cpu) {
+    private static boolean isValidCpu(String cpu) {
         return cpu.matches("^[a-z0-9_]+$")/* && cpu.length() < 64*/;
     }
 
