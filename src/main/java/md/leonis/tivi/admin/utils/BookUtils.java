@@ -453,6 +453,7 @@ public class BookUtils {
         if (getParentRoot(categories, category).getCatcpu().equals("magazines") && !category.equals("gd")) {
             return compareMagazines(category);
         }
+        //List<CalibreBook> filteredCalibreBooks = calibreBooks.stream().filter(b -> !b.getType().equals("magazines"))
         List<CalibreBook> filteredCalibreBooks = calibreBooks.stream().filter(b -> b.getType().equals("book"))
                 .filter(b -> b.getOwn() != null && b.getOwn()).sorted(Comparator.comparing(Book::getTitle)).collect(toList());
 
@@ -487,15 +488,19 @@ public class BookUtils {
         //oldbooks - генерить
         // - мануалами (солюшенами) и другими страницами
         for (String type : listTypeTranslationMap.keySet()) { //doc, emu, guide, manual
-            SiteRenderer.generateManualsPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type);
+            //SiteRenderer.generateManualsPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type);
+            SiteRenderer.generateManualsPage(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type);
         }
         // - других книгах,
-        SiteRenderer.generateCitationsPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
+        //SiteRenderer.generateCitationsPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
+        SiteRenderer.generateCitationsPage(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
         // - так же страница с поиском книг
-        SiteRenderer.generateSearchPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
+        //SiteRenderer.generateSearchPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
+        SiteRenderer.generateSearchPage(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
         // - упоминания в журналах
         for (String type : viewTypeTranslationMap.keySet()) { //magazines, comics
-            SiteRenderer.generateMagazinesPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type);
+            //SiteRenderer.generateMagazinesPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type);
+            SiteRenderer.generateMagazinesPage(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type);
         }
 
         //Если в Calibre нет нужного ID значит удалённые
@@ -561,7 +566,7 @@ public class BookUtils {
     }
 
     public static ComparisionResult<Video> compareMagazines(String category) {
-        List<CalibreBook> calibreMagazines = calibreBooks.stream().filter(b -> b.getType().equals("magazine") && !category.equals("gd"))
+        List<CalibreBook> calibreMagazines = calibreBooks.stream().filter(b -> b.getType().equals(category) && !category.equals("gd"))
                 //.filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category))
                 .sorted(Comparator.comparing(Book::getSort))
                 /*.filter(b -> b.getOwn() != null && b.getOwn())*/.collect(toList());
@@ -569,6 +574,8 @@ public class BookUtils {
         Map<CalibreBook, List<CalibreBook>> groupedMagazines = calibreMagazines.stream()/*.filter(b ->*/
                 /*b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
                         (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)))*/
+                .peek(b -> {if (b.getSeries() == null) {
+                    b.setSeries(new PublisherSeries(0L, b.getTitle(), ""));}})
                 .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()))
                 .entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey))
                 .collect(Collectors.toMap(entry -> entry.getValue().get(0), Map.Entry::getValue));
@@ -725,7 +732,7 @@ public class BookUtils {
     }
 
     private static Video calibreMagazineToVideo(Map.Entry<CalibreBook, List<CalibreBook>> groupedMagazines, String category) {
-        CalibreBook calibreBook = groupedMagazines.getKey();
+        CalibreBook calibreBook = groupedMagazines.getValue().get(0);
         Video video = new Video();
         video.setTitle(calibreBook.getSeries().getName());
         if (calibreBook.getTiviId() != null) {
@@ -738,7 +745,11 @@ public class BookUtils {
         video.setStartDate(0L);
         video.setEndDatedate(0L);
 
-        video.setUrl("");
+        if (groupedMagazines.getValue().size() == 1 || calibreBook.getDataList().isEmpty()) {
+            video.setUrl("");
+        } else {
+            video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category));
+        }
         video.setMirror(""); // exturl
         video.setAge(""); // extsize
         //TODO custom

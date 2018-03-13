@@ -321,14 +321,18 @@ public class SiteRenderer {
     public static String getMagazineFullText(Map.Entry<CalibreBook, List<CalibreBook>> groupedMagazines, String category, String cpu) {
         return groupedMagazines.getValue().stream().filter(b -> b.getOwn() != null && b.getOwn()).sorted(Comparator.comparing(Book::getSort))
                 .map(b -> {
-                    String imageTitle = b.getOfficialTitle() == null ? b.getTitle() : b.getOfficialTitle();
-                    String imageAlt = b.getFileName() == null ? b.getTitle() : b.getFileName();
-                    String image = String.format("<img style=\"vertical-align: middle;\" width=\"20\" height=\"20\" title=\"%s\" src=\"images/save.png\" alt=\"%s\" />\n", imageTitle, imageAlt);
-                    String textMore = String.format("<h3>%s</h3>", b.getTitle()) + getTextShort(b, b.getCpu().equals(cpu) ? null : b.getCpu())
-
-                            + "<span class=\"spoiler\" style=\"display: none;\">" + b.getTextMore() + "</span>";
-                    return textMore + String.format("<p>%s<a href=\"up/media/%s/%s/%s.%s\" target=\"_blank\"> Скачать %s</a></p><p><br /></p>", image, category, b.getSeries().getName(),
-                            b.getFileName() == null ? b.getTitle() : b.getFileName(), b.getDataList().get(0).getFormat().toLowerCase(), b.getTitle());
+                    if (groupedMagazines.getValue().size() == 1) {
+                        return b.getTextMore();
+                    } else {
+                        String imageTitle = b.getOfficialTitle() == null ? b.getTitle() : b.getOfficialTitle();
+                        String imageAlt = b.getFileName() == null ? b.getTitle() : b.getFileName();
+                        String image = String.format("<img style=\"vertical-align: middle;\" width=\"20\" height=\"20\" title=\"%s\" src=\"images/save.png\" alt=\"%s\" />\n", imageTitle, imageAlt);
+                        String textMore = String.format("<h3>%s</h3>", b.getTitle()) + getTextShort(b, b.getCpu().equals(cpu) ? null : b.getCpu())
+                                + "<span class=\"spoiler\" style=\"display: none;\">" + b.getTextMore() + "</span>";
+                        String downloadLink = String.format("<p>%s<a href=\"up/media/%s/%s/%s.%s\" target=\"_blank\"> Скачать %s</a></p><p><br /></p>", image, category, b.getSeries().getName(),
+                                b.getFileName() == null ? b.getTitle() : b.getFileName(), b.getDataList().get(0).getFormat().toLowerCase(), b.getTitle());
+                        return textMore + downloadLink;
+                    }
                 })
                 .collect(joining("\n"));
     }
