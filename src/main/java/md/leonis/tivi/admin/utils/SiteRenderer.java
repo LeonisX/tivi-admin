@@ -32,9 +32,9 @@ public class SiteRenderer {
     }
 
 
-    public static void generateManualsPage(List<CalibreBook> filteredCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, String type) {
+    public static void generateManualsPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, String type) {
         TypeTranslation translation = listTypeTranslationMap.get(type);
-        List<CalibreBook> calibreBooks = filteredCalibreBooks.stream().filter(b -> b.getType().equals(type)).collect(toList());
+        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals(type)).collect(toList());
         calibreBooks = calibreBooks.stream().filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
                 b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category) ).collect(toList());
         if (calibreBooks.isEmpty()) {
@@ -58,8 +58,8 @@ public class SiteRenderer {
         }
     }
 
-    public static void generateCitationsPage(List<CalibreBook> filteredCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
-        List<CalibreBook> calibreBooks = filteredCalibreBooks.stream().filter(b -> b.getType().equals("book"))
+    public static void generateCitationsPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
+        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("book"))
                 .filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
 
         calibreBooks = calibreBooks.stream().filter(b -> b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)).collect(toList());
@@ -93,8 +93,8 @@ public class SiteRenderer {
         }
     }
 
-    public static void generateSearchPage(List<CalibreBook> filteredCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
-        List<CalibreBook> calibreBooks = filteredCalibreBooks.stream().filter(b -> b.getType().equals("book")).filter(b -> b.getOwn() == null || !b.getOwn()).collect(toList());
+    public static void generateSearchPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
+        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("book")).filter(b -> b.getOwn() == null || !b.getOwn()).collect(toList());
         calibreBooks = calibreBooks.stream().filter(b ->
                 b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
                         (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)) ||
@@ -121,9 +121,9 @@ public class SiteRenderer {
         }
     }
 
-    public static void generateMagazinesPage(List<CalibreBook> filteredCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, String type) {
+    public static void generateMagazinesPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, String type) {
         TypeTranslation translation = viewTypeTranslationMap.get(type);
-        List<CalibreBook> calibreBooks = filteredCalibreBooks.stream().filter(b -> b.getType().equals(type)).filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
+        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals(type)).filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
         Map<String, List<CalibreBook>> books = calibreBooks.stream().filter(b ->
                 b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
                         (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)))
@@ -148,8 +148,8 @@ public class SiteRenderer {
         }
     }
 
-    public static void generateMagazinesSearchPage(List<CalibreBook> filteredCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
-        List<CalibreBook> calibreMagazines = filteredCalibreBooks.stream().filter(b -> b.getType().equals("magazine") && !category.equals("gd"))
+    public static void generateMagazinesSearchPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
+        List<CalibreBook> calibreMagazines = allCalibreBooks.stream().filter(b -> b.getType().equals("magazine") && !category.equals("gd"))
                 //.filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category))
                 .filter(b -> b.getOwn() == null || !b.getOwn()).sorted(Comparator.comparing(Book::getSort)).collect(toList());
 
