@@ -120,6 +120,20 @@ public class QueryIntegrationTest {
         //BookUtils.queryOperation("DELETE FROM `danny_info` WHERE infoid = 213");
     }
 
+/*    @Test
+    public void testTextMigration() throws IOException {
+        Config.loadProperties();
+        Config.loadProtectedProperties();
+
+        CalibreUtils.readBooks().forEach(book -> {
+            String text = book.getTextShort() == null ? "" : book.getTextShort();
+            text += "<hr>";
+            text += book.getTextMore() == null ? "" : book.getTextMore();
+            String updateQuery = String.format("UPDATE `comments` SET text = '%s' WHERE book = %d", CalibreUtils.escape(text), book.getId());
+            CalibreUtils.executeUpdateQuery(updateQuery);
+        });
+    }*/
+
     @Test
     public void testComparator() throws IOException {
         Config.loadProperties();
@@ -130,21 +144,21 @@ public class QueryIntegrationTest {
         //System.out.println(comparisionResult);
     }
 
-    @Test
-    public void testDumper() throws IOException, NoSuchAlgorithmException {
-        for (TableStatus table : BookUtils.tableStatuses) {
-            System.out.println(table.getName());
-
-            if (table.getName().startsWith("vv_socialgroupicon") || queryExist(table.getName())) {
-                System.out.println("Skipped: " + table.getName());
-                continue;
-            }
-            BookUtils.dumpDBAsNativeSql(table.getName());
-            String json = BookUtils.dumpBaseAsJson(table);
-            generateInsertQueries(json, table, table.getName());
-        }
-        //http://tv-games.ru/api2d/dumper.php?action=backup&db_backup=alenka975_wiki&drop_table=false&create_table=false&where=downid%3C4&tables=danny_media&format=json&comp_level=9&comp_method=1&as=danny_media2
-    }
+//    @Test
+//    public void testDumper() throws IOException, NoSuchAlgorithmException {
+//        for (TableStatus table : BookUtils.tableStatuses) {
+//            System.out.println(table.getName());
+//
+//            if (table.getName().startsWith("vv_socialgroupicon") || queryExist(table.getName())) {
+//                System.out.println("Skipped: " + table.getName());
+//                continue;
+//            }
+//            BookUtils.dumpDBAsNativeSql(table.getName());
+//            String json = BookUtils.dumpBaseAsJson(table);
+//            generateInsertQueries(json, table, table.getName());
+//        }
+//        //http://tv-games.ru/api2d/dumper.php?action=backup&db_backup=alenka975_wiki&drop_table=false&create_table=false&where=downid%3C4&tables=danny_media&format=json&comp_level=9&comp_method=1&as=danny_media2
+//    }
 
     private boolean queryExist(String tableName) throws IOException, NoSuchAlgorithmException {
         File f = new File(Config.workPath + "nat" + File.separatorChar + tableName + ".txt");
@@ -166,27 +180,27 @@ public class QueryIntegrationTest {
         return expected.equalsIgnoreCase(actual);
     }
 
-    public void generateInsertQueries(String json, TableStatus table, String as) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(Config.workPath + "gen" + File.separatorChar + table.getName() + ".txt")) {
-            jsonToSqlInsertQuery(json, fos, table, as);
-        }
-    }
-
-    private static void jsonToSqlInsertQuery(String json, OutputStream fos, TableStatus table, String as) throws IOException {
-        String charset = table.getCollation().split("_")[0];
-        // Fix bad charset ;)
-            /*if (table.getName().startsWith("danny_")) {
-                charset = "cp1251";
-            }*/
-        String result = rawQueryRequest(String.format("SHOW CREATE TABLE `%s`", table.getName()));
-        result = result.replaceAll("(?i)(DEFAULT CHARSET=\\w+|COLLATE=\\w+)", "/*!40101 $1 */;");
-        result = result.replaceAll("(?i)(default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP|collate \\w+|character set \\w+)", "/*!40101 $1 */");
-        fos.write(String.format("DROP TABLE IF EXISTS `%s`;\n", as).getBytes(charset));
-        fos.write((result.replace(table.getName(), as) + "\n\n").getBytes(charset));
-
-
-        fos.write(BookUtils.jsonToSqlInsertQuery(json, as, new ColumnsResolver(table.getName())).getBytes(charset));
-    }
+//    public void generateInsertQueries(String json, TableStatus table, String as) throws IOException {
+//        try (FileOutputStream fos = new FileOutputStream(Config.workPath + "gen" + File.separatorChar + table.getName() + ".txt")) {
+//            jsonToSqlInsertQuery(json, fos, table, as);
+//        }
+//    }
+//
+//    private static void jsonToSqlInsertQuery(String json, OutputStream fos, TableStatus table, String as) throws IOException {
+//        String charset = table.getCollation().split("_")[0];
+//        // Fix bad charset ;)
+//            /*if (table.getName().startsWith("danny_")) {
+//                charset = "cp1251";
+//            }*/
+//        String result = rawQueryRequest(String.format("SHOW CREATE TABLE `%s`", table.getName()));
+//        result = result.replaceAll("(?i)(DEFAULT CHARSET=\\w+|COLLATE=\\w+)", "/*!40101 $1 */;");
+//        result = result.replaceAll("(?i)(default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP|collate \\w+|character set \\w+)", "/*!40101 $1 */");
+//        fos.write(String.format("DROP TABLE IF EXISTS `%s`;\n", as).getBytes(charset));
+//        fos.write((result.replace(table.getName(), as) + "\n\n").getBytes(charset));
+//
+//
+//        fos.write(BookUtils.jsonToSqlInsertQuery(json, as, new ColumnsResolver(table.getName())).getBytes(charset));
+//    }
 
     @Test
     public void testInsertQuery() throws IOException {

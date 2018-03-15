@@ -53,7 +53,18 @@ public class CalibreUtils {
         List<Comment> comments = selectAllFrom("comments", Comment.class);
         calibreBooks.forEach(calibreBook -> {
             String comment = comments.stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Comment::getText).findFirst().orElse(null);
-            calibreBook.setTextMore(comment);
+            if (comment == null) {
+                calibreBook.setTextShort("");
+                calibreBook.setTextMore("");
+            } else {
+                String[] chunks = comment.split("<hr>");
+                calibreBook.setTextShort(chunks[0].trim());
+                if (chunks.length > 1) {
+                    calibreBook.setTextMore(chunks[1].trim());
+                } else {
+                    calibreBook.setTextMore("");
+                }
+            }
         });
 
         List<AuthorLink> bookAuthors = selectAllFrom("books_authors_link", AuthorLink.class);
@@ -93,8 +104,6 @@ public class CalibreUtils {
 
         List<CustomColumn> cpus = selectAllFrom("custom_column_16", CustomColumn.class);
         List<Link> tiviIds = selectAllFrom("custom_column_17", Link.class);
-
-        List<Link> textShort = selectAllFrom("custom_column_18", Link.class);
 
         calibreBooks.forEach(calibreBook -> {
             List<Long> ids1 = links.get(1).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
@@ -141,8 +150,6 @@ public class CalibreUtils {
 
             List<Long> ids16 = links.get(16).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
             calibreBook.setCpu(cpus.stream().filter(i -> ids16.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
-
-            calibreBook.setTextShort(textShort.stream().filter(i -> i.getBook().equals(calibreBook.getId())).findFirst().map(Link::getValue).orElse(null));
         });
 
         //List<CustomColumns> customColumns = selectAllFrom("custom_columns", CustomColumns.class);
@@ -450,7 +457,7 @@ public class CalibreUtils {
         return "INSERT INTO `" + tableName + "` (" + keys + ") values (" + values + ")";
     }
 
-    private static String escape(String value) {
+    public static String escape(String value) {
         return value.replace("'", "''");
     }
 
