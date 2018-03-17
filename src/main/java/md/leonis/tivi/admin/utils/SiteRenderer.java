@@ -322,7 +322,8 @@ public class SiteRenderer {
         return groupedMagazines.getValue().stream().filter(b -> b.getOwn() != null && b.getOwn()).sorted(Comparator.comparing(Book::getSort))
                 .map(b -> {
                     if (groupedMagazines.getValue().size() == 1) {
-                        return b.getTextMore();
+                        CalibreBook book = groupedMagazines.getValue().get(0);
+                        return getAdditionalNotes(book) + b.getTextMore();
                     } else {
                         String imageTitle = b.getOfficialTitle() == null ? b.getTitle() : b.getOfficialTitle();
                         String imageAlt = b.getFileName() == null ? b.getTitle() : b.getFileName();
@@ -401,10 +402,15 @@ public class SiteRenderer {
 
         sb.append("</ul>\n");
 
-        if (book.getTextShort() != null) {
+        if (book.getTextShort() != null && !book.getTextShort().isEmpty()) {
             sb.append(book.getTextShort()).append("\n");
         }
-        if (book.getReleaseNote() != null) {
+        return sb.append(getAdditionalNotes(book)).toString();
+    }
+
+    private static String getAdditionalNotes(CalibreBook book) {
+        StringBuilder sb = new StringBuilder();
+        if (book.getReleaseNote() != null && !book.getReleaseNote().isEmpty()) {
             sb.append(String.format("<p>%s</p>\n", book.getReleaseNote()));
         }
 

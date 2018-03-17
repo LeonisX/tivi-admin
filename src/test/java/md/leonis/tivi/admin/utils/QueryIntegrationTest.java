@@ -8,6 +8,8 @@ import md.leonis.tivi.admin.model.calibre.Sql;
 import md.leonis.tivi.admin.model.media.Book;
 import md.leonis.tivi.admin.model.mysql.Field;
 import md.leonis.tivi.admin.model.mysql.TableStatus;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -39,6 +41,17 @@ public class QueryIntegrationTest {
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
+
+    @Test
+    public void testText() {
+        Document document = Jsoup.parseBodyFragment("<div><p>123</p><hr><p>123</p></div>");
+        System.out.println(document);
+        document = Jsoup.parseBodyFragment("<div><p>123</p>");
+        System.out.println(document);
+        document = Jsoup.parseBodyFragment("<p>123</p></div>");
+        System.out.println(document);
+    }
+
 
     @Test
     public void testBook() throws IOException {

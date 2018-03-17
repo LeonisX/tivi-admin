@@ -135,8 +135,7 @@ public class StringUtils {
     }
 
     public static Declension getDeclension(String term) {
-        term = term.toLowerCase();
-        return declensionMap.getOrDefault(term, new Declension(term, term, term, term, term, term));
+        return declensionMap.getOrDefault(term.toLowerCase(), new Declension(term, term, term, term, term, term));
     }
 
     public static Map<String, TypeTranslation> listTypeTranslationMap = new HashMap<>();
