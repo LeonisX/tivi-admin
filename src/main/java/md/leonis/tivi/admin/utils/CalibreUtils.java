@@ -6,6 +6,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
 import javafx.util.Pair;
+import md.leonis.tivi.admin.model.ArchiveEntry;
+import md.leonis.tivi.admin.model.BookRecord;
 import md.leonis.tivi.admin.model.ComparisionResult;
 import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.model.media.Comment;
@@ -16,8 +18,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.*;
@@ -31,11 +36,14 @@ import java.util.stream.Collectors;
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.TERMINATE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 public class CalibreUtils {
+
+    public static final String FILES_LIST = "files-list.txt";
+
+    public static List<BookRecord> bookRecords;
+    public static Map<Long, BookRecord> bookRecordMap;
 
     /*PRAGMA index_list(books);
     PRAGMA index_xinfo(books_idx);
@@ -694,9 +702,10 @@ public class CalibreUtils {
         });
     }
 
-    public static void dumpBooks() throws IOException {
-        Config.loadProperties();
-        Config.loadProtectedProperties();
+    public static void dumpBooks(boolean onlyForSite) throws IOException {
+        readBookRecords(onlyForSite);
+        //Config.loadProperties();
+        //Config.loadProtectedProperties();
 
         BookUtils.calibreBooks = CalibreUtils.readBooks();
 
@@ -760,29 +769,30 @@ public class CalibreUtils {
                     destPath.toFile().mkdirs();
                     break;
             }
-            final String fileName = b.getFileName() == null ? b.getTitle() : b.getFileName();
-            for (Data data : b.getDataList()) {//TODO uncompress
-                Path srcBook = Paths.get(Config.calibreDbPath).resolve(b.getPath()).resolve(data.getName() + "." + data.getFormat().toLowerCase());
+            final String name = b.getFileName() == null ? b.getTitle() : b.getFileName();
+            for (Data data : b.getDataList()) {
+                final String fileName = name+ "." + data.getFormat().toLowerCase();
+                Path srcBook = Paths.get(Config.calibreDbPath).resolve(b.getPath()).resolve(fileName);
                 switch (data.getFormat().toLowerCase()) {
                     case "zip":
                         if (uncompress(SevenZipUtils.getZipFileList(srcBook.toFile()))) {
-                            SevenZipUtils.extractZip(srcBook, destPath, fileName);
+                            SevenZipUtils.extractZip(srcBook, destPath, name, bookRecordMap);
                         } else {
-                            copyFile(srcBook, destPath, fileName, data.getFormat());
+                            copyFile(srcBook, destPath, name, data.getFormat(), data.getUncompressedSize());
                         }
                         break;
                     case "7z":
                         if (uncompress(SevenZipUtils.get7zFileList(srcBook.toFile()))) {
-                            SevenZipUtils.extract7z(srcBook, destPath, fileName);
+                            SevenZipUtils.extract7z(srcBook, destPath, name, bookRecordMap);
                         } else {
-                            copyFile(srcBook, destPath, fileName, data.getFormat());
+                            copyFile(srcBook, destPath, name, data.getFormat(), data.getUncompressedSize());
                         }
                         break;
                     case "rar":
                         if (uncompress(RarUtils.getRarFileList(srcBook.toFile()))) {
-                            RarUtils.extractArchive(srcBook, destPath, fileName);
+                            RarUtils.extractArchive(srcBook, destPath, name, bookRecordMap);
                         } else {
-                            copyFile(srcBook, destPath, fileName, data.getFormat());
+                            copyFile(srcBook, destPath, name, data.getFormat(), data.getUncompressedSize());
                         }
                         break;
                     case "pdf":
@@ -796,7 +806,7 @@ public class CalibreUtils {
                     case "chm":
                     case "txt":
                         System.out.println(String.format("%d of %d: Copy: %s", i, shallowCopy.size(), srcBook));
-                        copyFile(srcBook, destPath, fileName, data.getFormat());
+                        copyFile(srcBook, destPath, name, data.getFormat(), data.getUncompressedSize());
                         break;
                     default:
                         throw new RuntimeException(data.toString());
@@ -806,18 +816,123 @@ public class CalibreUtils {
         }
     }
 
-    private static void copyFile(Path srcBook, Path destPath, String fileName, String ext) {
-        Path destBook = SevenZipUtils.findFreeFileName(destPath, fileName, ext.toLowerCase(), 0);
-        try {
-            Files.copy(srcBook, destBook, REPLACE_EXISTING);
+    public static void generateBooksList() {
+        BookUtils.calibreBooks = CalibreUtils.readBooks();
+
+        List<CalibreBook> shallowCopy = BookUtils.calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
+        Collections.reverse(shallowCopy);
+        int i = 1;
+        List<BookRecord> bookRecords = new ArrayList<>();
+        for (CalibreBook b : shallowCopy) {
+            final String name = b.getFileName() == null ? b.getTitle() : b.getFileName();
+            for (Data data : b.getDataList()) {
+                final String fileName = name+ "." + data.getFormat().toLowerCase();
+                Path srcBook = Paths.get(Config.calibreDbPath).resolve(b.getPath()).resolve(fileName);
+                switch (data.getFormat().toLowerCase()) {
+                    case "zip":
+                        List<ArchiveEntry> entries = SevenZipUtils.getZipFileList(srcBook.toFile());
+                        if (uncompress(entries)) {
+                            entries.forEach(entry -> bookRecords.add(new BookRecord(null, entry.getName(), entry.getSize(), b.getTitle())));
+                        } else {
+                            bookRecords.add(new BookRecord(null, fileName, data.getUncompressedSize(), b.getTitle()));
+                        }
+                        break;
+                    case "7z":
+                        entries = SevenZipUtils.get7zFileList(srcBook.toFile());
+                        if (uncompress(entries)) {
+                            entries.forEach(entry -> bookRecords.add(new BookRecord(null, entry.getName(), entry.getSize(), b.getTitle())));
+                        } else {
+                            bookRecords.add(new BookRecord(null, fileName, data.getUncompressedSize(), b.getTitle()));
+                        }
+                        break;
+                    case "rar":
+                        entries = RarUtils.getRarFileList(srcBook.toFile());
+                        if (uncompress(entries)) {
+                            entries.forEach(entry -> bookRecords.add(new BookRecord(null, entry.getName(), entry.getSize(), b.getTitle())));
+                        } else {
+                            bookRecords.add(new BookRecord(null, fileName, data.getUncompressedSize(), b.getTitle()));
+                        }
+                        break;
+                    case "pdf":
+                    case "djvu":
+                    case "cbr":
+                    case "doc":
+                    case "docx":
+                    case "jpg":
+                    case "scl":
+                    case "trd":
+                    case "chm":
+                    case "txt":
+                        System.out.println(String.format("%d of %d: List: %s", i, shallowCopy.size(), srcBook));
+                        bookRecords.add(new BookRecord(null, fileName, data.getUncompressedSize(), b.getTitle()));
+                        break;
+                    default:
+                        throw new RuntimeException(data.toString());
+                }
+            }
+            i++;
+        }
+        //TODO merge?
+        File file = new File(Config.workPath + FILES_LIST);
+        if (file.exists()) {
+            file.renameTo(new File(Config.workPath + FILES_LIST + ".bak"));
+        }
+        try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
+            String lastBookName = "";
+            for (BookRecord book : bookRecords) {
+                if (!lastBookName.equals(book.getBookName())) {
+                    lastBookName = book.getBookName();
+                    out.println("#" + lastBookName);
+                }
+                String val = book.getChecked() == null ? " " : book.getChecked() ? "+" : "-";
+                out.println(String.format("%s %10d %s", val, book.getSize(), book.getName()));
+            }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
+
+    private static void readBookRecords(boolean onlyForSite) throws IOException {
+        bookRecords = new ArrayList<>();
+        bookRecordMap = new HashMap<>();
+        File file = new File(Config.workPath + FILES_LIST);
+        if (file.exists() && onlyForSite) {
+            Files.readAllLines(file.toPath(), Charset.defaultCharset() ).stream().filter(r -> !r.startsWith("#"))
+            .forEach(r -> {
+                // TODO we need book name here???
+                BookRecord bookRecord = new BookRecord();
+                switch (r.charAt(0)) {
+                    case ' ': bookRecord.setChecked(null); break;
+                    case '-': bookRecord.setChecked(false); break;
+                    case '+': bookRecord.setChecked(true); break;
+                    default: throw  new RuntimeException(r);
+                }
+                bookRecord.setSize(Long.valueOf(r.substring(13).trim()));
+                bookRecord.setName(r.substring(13).trim());
+                bookRecords.add(bookRecord);
+            });
+            bookRecordMap = bookRecords.stream().collect(toMap(BookRecord::getSize, Function.identity()));
+        }
+    }
+
+    private static void copyFile(Path srcBook, Path destPath, String fileName, String ext, long length) {
+        if (!bookRecordMap.containsKey(length)) {
+            throw new RuntimeException(fileName);
+        }
+        if (bookRecordMap.get(length).getChecked()) {
+            Path destBook = SevenZipUtils.findFreeFileName(destPath, fileName, ext.toLowerCase(), 0);
+            try {
+                Files.copy(srcBook, destBook, REPLACE_EXISTING);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     private static Set<String> imgs = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "exe", "py", "html", "diz"));
 
-    private static boolean uncompress(List<String> fileNames) {
-        Set<String> exts = fileNames.stream().map(SevenZipUtils::getExtension).map(String::toLowerCase).collect(toSet());
+    private static boolean uncompress(List<ArchiveEntry> fileNames) {
+        Set<String> exts = fileNames.stream().map(ArchiveEntry::getName).map(SevenZipUtils::getExtension).map(String::toLowerCase).collect(toSet());
         return Collections.disjoint(exts, imgs);
     }
 
@@ -851,4 +966,5 @@ public class CalibreUtils {
             }
         });
     }
+
 }

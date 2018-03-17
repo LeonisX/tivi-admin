@@ -40,6 +40,7 @@ public class SiteCompareController extends SubPane {
     public Label siteTotals;
     public ComboBox<BookCategory> categoryComboBox;
     public TreeTableView<View> treeTableView;
+    public CheckBox onlyForSiteCheckBox;
 
     @FXML
     private void initialize() {
@@ -99,7 +100,11 @@ public class SiteCompareController extends SubPane {
     }
 
     public void dumpBooks() throws IOException {
-        CalibreUtils.dumpBooks();
+        CalibreUtils.dumpBooks(onlyForSiteCheckBox.isSelected());
+    }
+
+    public void getBooksList() {
+        CalibreUtils.generateBooksList();
     }
 
     public void onSelectCategory() {
@@ -244,7 +249,6 @@ public class SiteCompareController extends SubPane {
 
         treeTableView.getColumns().setAll(titleCol, leftCol, rightCol);
     }
-
 
 
     private void fillTreeTableView(ComparisionResult<Video> comparisionResult) {

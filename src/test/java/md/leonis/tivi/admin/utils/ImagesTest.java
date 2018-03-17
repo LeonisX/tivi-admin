@@ -28,7 +28,7 @@ public class ImagesTest {
     @Test
     public void testDumper() throws IOException {
         //CalibreUtils.dumpImages();
-        CalibreUtils.dumpBooks();
+        CalibreUtils.dumpBooks(onlyForSiteCheckBox.isSelected());
     }
 
 }

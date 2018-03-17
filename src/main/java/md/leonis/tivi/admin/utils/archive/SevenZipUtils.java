@@ -1,16 +1,17 @@
 package md.leonis.tivi.admin.utils.archive;
 
 import lombok.SneakyThrows;
+import md.leonis.tivi.admin.model.ArchiveEntry;
+import md.leonis.tivi.admin.model.BookRecord;
+import md.leonis.tivi.admin.utils.NullOutputStream;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -43,14 +44,23 @@ public class SevenZipUtils {
 
 
     @SneakyThrows
-    public static void extractZip(Path sourcePath, Path destPath, String fileName) {
+    public static void extractZip(Path sourcePath, Path destPath, String fileName, Map<Long, BookRecord> bookRecordMap) {
         System.out.println(sourcePath);
         destPath.toFile().mkdirs();
         try (ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(sourcePath.toFile())))) {
             ZipEntry ze;
             while ((ze = zis.getNextEntry()) != null) {
-                System.out.println("Extracting: " + ze.getName());
-                OutputStream os = new FileOutputStream(findFreeFileName(destPath, fileName, getExtension(ze.getName()), 0).toFile());
+                if (!bookRecordMap.containsKey(ze.getSize())) {
+                    throw new RuntimeException(fileName);
+                }
+                OutputStream os;
+                if (bookRecordMap.get(ze.getSize()).getChecked()) {
+                    System.out.println("Extracting: " + ze.getName());
+                    os = new FileOutputStream(findFreeFileName(destPath, fileName, getExtension(ze.getName()), 0).toFile());
+                } else {
+                    System.out.println("Skipping: " + ze.getName());
+                    os = new NullOutputStream();
+                }
                 byte[] buffer = new byte[1024];
                 int count;
                 while ((count = zis.read(buffer)) > -1) {
@@ -63,15 +73,24 @@ public class SevenZipUtils {
     }
 
     @SneakyThrows
-    public static void extract7z(Path sourcePath, Path destPath, String fileName) {
+    public static void extract7z(Path sourcePath, Path destPath, String fileName, Map<Long, BookRecord> bookRecordMap) {
         System.out.println(sourcePath);
         destPath.toFile().mkdirs();
         SevenZFile sevenZFile = new SevenZFile(sourcePath.toFile());
         SevenZArchiveEntry entry;
         while ((entry = sevenZFile.getNextEntry()) != null) {
             while (entry != null) {
-                System.out.println("Extracting: " + entry.getName());
-                OutputStream os = new FileOutputStream(findFreeFileName(destPath, fileName, getExtension(entry.getName()), 0).toFile());
+                if (!bookRecordMap.containsKey(entry.getSize())) {
+                    throw new RuntimeException(fileName);
+                }
+                OutputStream os;
+                if (bookRecordMap.get(entry.getSize()).getChecked()) {
+                    System.out.println("Extracting: " + entry.getName());
+                    os = new FileOutputStream(findFreeFileName(destPath, fileName, getExtension(entry.getName()), 0).toFile());
+                } else {
+                    System.out.println("Skipping: " + entry.getName());
+                    os = new NullOutputStream();
+                }
                 byte[] buffer = new byte[8192];//
                 int count;
                 while ((count = sevenZFile.read(buffer, 0, buffer.length)) > -1) {
@@ -109,15 +128,16 @@ public class SevenZipUtils {
 
 
     @SneakyThrows
-    public static List<String> getZipFileList(File fileName) {
+    public static List<ArchiveEntry> getZipFileList(File fileName) {
         ZipFile zipFile = new ZipFile(fileName);
-        return zipFile.stream().map(ZipEntry::getName).collect(toList());
+        return zipFile.stream().map(ze -> new ArchiveEntry(ze.getName(), ze.getSize()) {
+        }).collect(toList());
     }
 
     @SneakyThrows
-    public static List<String> get7zFileList(File fileName) {
+    public static List<ArchiveEntry> get7zFileList(File fileName) {
         SevenZFile sevenZFile = new SevenZFile(fileName);
-        return StreamSupport.stream(sevenZFile.getEntries().spliterator(), false).map(SevenZArchiveEntry::getName).collect(toList());
+        return StreamSupport.stream(sevenZFile.getEntries().spliterator(), false).map(ze -> new ArchiveEntry(ze.getName(), ze.getSize())).collect(toList());
     }
 
 

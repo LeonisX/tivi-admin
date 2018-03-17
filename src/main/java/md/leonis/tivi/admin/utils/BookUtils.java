@@ -25,6 +25,8 @@ import md.leonis.tivi.admin.view.media.AuditController;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.Normalizer;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -702,17 +704,23 @@ public class BookUtils {
 
         //TODO url; // locurl //TODO if year > 2007 ==> external
         //TODO right file
+
+        //TODO list of valid files
+        //TODO что делать с ссылками???
+        List<Data> files = getDatasWithFileName(calibreBook);
+
         if (calibreBook.getDataList().isEmpty()) {
             video.setUrl("");
         } else {
-            video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category));
+            video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category, files.get(0)));
+            files.remove(0);
         }
-        //TODO upload images, files
         video.setMirror(""); // exturl
         video.setAge(""); // extsize
         video.setDescription(getDescription(calibreBook, category));
         video.setKeywords(getKeywords(calibreBook, category));
         video.setText(SiteRenderer.getTextShort(calibreBook, calibreBook.getCpu()));
+        //TODO list other files
         video.setFullText(calibreBook.getTextMore());
         video.setUserText("");
         video.setMirrorsname("");
@@ -731,6 +739,32 @@ public class BookUtils {
         return video;
     }
 
+    private static List<Data> getDatasWithFileName(CalibreBook calibreBook) {
+        Set<String> fileNames = new HashSet<>();
+        return calibreBook.getDataList().stream()
+                .filter(f -> f.getName().startsWith("http") || CalibreUtils.bookRecordMap.get(f.getUncompressedSize()).getChecked())
+                .peek(data -> data.setFileName(findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0))).collect(toList());
+    }
+
+    public static String findFreeFileName(Set<String> fileNames, String fileName, String ext, int incr) {
+        String result = fileName + incrToString(incr) + "." + ext;
+        if (fileNames.contains(result)) {
+            return findFreeFileName(fileNames, fileName, ext, ++incr);
+        }
+        return result;
+    }
+
+    private static String incrToString(int incr) {
+        switch (incr) {
+            case 0:
+                return "";
+            case 1:
+                return " (alt)";
+            default:
+                return " (alt" + incr + ")";
+        }
+    }
+
     private static Video calibreMagazineToVideo(Map.Entry<CalibreBook, List<CalibreBook>> groupedMagazines, String category) {
         CalibreBook calibreBook = groupedMagazines.getValue().get(0);
         Video video = new Video();
@@ -745,10 +779,16 @@ public class BookUtils {
         video.setStartDate(0L);
         video.setEndDatedate(0L);
 
-        if (groupedMagazines.getValue().size() == 1 || calibreBook.getDataList().isEmpty()) {
+
+
+
+        if (groupedMagazines.getValue().size() != 1 || calibreBook.getDataList().isEmpty()) {
             video.setUrl("");
         } else {
-            video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category));
+            //TODO что делать с ссылками???
+            //TODO
+            List<Data> files = getDatasWithFileName(calibreBook);
+            video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category, files.get(0)));
         }
         video.setMirror(""); // exturl
         video.setAge(""); // extsize
@@ -775,6 +815,7 @@ public class BookUtils {
         }*/
         //TODO custom, generate - for all books
         //TODO right file, if year > 2007 -> remote
+        //TODO list other (all) files
         video.setFullText(SiteRenderer.getMagazineFullText(groupedMagazines, category, cpu));
         video.setUserText("");
         video.setMirrorsname("");

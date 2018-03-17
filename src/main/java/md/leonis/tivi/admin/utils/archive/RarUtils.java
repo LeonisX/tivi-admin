@@ -4,6 +4,9 @@ import com.github.junrar.Archive;
 import com.github.junrar.exception.RarException;
 import com.github.junrar.rarfile.FileHeader;
 import lombok.SneakyThrows;
+import md.leonis.tivi.admin.model.ArchiveEntry;
+import md.leonis.tivi.admin.model.BookRecord;
+import md.leonis.tivi.admin.utils.NullOutputStream;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,6 +15,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class RarUtils {
 
@@ -53,7 +57,7 @@ public class RarUtils {
                     throw new RuntimeException("file is encrypted cannot extract: "
                             + fh.getFileNameString());
                 }
-                System.out.println("extracting: " + fh.getFileNameString());
+                System.out.println("Extracting: " + fh.getFileNameString());
                 try {
                     if (fh.isDirectory()) {
                         createDirectory(fh, destination);
@@ -73,7 +77,7 @@ public class RarUtils {
     }
 
 
-    public static void extractArchive(Path sourcePath, Path destPath, String fileName) {
+    public static void extractArchive(Path sourcePath, Path destPath, String fileName, Map<Long, BookRecord> bookRecordMap) {
         System.out.println(sourcePath);
         Archive arch = null;
         try {
@@ -95,15 +99,25 @@ public class RarUtils {
                     throw new RuntimeException("file is encrypted cannot extract: "
                             + fh.getFileNameString());
                 }
-                System.out.println("Extracting: " + fh.getFileNameString());
                 try {
                     if (fh.isDirectory()) {
                         createDirectory(fh, destPath.toFile());
                     } else {
-                        File f = createFile(destPath.toFile(), fileName + "." + SevenZipUtils.getExtension(getName(fh)));
-                        OutputStream stream = new FileOutputStream(f);
-                        arch.extractFile(fh, stream);
-                        stream.close();
+                        if (!bookRecordMap.containsKey(fh.getUnpSize())) {
+                            throw new RuntimeException(fileName);
+                        }
+                        OutputStream os;
+                        if (bookRecordMap.get(fh.getUnpSize()).getChecked()) {
+                            System.out.println("Extracting: " + fh.getFileNameString());
+                            File f = createFile(destPath.toFile(), fileName + "." + SevenZipUtils.getExtension(getName(fh)));
+                            os = new FileOutputStream(f);
+                        } else {
+                            System.out.println("Skipping: " + fh.getFileNameString());
+                            os = new NullOutputStream();
+                        }
+
+                        arch.extractFile(fh, os);
+                        os.close();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -114,8 +128,8 @@ public class RarUtils {
         }
     }
 
-    public static List<String> getRarFileList(File file) {
-        List<String> fileNames = new ArrayList<>();
+    public static List<ArchiveEntry> getRarFileList(File file) {
+        List<ArchiveEntry> files = new ArrayList<>();
         Archive arch = null;
         try {
             arch = new Archive(file);
@@ -136,10 +150,10 @@ public class RarUtils {
                     throw new RuntimeException("file is encrypted cannot extract: "
                             + fh.getFileNameString());
                 }
-                fileNames.add(getName(fh));
+                files.add(new ArchiveEntry(getName(fh), fh.getUnpSize()));
             }
         }
-        return fileNames;
+        return files;
     }
 
     private static String getName(FileHeader fh) {

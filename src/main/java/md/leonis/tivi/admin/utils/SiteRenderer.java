@@ -27,8 +27,8 @@ public class SiteRenderer {
         return String.format("images/systems/%s.png", catCpu);
     }
 
-    public static String getDownloadLink(CalibreBook calibreBook, String category) {
-        return String.format("up/media/%ss/%s/%s.%s", calibreBook.getType(), category, calibreBook.getFileName() == null ? calibreBook.getTitle() : calibreBook.getFileName(), calibreBook.getDataList().get(0).getFormat().toLowerCase());
+    public static String getDownloadLink(CalibreBook calibreBook, String category, Data data) {
+        return String.format("up/media/%ss/%s/%s.%s", calibreBook.getType(), category, data.getName(), data.getFormat().toLowerCase());
     }
 
 
