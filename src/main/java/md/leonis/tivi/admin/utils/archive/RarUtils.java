@@ -103,11 +103,11 @@ public class RarUtils {
                     if (fh.isDirectory()) {
                         createDirectory(fh, destPath.toFile());
                     } else {
-                        if (!bookRecordMap.containsKey(fh.getUnpSize())) {
+                        if (!bookRecordMap.containsKey(Long.valueOf(fh.getFileCRC()))) {
                             throw new RuntimeException(fileName);
                         }
                         OutputStream os;
-                        if (bookRecordMap.get(fh.getUnpSize()).getChecked()) {
+                        if (bookRecordMap.get(Long.valueOf(fh.getFileCRC())).getChecked()) {
                             System.out.println("Extracting: " + fh.getFileNameString());
                             File f = createFile(destPath.toFile(), fileName + "." + SevenZipUtils.getExtension(getName(fh)));
                             os = new FileOutputStream(f);
@@ -150,7 +150,7 @@ public class RarUtils {
                     throw new RuntimeException("file is encrypted cannot extract: "
                             + fh.getFileNameString());
                 }
-                files.add(new ArchiveEntry(getName(fh), fh.getUnpSize()));
+                files.add(new ArchiveEntry(getName(fh), fh.getFileCRC(), fh.getUnpSize()));
             }
         }
         return files;

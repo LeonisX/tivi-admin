@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.StreamSupport;
+import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -50,11 +51,11 @@ public class SevenZipUtils {
         try (ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(sourcePath.toFile())))) {
             ZipEntry ze;
             while ((ze = zis.getNextEntry()) != null) {
-                if (!bookRecordMap.containsKey(ze.getSize())) {
+                if (!bookRecordMap.containsKey(ze.getCrc())) {
                     throw new RuntimeException(fileName);
                 }
                 OutputStream os;
-                if (bookRecordMap.get(ze.getSize()).getChecked()) {
+                if (bookRecordMap.get(ze.getCrc()).getChecked()) {
                     System.out.println("Extracting: " + ze.getName());
                     os = new FileOutputStream(findFreeFileName(destPath, fileName, getExtension(ze.getName()), 0).toFile());
                 } else {
@@ -80,11 +81,11 @@ public class SevenZipUtils {
         SevenZArchiveEntry entry;
         while ((entry = sevenZFile.getNextEntry()) != null) {
             while (entry != null) {
-                if (!bookRecordMap.containsKey(entry.getSize())) {
+                if (!bookRecordMap.containsKey(entry.getCrcValue())) {
                     throw new RuntimeException(fileName);
                 }
                 OutputStream os;
-                if (bookRecordMap.get(entry.getSize()).getChecked()) {
+                if (bookRecordMap.get(entry.getCrcValue()).getChecked()) {
                     System.out.println("Extracting: " + entry.getName());
                     os = new FileOutputStream(findFreeFileName(destPath, fileName, getExtension(entry.getName()), 0).toFile());
                 } else {
@@ -130,14 +131,14 @@ public class SevenZipUtils {
     @SneakyThrows
     public static List<ArchiveEntry> getZipFileList(File fileName) {
         ZipFile zipFile = new ZipFile(fileName);
-        return zipFile.stream().map(ze -> new ArchiveEntry(ze.getName(), ze.getSize()) {
+        return zipFile.stream().map(ze -> new ArchiveEntry(ze.getName(), ze.getCrc(), ze.getSize()) {
         }).collect(toList());
     }
 
     @SneakyThrows
     public static List<ArchiveEntry> get7zFileList(File fileName) {
         SevenZFile sevenZFile = new SevenZFile(fileName);
-        return StreamSupport.stream(sevenZFile.getEntries().spliterator(), false).map(ze -> new ArchiveEntry(ze.getName(), ze.getSize())).collect(toList());
+        return StreamSupport.stream(sevenZFile.getEntries().spliterator(), false).map(ze -> new ArchiveEntry(ze.getName(), ze.getCrcValue(), ze.getSize())).collect(toList());
     }
 
 
@@ -185,6 +186,21 @@ public class SevenZipUtils {
             extension = fileName.substring(i + 1);
         }
         return extension;
+    }
+
+    public static long crc32(Path path) {
+        try {
+            InputStream in = new FileInputStream(path.toFile());
+            CRC32 crcMaker = new CRC32();
+            byte[] buffer = new byte[1024 * 1024];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                crcMaker.update(buffer, 0, bytesRead);
+            }
+            return crcMaker.getValue();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

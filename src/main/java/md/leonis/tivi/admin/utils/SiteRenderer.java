@@ -28,7 +28,7 @@ public class SiteRenderer {
     }
 
     public static String getDownloadLink(CalibreBook calibreBook, String category, Data data) {
-        return String.format("up/media/%ss/%s/%s.%s", calibreBook.getType(), category, data.getName(), data.getFormat().toLowerCase());
+        return String.format("up/media/%ss/%s/%s", calibreBook.getType(), category, data.getFileName());
     }
 
 

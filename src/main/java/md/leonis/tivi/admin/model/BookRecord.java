@@ -13,6 +13,7 @@ public class BookRecord {
 
     private Boolean checked;
     private String name;
+    private long crc32;
     private long size;
     private String bookName;
 

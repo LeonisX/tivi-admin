@@ -429,7 +429,8 @@ public class BookUtils {
     }
 
 
-    public static ComparisionResult<Video> compare(String category) { //category == cpu
+    public static ComparisionResult<Video> compare(String category) throws IOException { //category == cpu
+        CalibreUtils.readBookRecords(false);
         ComparisionResult<Video> comparisionResult = null;
         if (category == null) {
             for (int i = 0; i < categories.size(); i++) {

@@ -8,6 +8,7 @@ import lombok.Getter;
 public class ArchiveEntry {
 
     private String name;
+    private long crc32;
     private long size;
 
 }

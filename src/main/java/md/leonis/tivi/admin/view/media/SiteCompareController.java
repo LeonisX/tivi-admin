@@ -76,12 +76,12 @@ public class SiteCompareController extends SubPane {
         calibreTotals.setText("" + calibreBooks.size());
     }
 
-    public void compare() {
+    public void compare() throws IOException {
         setupTreeTableView();
         fillTreeTableView(BookUtils.compare(categoryComboBox.getValue().getCatcpu()));
     }
 
-    public void generate() {
+    public void generate() throws IOException {
         ComparisionResult<Video> comparisionResult = BookUtils.compare(categoryComboBox.getValue().getCatcpu());
         BookUtils.syncDataWithSite(comparisionResult, calibreDir.getText(), categoryComboBox.getValue().getCatcpu());
         reloadSiteData();
@@ -103,7 +103,7 @@ public class SiteCompareController extends SubPane {
         CalibreUtils.dumpBooks(onlyForSiteCheckBox.isSelected());
     }
 
-    public void getBooksList() {
+    public void getBooksList() throws IOException {
         CalibreUtils.generateBooksList();
     }
 

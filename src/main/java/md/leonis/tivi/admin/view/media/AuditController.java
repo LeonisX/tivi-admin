@@ -217,7 +217,6 @@ public class AuditController extends SubPane {
                 id = CalibreUtils.executeInsertQuery(query);
             } else {
                 id = Math.toIntExact(source.getId());
-
                 query = String.format("INSERT INTO `books_custom_column_6_link` VALUES (null, %d, %d)", book.getId(), id);
                 System.out.println(query);
                 id = CalibreUtils.executeInsertQuery(query);
@@ -445,9 +444,9 @@ public class AuditController extends SubPane {
     public void fixDirtyHtml() {
         //TODO
         /*getDirtyHtml()*/calibreBooks.forEach(b -> {
-            if (b.getTextShort() != null && !b.getTextShort().isEmpty()) {
-                String q = String.format("UPDATE `custom_column_18` SET value='%s' WHERE book=%d", CalibreUtils.sanitize(b.getTextShort()).replace("'","''"), b.getId());
-                System.out.println(q);
+            if (b.getComment() != null && !b.getComment().isEmpty()) {
+                String text = CalibreUtils.sanitize(CalibreUtils.getFullText(b.getTextShort(), b.getTextMore()));
+                String q = String.format("UPDATE `comments` SET text='%s' WHERE book=%d", text.replace("'", "''"), b.getId());
                 Integer id = CalibreUtils.executeInsertQuery(q);
                 System.out.println(id);
             }
@@ -455,22 +454,11 @@ public class AuditController extends SubPane {
                 //TODO get ID first
                 Long rid = CalibreUtils.readObjectList("SELECT * FROM books_custom_column_20_link WHERE book=" + b.getId(), CustomColumn.class).get(0).getId();
                 String q = String.format("UPDATE `custom_column_20` SET value='%s' WHERE id=%d", CalibreUtils.sanitize(b.getReleaseNote()).replace("'","''"), rid);
-                System.out.println(q);
-                Integer id = CalibreUtils.executeInsertQuery(q);
-                System.out.println(id);
-            }
-            if (b.getTextMore() != null && !b.getTextMore().isEmpty()) {
-                String q = String.format("UPDATE `comments` SET text='%s' WHERE book=%d", CalibreUtils.sanitize(b.getTextMore()).replace("'","''"), b.getId());
-                System.out.println(q);
                 Integer id = CalibreUtils.executeInsertQuery(q);
                 System.out.println(id);
             }
         });
     }
-
-
-
-
 
     public void reloadSiteBooks() {
     }

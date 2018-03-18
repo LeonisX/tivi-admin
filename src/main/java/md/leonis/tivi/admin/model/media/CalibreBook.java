@@ -14,6 +14,7 @@ public class CalibreBook extends Book {
 
     private String textShort;
     private String textMore;
+    private String comment;
     private String releaseNote;
 
     private List<Author> authors;
