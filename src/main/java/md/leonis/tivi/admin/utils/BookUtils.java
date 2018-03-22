@@ -742,8 +742,12 @@ public class BookUtils {
 
     private static List<Data> getDatasWithFileName(CalibreBook calibreBook) {
         Set<String> fileNames = new HashSet<>();
+        if (calibreBook.getDataList() == null) {
+            return new ArrayList<>();
+        }
         return calibreBook.getDataList().stream()
-                .filter(f -> f.getName().startsWith("http") || CalibreUtils.bookRecordMap.get(f.getUncompressedSize()).getChecked())
+                .filter(f -> f.getName().startsWith("http") ||
+                        CalibreUtils.bookRecordMap.get(f.getUncompressedSize()).getChecked())
                 .peek(data -> data.setFileName(findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0))).collect(toList());
     }
 

@@ -78,10 +78,12 @@ public class SiteCompareController extends SubPane {
 
     public void compare() throws IOException {
         setupTreeTableView();
+        CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
         fillTreeTableView(BookUtils.compare(categoryComboBox.getValue().getCatcpu()));
     }
 
     public void generate() throws IOException {
+        CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
         ComparisionResult<Video> comparisionResult = BookUtils.compare(categoryComboBox.getValue().getCatcpu());
         BookUtils.syncDataWithSite(comparisionResult, calibreDir.getText(), categoryComboBox.getValue().getCatcpu());
         reloadSiteData();

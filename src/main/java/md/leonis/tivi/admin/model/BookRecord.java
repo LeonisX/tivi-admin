@@ -15,6 +15,7 @@ public class BookRecord {
     private String name;
     private long crc32;
     private long size;
+    //private String uuid;
     private String bookName;
 
 }
