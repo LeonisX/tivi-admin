@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static md.leonis.tivi.admin.utils.BookUtils.calibreBooks;
 import static md.leonis.tivi.admin.utils.BookUtils.categories;
@@ -51,6 +52,15 @@ public class AuditController extends SubPane {
     public void checkFilesOwn() {
         auditLog.clear();
         getFilesOwn().forEach(calibreBook -> addLog(calibreBook.getTitle()));
+
+        Map<String, List<CalibreBook>> groupedBooks = calibreBooks.stream().filter(b -> b.getFileName() != null)
+                .collect(groupingBy(CalibreBook::getFileName)).entrySet().stream().filter(e -> e.getValue().size() > 1)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        if (!groupedBooks.isEmpty()) {
+            addLog("");
+            addLog("Duplicated fileNames:");
+            groupedBooks.keySet().forEach(this::addLog);
+        }
     }
 
     public List<CalibreBook> getFilesOwn() {
@@ -228,6 +238,7 @@ public class AuditController extends SubPane {
     public void checkOwnPublishers() {
         auditLog.clear();
         calibreBooks.stream().filter(calibreBook -> calibreBook.getOwn() != null)
+                .filter(calibreBook -> !calibreBook.getType().equals("guide"))
                 .filter(calibreBook -> calibreBook.getPublisher() == null && calibreBook.getOwn())
                 .forEach(calibreBook -> addLog(calibreBook.getTitle()));
     }

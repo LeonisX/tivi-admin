@@ -16,14 +16,14 @@
 
 <BorderPane prefHeight="850.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.media.SiteCompareController">
    <top>
-      <VBox alignment="CENTER" prefHeight="273.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
+      <VBox alignment="CENTER" prefHeight="382.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
          <children>
                 <Label alignment="CENTER" prefHeight="20.0" prefWidth="437.0" text="Сравнение локальной базы данных с сайтом">
                     <font>
                         <Font name="System Bold" size="13.0" />
                     </font>
                 </Label>
-              <GridPane fx:id="gridPane" maxHeight="400.0" maxWidth="800.0" minHeight="126.0" minWidth="800.0" prefHeight="159.0" prefWidth="800.0">
+              <GridPane fx:id="gridPane" maxHeight="400.0" maxWidth="800.0" minHeight="126.0" minWidth="800.0" prefHeight="227.0" prefWidth="800.0">
                   <columnConstraints>
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="773.0" minWidth="10.0" prefWidth="666.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="662.0" minWidth="38.0" prefWidth="229.0" />
@@ -67,21 +67,26 @@
                      </children>
                   </HBox>
                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Обложки и превьюшки" GridPane.rowIndex="5" />
-                  <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Книги" GridPane.rowIndex="7" />
                   <Button mnemonicParsing="false" onAction="#dumpImages" prefHeight="25.0" prefWidth="97.0" text="Prepare" GridPane.columnIndex="2" GridPane.rowIndex="5" />
                   <Button mnemonicParsing="false" onAction="#uploadImages" prefHeight="25.0" prefWidth="97.0" text="Upload" GridPane.columnIndex="4" GridPane.rowIndex="5" />
-                  <Button mnemonicParsing="false" onAction="#dumpBooks" prefHeight="25.0" prefWidth="97.0" text="Prepare" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-                  <Button mnemonicParsing="false" onAction="#uploadBooks" prefHeight="25.0" prefWidth="97.0" text="Upload" GridPane.columnIndex="4" GridPane.rowIndex="6" />
+                  <Button mnemonicParsing="false" onAction="#dumpBooks" prefHeight="25.0" prefWidth="97.0" text="Prepare" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                  <Button mnemonicParsing="false" onAction="#uploadBooks" prefHeight="25.0" prefWidth="97.0" text="Upload" GridPane.columnIndex="4" GridPane.rowIndex="7" />
                   <Button mnemonicParsing="false" onAction="#dumpCalibreDB" prefHeight="25.0" prefWidth="97.0" text="Dump" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                   <Button mnemonicParsing="false" onAction="#dumpSiteDB" prefHeight="25.0" prefWidth="97.0" text="Dump" GridPane.columnIndex="3" GridPane.rowIndex="3" />
                   <Button mnemonicParsing="false" onAction="#reloadCalibreData" prefHeight="25.0" prefWidth="97.0" text="Reload" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="6">
                      <children>
                         <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Книги и журналы" />
-                        <CheckBox fx:id="onlyForSiteCheckBox" mnemonicParsing="false" prefHeight="18.0" prefWidth="175.0" selected="true" text="Для сайта" />
+                        <CheckBox fx:id="onlyForSiteCheckBox" disable="true" mnemonicParsing="false" prefHeight="18.0" prefWidth="175.0" selected="true" text="Для сайта" />
                      </children>
                   </HBox>
-                  <Button mnemonicParsing="false" onAction="#getBooksList" prefHeight="25.0" prefWidth="97.0" text="List" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+                  <Button disable="true" mnemonicParsing="false" onAction="#getBooksList" prefHeight="25.0" prefWidth="97.0" text="List" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="7">
+                     <children>
+                        <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Ссылка на облако:" />
+                        <TextField fx:id="cloudStorageLink" prefHeight="26.0" prefWidth="281.0" text="https://mail.ru/..." />
+                     </children>
+                  </HBox>
                   </children>
               </GridPane>
          </children>

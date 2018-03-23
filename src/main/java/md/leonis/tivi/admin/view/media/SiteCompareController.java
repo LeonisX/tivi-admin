@@ -41,6 +41,7 @@ public class SiteCompareController extends SubPane {
     public ComboBox<BookCategory> categoryComboBox;
     public TreeTableView<View> treeTableView;
     public CheckBox onlyForSiteCheckBox;
+    public TextField cloudStorageLink;
 
     @FXML
     private void initialize() {
@@ -78,12 +79,14 @@ public class SiteCompareController extends SubPane {
 
     public void compare() throws IOException {
         setupTreeTableView();
-        CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
+        BookUtils.cloudStorageLink = cloudStorageLink.getText();
+        //CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
         fillTreeTableView(BookUtils.compare(categoryComboBox.getValue().getCatcpu()));
     }
 
     public void generate() throws IOException {
-        CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
+        //CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
+        BookUtils.cloudStorageLink = cloudStorageLink.getText();
         ComparisionResult<Video> comparisionResult = BookUtils.compare(categoryComboBox.getValue().getCatcpu());
         BookUtils.syncDataWithSite(comparisionResult, calibreDir.getText(), categoryComboBox.getValue().getCatcpu());
         reloadSiteData();
@@ -105,8 +108,14 @@ public class SiteCompareController extends SubPane {
         CalibreUtils.dumpBooks(onlyForSiteCheckBox.isSelected());
     }
 
-    public void getBooksList() throws IOException {
-        CalibreUtils.generateBooksList();
+    public void getBooksList() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information Dialog");
+        alert.setHeaderText("Lists now disabled");
+        alert.setContentText("This button wont work");
+
+        alert.showAndWait();
+        //CalibreUtils.generateBooksList();
     }
 
     public void onSelectCategory() {
