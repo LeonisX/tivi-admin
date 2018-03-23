@@ -73,7 +73,7 @@
                       </HBox>
                       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="8">
                           <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Отсутствующие имена файлов" />
+                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Отсутствующие имена файлов и дубликаты" />
                           </children>
                       </HBox>
                       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="9">
@@ -132,7 +132,7 @@
                   </HBox>
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="16">
                      <children>
-                        <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Имена файлов" />
+                        <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Имена файлов (проблемные символы)" />
                      </children>
                   </HBox>
                   <Button mnemonicParsing="false" onAction="#checkTiviIdOwn" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="13" />

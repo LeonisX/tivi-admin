@@ -51,17 +51,17 @@ public class SevenZipUtils {
         try (ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(sourcePath.toFile())))) {
             ZipEntry ze;
             while ((ze = zis.getNextEntry()) != null) {
-                if (!bookRecordMap.containsKey(ze.getCrc())) {
+                /*if (!bookRecordMap.containsKey(ze.getCrc())) {
                     throw new RuntimeException(fileName);
-                }
+                }*/
                 OutputStream os;
-                if (bookRecordMap.get(ze.getCrc()).getChecked()) {
+                //if (bookRecordMap.get(ze.getCrc()).getChecked()) {
                     System.out.println("Extracting: " + ze.getName());
                     os = new FileOutputStream(findFreeFileName(destPath, fileName, getExtension(ze.getName()), 0).toFile());
-                } else {
+                /*} else {
                     System.out.println("Skipping: " + ze.getName());
                     os = new NullOutputStream();
-                }
+                }*/
                 byte[] buffer = new byte[1024];
                 int count;
                 while ((count = zis.read(buffer)) > -1) {
@@ -81,17 +81,17 @@ public class SevenZipUtils {
         SevenZArchiveEntry entry;
         while ((entry = sevenZFile.getNextEntry()) != null) {
             while (entry != null) {
-                if (!bookRecordMap.containsKey(entry.getCrcValue())) {
+                /*if (!bookRecordMap.containsKey(entry.getCrcValue())) {
                     throw new RuntimeException(fileName);
-                }
+                }*/
                 OutputStream os;
-                if (bookRecordMap.get(entry.getCrcValue()).getChecked()) {
+                //if (bookRecordMap.get(entry.getCrcValue()).getChecked()) {
                     System.out.println("Extracting: " + entry.getName());
                     os = new FileOutputStream(findFreeFileName(destPath, fileName, getExtension(entry.getName()), 0).toFile());
-                } else {
+                /*} else {
                     System.out.println("Skipping: " + entry.getName());
                     os = new NullOutputStream();
-                }
+                }*/
                 byte[] buffer = new byte[8192];//
                 int count;
                 while ((count = sevenZFile.read(buffer, 0, buffer.length)) > -1) {

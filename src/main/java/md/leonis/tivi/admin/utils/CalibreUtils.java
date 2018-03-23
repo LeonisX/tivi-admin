@@ -42,8 +42,8 @@ public class CalibreUtils {
 
     public static final String FILES_LIST = "files-list.txt";
 
-    public static List<BookRecord> bookRecords;
-    public static Map<Long, BookRecord> bookRecordMap;
+    //public static List<BookRecord> bookRecords;
+    //public static Map<Long, BookRecord> bookRecordMap;
 
     /*PRAGMA index_list(books);
     PRAGMA index_xinfo(books_idx);
@@ -719,10 +719,12 @@ public class CalibreUtils {
     }
 
     public static void dumpBooks(boolean onlyForSite) throws IOException {
-        readBookRecords(onlyForSite);
+        //TODO this for lists for site (stub)
+        Map<Long, BookRecord> bookRecordMap = new HashMap<>();
+        /*readBookRecords(onlyForSite);
         if (CalibreUtils.bookRecords.stream().anyMatch(b -> b.getChecked() == null)) {
             throw new RuntimeException(CalibreUtils.bookRecords.stream().filter(b -> b.getChecked() == null).map(BookRecord::getName).collect(joining("\n")));
-        }
+        }*/
         //Config.loadProperties();
         //Config.loadProtectedProperties();
 
@@ -834,7 +836,7 @@ public class CalibreUtils {
         }
     }
 
-    public static void generateBooksList() throws IOException {
+    /*public static void generateBooksList() throws IOException {
         readBookRecords(false);
         BookUtils.calibreBooks = CalibreUtils.readBooks();
 
@@ -920,11 +922,11 @@ public class CalibreUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    }*/
 
     // 0123456789012345678901234567890
     // + 1234567890 1234567890 ASDF
-    public static void readBookRecords(boolean onlyForSite) throws IOException {
+    /*public static void readBookRecords(boolean onlyForSite) throws IOException {
         List<BookRecord> newBookRecords = new ArrayList<>();
         File file = new File(Config.calibreDbPath + FILES_LIST);
         if (file.exists()) {
@@ -956,10 +958,10 @@ public class CalibreUtils {
             bookRecords = new ArrayList<>();
             bookRecordMap = new HashMap<>();
         }
-    }
+    }*/
 
     private static void copyFile(Path srcBook, Path destPath, String fileName, String ext, boolean onlyForSite, int i, int size) {
-        if (!onlyForSite || bookRecordMap.get(SevenZipUtils.crc32(srcBook)).getChecked()) {
+        //if (!onlyForSite || bookRecordMap.get(SevenZipUtils.crc32(srcBook)).getChecked()) {
             System.out.println(String.format("%d of %d: Copy: %s", i, size, srcBook));
             Path destBook = SevenZipUtils.findFreeFileName(destPath, fileName, ext.toLowerCase(), 0);
             try {
@@ -967,9 +969,9 @@ public class CalibreUtils {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-        } else {
+        /*} else {
             System.out.println(String.format("%d of %d: Skip: %s", i, size, srcBook));
-        }
+        }*/
     }
 
     private static Set<String> imgs = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "gif", "exe", "py", "html", "gs0", "diz"));

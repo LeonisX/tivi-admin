@@ -18,6 +18,7 @@ public class Data {
     @SerializedName("uncompressed_size")
     private Long uncompressedSize;
     private String name;
+    private String tail;
     transient private String fileName;
 
 }

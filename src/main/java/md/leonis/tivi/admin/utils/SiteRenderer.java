@@ -31,7 +31,6 @@ public class SiteRenderer {
         return String.format("up/media/%ss/%s/%s", calibreBook.getType(), category, data.getFileName());
     }
 
-
     public static void generateManualsPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, String type) {
         TypeTranslation translation = listTypeTranslationMap.get(type);
         List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals(type)).collect(toList());

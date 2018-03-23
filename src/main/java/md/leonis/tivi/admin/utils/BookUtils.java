@@ -48,6 +48,11 @@ public class BookUtils {
 
     public static ListVideousSettings listBooksSettings = new ListVideousSettings();
 
+    public static String cloudStorageLink;
+
+    // on cloud: book, magazine, comics
+    public static List<String> onSiteList = Arrays.asList("doc", "emulator", "guide", "manual");
+
     static {
         Type type = new TypeToken<List<TableStatus>>() {
         }.getType();
@@ -430,7 +435,7 @@ public class BookUtils {
 
 
     public static ComparisionResult<Video> compare(String category) throws IOException { //category == cpu
-        CalibreUtils.readBookRecords(false);
+        //CalibreUtils.readBookRecords(false);
         ComparisionResult<Video> comparisionResult = null;
         if (category == null) {
             for (int i = 0; i < categories.size(); i++) {
@@ -713,8 +718,13 @@ public class BookUtils {
         if (calibreBook.getDataList().isEmpty()) {
             video.setUrl("");
         } else {
-            video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category, files.get(0)));
-            files.remove(0);
+            if (onSiteList.contains(calibreBook.getType())) {
+                video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category, files.get(0)));
+                files.remove(0);
+            } else {
+                video.setUrl(cloudStorageLink);
+                files.clear();
+            }
         }
         video.setMirror(""); // exturl
         video.setAge(""); // extsize
@@ -746,9 +756,19 @@ public class BookUtils {
             return new ArrayList<>();
         }
         return calibreBook.getDataList().stream()
+                /*.filter(f -> f.getName().startsWith("http") ||
+                        CalibreUtils.bookRecordMap.get(f.getUncompressedSize()).getChecked())*/
+                .peek(data -> {
+                    String fileName = calibreBook.getFileName();
+                    if (data.getTail() != null) {
+                        fileName += " " + data.getTail();
+                    }
+                    data.setFileName(findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0));
+                }).collect(toList());
+        /* return calibreBook.getDataList().stream()
                 .filter(f -> f.getName().startsWith("http") ||
                         CalibreUtils.bookRecordMap.get(f.getUncompressedSize()).getChecked())
-                .peek(data -> data.setFileName(findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0))).collect(toList());
+                .peek(data -> data.setFileName(findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0))).collect(toList());*/
     }
 
     public static String findFreeFileName(Set<String> fileNames, String fileName, String ext, int incr) {
@@ -793,7 +813,13 @@ public class BookUtils {
             //TODO что делать с ссылками???
             //TODO
             List<Data> files = getDatasWithFileName(calibreBook);
-            video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category, files.get(0)));
+            if (onSiteList.contains(calibreBook.getType())) {
+                video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category, files.get(0)));
+                files.remove(0);
+            } else {
+                video.setUrl(cloudStorageLink);
+                files.clear();
+            }
         }
         video.setMirror(""); // exturl
         video.setAge(""); // extsize
