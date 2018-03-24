@@ -68,9 +68,21 @@ public class CalibreUtils {
                 calibreBook.setTextMore("");
             } else {
                 String[] chunks = comment.split("<hr>");
-                calibreBook.setTextShort(chunks[0].trim());
+                //calibreBook.setTextShort(chunks[0].trim());
+                Element element = Jsoup.parseBodyFragment(chunks[0]).body();
+                if (element.childNodeSize() == 0) {
+                    calibreBook.setTextShort(element.html().trim());
+                } else if (element.child(0).tagName().equals("div") && element.child(0).childNodeSize() == 1) {
+                    calibreBook.setTextShort(element.child(0).html().trim());
+                } else {
+                    calibreBook.setTextShort(element.child(0).outerHtml().trim());
+                }
+
+                if (calibreBook.getTitle().equals("Видео-АСС Корона № 1 (1994)")) {
+                    System.out.println(comment);
+                }
                 if (chunks.length > 1) {
-                    calibreBook.setTextMore(chunks[1].trim());
+                    calibreBook.setTextMore(Jsoup.parseBodyFragment(chunks[1]).body().html().trim());
                 } else {
                     calibreBook.setTextMore("");
                 }

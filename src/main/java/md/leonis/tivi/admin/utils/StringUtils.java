@@ -123,6 +123,7 @@ public class StringUtils {
         declensions.add(new Declension("компьютеры", "компьютеров", "компьютерам", "компьютеры", "компьютерами", "о компьютерах"));
         declensions.add(new Declension("приставки", "приставок", "приставкам", "приставки", "приставками", "о приставках"));
         declensions.add(new Declension("arcade", "игровых автоматов", "игровым автоматам", "игровые автоматы", "игровыми автоматами", "об игровых автоматах"));
+        //declensions.add(new Declension("cdi", "Philips CD-i", "Philips CD-i", "Philips CD-i", "Philips CD-i", "Philips CD-i"));
 
         // 1. Именительный - КТО ? ЧТО ?
         // 2. Родительный - КОГО ? ЧЕГО ?

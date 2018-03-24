@@ -574,7 +574,7 @@ public class BookUtils {
     }
 
     public static ComparisionResult<Video> compareMagazines(String category) {
-        List<CalibreBook> calibreMagazines = calibreBooks.stream().filter(b -> b.getType().equals(category) && !category.equals("gd"))
+        List<CalibreBook> calibreMagazines = calibreBooks.stream().filter(b -> b.getType().equals(category.equals("magazines") ? "magazine" : category) && !category.equals("gd"))
                 //.filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category))
                 .sorted(Comparator.comparing(Book::getSort))
                 /*.filter(b -> b.getOwn() != null && b.getOwn())*/.collect(toList());
@@ -590,11 +590,11 @@ public class BookUtils {
 
 
         //TODO подумать как убрать этот хак
-        groupedMagazines.forEach((key, value) -> {
+        /*groupedMagazines.forEach((key, value) -> {
             if (key.getTextMore() == null) {
                 key.setTextMore("");
             }
-        });
+        });*/
 
         List<Video> siteMagazines = siteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryByCpu(category).getCatid())).collect(toList());
 
@@ -806,22 +806,19 @@ public class BookUtils {
         video.setStartDate(0L);
         video.setEndDatedate(0L);
 
-
-
-
         if (groupedMagazines.getValue().size() != 1 || calibreBook.getDataList().isEmpty()) {
             video.setUrl("");
         } else {
             //TODO что делать с ссылками???
             //TODO
-            List<Data> files = getDatasWithFileName(calibreBook);
-            if (onSiteList.contains(calibreBook.getType())) {
+            //List<Data> files = getDatasWithFileName(calibreBook);
+            /*if (onSiteList.contains(calibreBook.getType())) {
                 video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category, files.get(0)));
                 files.remove(0);
-            } else {
+            } else {*/
                 video.setUrl(cloudStorageLink);
-                files.clear();
-            }
+                //files.clear();
+            //}
         }
         video.setMirror(""); // exturl
         video.setAge(""); // extsize

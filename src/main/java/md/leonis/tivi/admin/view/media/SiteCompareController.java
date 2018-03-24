@@ -144,6 +144,7 @@ public class SiteCompareController extends SubPane {
         ObservableList<BookCategory> options = FXCollections.observableArrayList(observableCategories);
         categoryComboBox.setItems(options);
         categoryComboBox.setValue(observableCategories.get(0));
+        categoryComboBox.setVisibleRowCount(24);
 
         categoryComboBox.setCellFactory(new Callback<ListView<BookCategory>, ListCell<BookCategory>>() {
             @Override
