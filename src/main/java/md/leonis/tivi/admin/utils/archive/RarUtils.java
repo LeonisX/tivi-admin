@@ -103,18 +103,18 @@ public class RarUtils {
                     if (fh.isDirectory()) {
                         createDirectory(fh, destPath.toFile());
                     } else {
-                        /*if (!bookRecordMap.containsKey(Long.valueOf(fh.getFileCRC()))) {
+                        if (!bookRecordMap.containsKey(Long.valueOf(fh.getFileCRC()))) {
                             throw new RuntimeException(fileName);
-                        }*/
+                        }
                         OutputStream os;
-                        //if (bookRecordMap.get(Long.valueOf(fh.getFileCRC())).getChecked()) {
+                        if (bookRecordMap.get(Long.valueOf(fh.getFileCRC())).getChecked()) {
                             System.out.println("Extracting: " + fh.getFileNameString());
                             File f = createFile(destPath.toFile(), fileName + "." + SevenZipUtils.getExtension(getName(fh)));
                             os = new FileOutputStream(f);
-                        /*} else {
+                        } else {
                             System.out.println("Skipping: " + fh.getFileNameString());
                             os = new NullOutputStream();
-                        }*/
+                        }
 
                         arch.extractFile(fh, os);
                         os.close();

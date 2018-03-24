@@ -435,7 +435,7 @@ public class BookUtils {
 
 
     public static ComparisionResult<Video> compare(String category) throws IOException { //category == cpu
-        //CalibreUtils.readBookRecords(false);
+        CalibreUtils.readBookRecords(false);
         ComparisionResult<Video> comparisionResult = null;
         if (category == null) {
             for (int i = 0; i < categories.size(); i++) {
@@ -756,19 +756,9 @@ public class BookUtils {
             return new ArrayList<>();
         }
         return calibreBook.getDataList().stream()
-                /*.filter(f -> f.getName().startsWith("http") ||
-                        CalibreUtils.bookRecordMap.get(f.getUncompressedSize()).getChecked())*/
-                .peek(data -> {
-                    String fileName = calibreBook.getFileName();
-                    if (data.getTail() != null) {
-                        fileName += " " + data.getTail();
-                    }
-                    data.setFileName(findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0));
-                }).collect(toList());
-        /* return calibreBook.getDataList().stream()
                 .filter(f -> f.getName().startsWith("http") ||
-                        CalibreUtils.bookRecordMap.get(f.getUncompressedSize()).getChecked())
-                .peek(data -> data.setFileName(findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0))).collect(toList());*/
+                        CalibreUtils.bookRecordMap.get(f.getCrc32()).getChecked())
+                .peek(data -> data.setFileName(findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0))).collect(toList());
     }
 
     public static String findFreeFileName(Set<String> fileNames, String fileName, String ext, int incr) {

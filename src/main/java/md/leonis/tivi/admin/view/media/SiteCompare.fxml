@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="850.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.media.SiteCompareController">
+<BorderPane prefHeight="850.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.media.SiteCompareController">
    <top>
       <VBox alignment="CENTER" prefHeight="382.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
          <children>
@@ -80,13 +80,16 @@
                         <CheckBox fx:id="onlyForSiteCheckBox" disable="true" mnemonicParsing="false" prefHeight="18.0" prefWidth="175.0" selected="true" text="Для сайта" />
                      </children>
                   </HBox>
-                  <Button disable="true" mnemonicParsing="false" onAction="#getBooksList" prefHeight="25.0" prefWidth="97.0" text="List" GridPane.columnIndex="3" GridPane.rowIndex="7" />
+                  <Button mnemonicParsing="false" onAction="#getBooksList" prefHeight="25.0" prefWidth="97.0" text="Generate" GridPane.columnIndex="3" GridPane.rowIndex="8" />
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="7">
                      <children>
                         <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Ссылка на облако:" />
                         <TextField fx:id="cloudStorageLink" prefHeight="26.0" prefWidth="281.0" text="https://mail.ru/..." />
                      </children>
                   </HBox>
+                  <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Список файлов:" GridPane.rowIndex="8" />
+                  <Button mnemonicParsing="false" onAction="#reloadBooksList" prefHeight="25.0" prefWidth="97.0" text="Reload" GridPane.columnIndex="2" GridPane.rowIndex="8" />
+                  <Label fx:id="bookTotals" minWidth="38.0" prefHeight="17.0" prefWidth="38.0" text="#" GridPane.columnIndex="1" GridPane.rowIndex="8" />
                   </children>
               </GridPane>
          </children>

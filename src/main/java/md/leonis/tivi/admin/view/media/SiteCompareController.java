@@ -42,6 +42,7 @@ public class SiteCompareController extends SubPane {
     public TreeTableView<View> treeTableView;
     public CheckBox onlyForSiteCheckBox;
     public TextField cloudStorageLink;
+    public Label bookTotals;
 
     @FXML
     private void initialize() {
@@ -80,12 +81,12 @@ public class SiteCompareController extends SubPane {
     public void compare() throws IOException {
         setupTreeTableView();
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
-        //CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
+        CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
         fillTreeTableView(BookUtils.compare(categoryComboBox.getValue().getCatcpu()));
     }
 
     public void generate() throws IOException {
-        //CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
+        CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
         ComparisionResult<Video> comparisionResult = BookUtils.compare(categoryComboBox.getValue().getCatcpu());
         BookUtils.syncDataWithSite(comparisionResult, calibreDir.getText(), categoryComboBox.getValue().getCatcpu());
@@ -108,15 +109,21 @@ public class SiteCompareController extends SubPane {
         CalibreUtils.dumpBooks(onlyForSiteCheckBox.isSelected());
     }
 
-    public void getBooksList() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    public void getBooksList() throws IOException {
+        /*Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Information Dialog");
         alert.setHeaderText("Lists now disabled");
         alert.setContentText("This button wont work");
 
-        alert.showAndWait();
-        //CalibreUtils.generateBooksList();
+        alert.showAndWait();*/
+        CalibreUtils.generateBooksList();
     }
+
+    public void reloadBooksList() throws IOException {
+        CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
+        bookTotals.setText("" + CalibreUtils.bookRecords.size());
+    }
+
 
     public void onSelectCategory() {
         //TODO ??
