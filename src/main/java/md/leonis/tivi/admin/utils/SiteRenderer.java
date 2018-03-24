@@ -300,7 +300,11 @@ public class SiteRenderer {
                 }
             }).collect(joining());
         } else {
-            return doTrimHtmlTags(node.childNodes().get(0));
+            if (node.childNodeSize() == 0) {
+                return "";
+            } else {
+                return doTrimHtmlTags(node.childNodes().get(0));
+            }
         }
     }
 

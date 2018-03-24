@@ -755,11 +755,23 @@ public class BookUtils {
         if (calibreBook.getDataList() == null) {
             return new ArrayList<>();
         }
+        System.out.println(calibreBook.getDataList());
         return calibreBook.getDataList().stream()
-                .filter(f -> f.getName().startsWith("http") ||
-                        CalibreUtils.bookRecordMap.get(f.getCrc32()).getChecked())
+                .peek(f -> System.out.println(CalibreUtils.bookRecordMap.get(f.getCrc32())))
+                //TODO problem - can't get crc32 for file in archive
+                /*.filter(f -> f.getName().startsWith("http") ||
+                        CalibreUtils.bookRecordMap.get(f.getCrc32()).getChecked())*/
                 .peek(data -> data.setFileName(findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0))).collect(toList());
     }
+
+/*
+    private static boolean getChecked(Data data) {
+        if (CalibreUtils.bookRecordMap.get(data.getCrc32()) != null) {
+            return CalibreUtils.bookRecordMap.get(data.getCrc32()).getChecked();
+        }
+        return CalibreUtils.bookRecords.stream().filter(b -> b.getName().equals(data.getFileName())).
+    }
+*/
 
     public static String findFreeFileName(Set<String> fileNames, String fileName, String ext, int incr) {
         String result = fileName + incrToString(incr) + "." + ext;
