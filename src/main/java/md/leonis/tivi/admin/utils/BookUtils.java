@@ -398,6 +398,8 @@ public class BookUtils {
     public static void getSiteBooks() {
         String json = dumpBaseAsJson(tableStatuses.stream().filter(t -> t.getName().equals("danny_media")).findFirst().get());
         siteBooks = JsonUtils.gson.fromJson(json, videosType);
+        //TODO remove this GD hack
+        siteBooks = siteBooks.stream().filter(b -> b.getCategoryId() != 163).collect(toList());
     }
 
     public static String upload(String path, String imageName, InputStream inputStream) throws IOException {
@@ -906,7 +908,8 @@ public class BookUtils {
         return chunks.stream().filter(s -> !s.isEmpty()).distinct().map(String::toLowerCase).collect(joining(", "));
     }
 
-    public static void syncDataWithSite(ComparisionResult<Video> comparisionResult, String calibreDbDirectory, String category) {
+    public static void syncDataWithSite(ComparisionResult<Video> comparisionResult, String calibreDbDirectory, String cat) {
+        String category = cat == null ? "" : cat;
         List<String> insertQueries = comparisionResult.getAddedBooks().stream().map(b -> BookUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(toList());
         List<String> deleteQueries = comparisionResult.getDeletedBooks().stream().map(b -> "DELETE FROM `danny_media` WHERE downid=" + b.getId() + ";").collect(toList());
         List<String> updateQueries = comparisionResult.getChangedBooks().entrySet().stream().filter(b -> !b.getValue().isEmpty()).map(b -> BookUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(toList());
