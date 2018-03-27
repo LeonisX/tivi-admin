@@ -324,6 +324,39 @@ public class BookUtils {
         return "[" + jsons.stream().filter(s -> !s.isEmpty()).collect(joining(",")) + "]";
     }
 
+    public static List<Pair<BookCategory, BookCategory>> compareCategories() {
+        List<Pair<BookCategory,BookCategory>> result = categories.stream().map(c -> new Pair<>(c, new BookCategory(c))).collect(toList());
+        result.forEach(p -> p.getValue().setTotal(0));
+        result.forEach(p -> {
+            List<Video> children = siteBooks.stream().filter(b -> b.getCategoryId().equals(p.getValue().getCatid())).collect(toList());
+            if (!children.isEmpty()) {
+                p.getValue().setTotal(children.size());
+                updateParentTotals(p.getValue(), result);
+            }
+        });
+        //TODO remove GD filter
+        return result.stream().filter(p -> !p.getKey().getTotal().equals(p.getValue().getTotal())).filter(p -> !p.getValue().getCatcpu().equals("gd")).collect(toList());
+    }
+
+    private static void updateParentTotals(BookCategory bookCategory, List<Pair<BookCategory,BookCategory>> result) {
+        if (bookCategory.getParentid() == 0) {
+            return;
+        }
+        BookCategory parent = result.stream().filter(c -> c.getValue().getCatid().equals(bookCategory.getParentid())).map(Pair::getValue).findFirst().get();
+        System.out.println(parent.getCatname());
+        parent.setTotal(parent.getTotal() + bookCategory.getTotal());
+        updateParentTotals(parent, result);
+    }
+
+    //TODO generic
+    // TODO WHY NOT WORK?????
+    public static void updateCategoryTotals(BookCategory bookCategory) {
+        String query = String.format("UPDATE danny_media_cat SET total = %d WHERE catid = %d", bookCategory.getTotal(), bookCategory.getCatid());
+        System.out.println(query);
+        String result = rawQueryRequest(query);
+        System.out.println(result);
+    }
+
     static class LocalDateAdapter implements JsonSerializer<LocalDate> {
         public JsonElement serialize(LocalDate date, Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive(date.format(DateTimeFormatter.ISO_LOCAL_DATE)); // "yyyy-mm-dd"
@@ -368,7 +401,12 @@ public class BookUtils {
     }
 
     public static void readCategories() {
-        List<BookCategory> bookCategories;
+        String jsonString = queryRequest("SELECT * FROM danny_media_cat");
+        List<BookCategory> bookCategories = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<BookCategory>>() {
+        }.getType());
+        categories = bookCategories.stream().sorted(Comparator.comparing(BookCategory::getCatcpu)).collect(toList());
+
+        /*List<BookCategory> bookCategories;
         String requestURL = Config.apiPath + "media.php?to=cat";
         try {
             String jsonString = WebUtils.readFromUrl(requestURL);
@@ -377,7 +415,7 @@ public class BookUtils {
             categories = bookCategories.stream().sorted(Comparator.comparing(BookCategory::getCatcpu)).collect(toList());
         } catch (IOException e) {
             System.out.println("Error in readCategories");
-        }
+        }*/
     }
 
     public static void listBooks() {

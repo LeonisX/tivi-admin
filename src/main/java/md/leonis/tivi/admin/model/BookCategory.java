@@ -20,4 +20,19 @@ public class BookCategory {
     private String ord = Order.ASC.getValue();
     private YesNo rss = YesNo.yes;
     private Integer total = 0;
+
+    public BookCategory(BookCategory other) {
+        this.catid = other.catid;
+        this.parentid = other.parentid;
+        this.catcpu = other.catcpu;
+        this.catname = other.catname;
+        this.catdesc = other.catdesc;
+        this.posit = other.posit;
+        this.icon = other.icon;
+        this.access = other.access;
+        this.sort = other.sort;
+        this.ord = other.ord;
+        this.rss = other.rss;
+        this.total = other.total;
+    }
 }

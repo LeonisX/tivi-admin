@@ -12,6 +12,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Callback;
+import javafx.util.Pair;
 import javafx.util.StringConverter;
 import md.leonis.tivi.admin.model.BookCategory;
 import md.leonis.tivi.admin.model.ComparisionResult;
@@ -43,12 +44,13 @@ public class SiteCompareController extends SubPane {
     public CheckBox onlyForSiteCheckBox;
     public TextField cloudStorageLink;
     public Label bookTotals;
+    public Label categoriesTotals;
 
     @FXML
     private void initialize() {
         reloadCalibreData();
         reloadSiteData();
-        BookUtils.readCategories();
+        reloadCategories();
 
         setupCategoryComboBox();
         calibreDir.setText(Config.calibreDbPath);
@@ -124,6 +126,25 @@ public class SiteCompareController extends SubPane {
         bookTotals.setText("" + CalibreUtils.bookRecords.size());
     }
 
+
+    public void reloadCategories() {
+        //reloadSiteData();
+        BookUtils.readCategories();
+        categoriesTotals.setText(BookUtils.categories.size() + "");
+        System.out.println("Reloaded");
+    }
+
+    public void recalcCategories() {
+        //reloadSiteData();
+        List<Pair<BookCategory, BookCategory>> comparisionResult = BookUtils.compareCategories();
+        setupTreeTableView();
+        fillTreeTableView(comparisionResult);
+    }
+
+    public void updateCategories() {
+        BookUtils.compareCategories().forEach(b -> BookUtils.updateCategoryTotals(b.getValue()));
+        reloadCategories();
+    }
 
     public void onSelectCategory() {
         //TODO ??
@@ -302,6 +323,23 @@ public class SiteCompareController extends SubPane {
             )));
             return treeItem;
         }).collect(toList()));
+
+        treeTableView.setRoot(rootItem);
+        //treeTableView.setShowRoot(false);
+        rootItem.setExpanded(true);
+        //treeTableView.setEditable(true);
+    }
+
+    private void fillTreeTableView(List<Pair<BookCategory, BookCategory>> comparisionResult) {
+        TreeItem<View> changedItem = new TreeItem<>(new View("Changed"));
+
+        changedItem.setExpanded(true);
+
+        TreeItem<View> rootItem = new TreeItem<>(new View("R00T"));
+        rootItem.getChildren().add(changedItem);
+
+        changedItem.getChildren().addAll(comparisionResult.stream()
+                .map(b -> new TreeItem<>(new View(b.getKey().getCatname(), b.getKey().getTotal() + "", b.getValue().getTotal() + ""))).collect(toList()));
 
         treeTableView.setRoot(rootItem);
         //treeTableView.setShowRoot(false);
