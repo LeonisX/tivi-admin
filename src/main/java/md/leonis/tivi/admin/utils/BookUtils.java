@@ -25,8 +25,6 @@ import md.leonis.tivi.admin.view.media.AuditController;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.Normalizer;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -39,6 +37,8 @@ import static java.util.stream.Collectors.*;
 import static md.leonis.tivi.admin.utils.StringUtils.*;
 
 public class BookUtils {
+
+    private static final String NEWS_FILE = "news_page.html";
 
     public static List<CalibreBook> calibreBooks = new ArrayList<>();
 
@@ -330,11 +330,13 @@ public class BookUtils {
         result.forEach(p -> {
             List<Video> children = siteBooks.stream().filter(b -> b.getCategoryId().equals(p.getValue().getCatid())).collect(toList());
             if (!children.isEmpty()) {
-                p.getValue().setTotal(children.size());
+                p.getValue().setTotal(p.getValue().getTotal() + children.size());
                 updateParentTotals(p.getValue(), result);
             }
         });
         //TODO remove GD filter
+        result.stream().filter(p -> p.getValue().getCatcpu().equals("magazines")).forEach(c -> c.getValue().setTotal(c.getValue().getTotal() +
+                result.stream().filter(p -> p.getValue().getCatcpu().equals("gd")).findFirst().get().getKey().getTotal()));
         return result.stream().filter(p -> !p.getKey().getTotal().equals(p.getValue().getTotal())).filter(p -> !p.getValue().getCatcpu().equals("gd")).collect(toList());
     }
 
@@ -343,13 +345,11 @@ public class BookUtils {
             return;
         }
         BookCategory parent = result.stream().filter(c -> c.getValue().getCatid().equals(bookCategory.getParentid())).map(Pair::getValue).findFirst().get();
-        System.out.println(parent.getCatname());
         parent.setTotal(parent.getTotal() + bookCategory.getTotal());
         updateParentTotals(parent, result);
     }
 
     //TODO generic
-    // TODO WHY NOT WORK?????
     public static void updateCategoryTotals(BookCategory bookCategory) {
         String query = String.format("UPDATE danny_media_cat SET total = %d WHERE catid = %d", bookCategory.getTotal(), bookCategory.getCatid());
         System.out.println(query);
@@ -908,6 +908,10 @@ public class BookUtils {
         return categories.stream().filter(c -> c.getCatcpu().equals(cpu)).findFirst().get();
     }
 
+    public static BookCategory getCategoryById(Integer id) {
+        return categories.stream().filter(c -> c.getCatid().equals(id)).findFirst().get();
+    }
+
     public static String getCategoryName(String cpu) {
         return getCategoryByCpu(cpu).getCatname();
     }
@@ -947,10 +951,14 @@ public class BookUtils {
     }
 
     public static void syncDataWithSite(ComparisionResult<Video> comparisionResult, String calibreDbDirectory, String cat) {
+        //TODO in this situation we will process books as magazines :(
+        //We don't need to use category at all
         String category = cat == null ? "" : cat;
         List<String> insertQueries = comparisionResult.getAddedBooks().stream().map(b -> BookUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(toList());
         List<String> deleteQueries = comparisionResult.getDeletedBooks().stream().map(b -> "DELETE FROM `danny_media` WHERE downid=" + b.getId() + ";").collect(toList());
         List<String> updateQueries = comparisionResult.getChangedBooks().entrySet().stream().filter(b -> !b.getValue().isEmpty()).map(b -> BookUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(toList());
+
+        generateNewsPage(comparisionResult.getAddedBooks(), comparisionResult.getChangedBooks());
 
         List<String> results = deleteQueries.stream().map(BookUtils::queryRequest).collect(toList());
         results.forEach(System.out::println);
@@ -962,9 +970,11 @@ public class BookUtils {
         //TODO "IN" QUERY ??
         String configUrl = Config.sqliteUrl;
         Config.sqliteUrl = getJdbcString(calibreDbDirectory);
+        //!!!
         if (!category.equals("magazines")) {
             comparisionResult.getAddedBooks().forEach(b -> {
 
+                //!!!
                 if (!(b.getCpu().startsWith(category + "_")) && !(b.getCpu().endsWith("_manuals")) && !(b.getCpu().endsWith("_comics"))
                         && !(b.getCpu().endsWith("_docs") && !(b.getCpu().endsWith("_guides") && !(b.getCpu().endsWith("_emulators"))))) {
                     List<Video> videoList = JsonUtils.gson.fromJson(BookUtils.queryRequest("SELECT * FROM danny_media WHERE cpu='" + b.getCpu() + "' AND catid=" + b.getCategoryId()), videosType);
@@ -986,6 +996,9 @@ public class BookUtils {
             });
         } else { // magazines
             comparisionResult.getAddedBooks().forEach(b -> {
+                //TODO we don't have update for tiviId for comics.
+                //May be this code don't work
+                //!!!
                 if (!b.getCpu().equals("magazines_in_search")) {
                     Long bookId = calibreBooks.stream().filter(cb -> cb.getType().equals("magazine")).filter(cb -> cb.getSeries() != null && generateCpu(cb.getSeries().getName()).equals(b.getCpu())).min(Comparator.comparing(Book::getSort)).get().getId();
                     List<Video> videoList = JsonUtils.gson.fromJson(BookUtils.queryRequest("SELECT * FROM danny_media WHERE cpu='" + b.getCpu() + "' AND catid=" + b.getCategoryId()), videosType);
@@ -1006,6 +1019,60 @@ public class BookUtils {
             });
         }
         Config.sqliteUrl = configUrl;
+    }
+
+    //TODO in renderer
+    private static void generateNewsPage(Collection<Video> addedBooks, Map<Video, List<Pair<String, Pair<String, String>>>> changedBooks) {
+        StringBuilder sb = new StringBuilder();
+        if (!addedBooks.isEmpty()) {
+            sb.append("<h4>Добавленные книги:</h4>\n");
+            sb.append("<ul>\n");
+            addedBooks.forEach(b -> sb.append(String.format("<li><a href=\"http://tv-games.ru/media/open/%s.html\">%s</a></li>\n", b.getCpu(), b.getTitle())));
+            sb.append("</ul>\n");
+        }
+        if (!changedBooks.isEmpty()) {
+            sb.append("<h4>Изменённые книги:</h4>\n");
+            sb.append("<ul>\n");
+            changedBooks.forEach((b, l) -> sb.append(String.format("<li><a href=\"http://tv-games.ru/media/open/%s.html\">%s</a></li>\n", b.getCpu(), b.getTitle())));
+            sb.append("</ul>\n");
+        }
+        Collection<Video> allBooks = new ArrayList<>(addedBooks);
+        allBooks.addAll(changedBooks.entrySet().stream().map(Map.Entry::getKey).collect(toList()));
+        sb.append("<br />\n");
+        int counter = 1;
+        sb.append("<p><table style=\"width:600px;\">\n");
+        for (Video book : allBooks) {
+            if (counter == 1) {
+                sb.append("<tr>\n");
+            }
+            sb.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\">\n");
+            String imageLink = String.format("http://tv-games.ru/media/open/%s.html", book.getCpu());
+            String imageThumb = String.format("images/books/thumb/%s/%s.jpg", BookUtils.getCategoryById(book.getCategoryId()), book.getCpu());
+            sb.append(String.format("<a href=\"%s\"><img style=\"border: 1px solid #aaaaaa;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a>\n", imageLink, book.getTitle(), imageThumb, book.getTitle()));
+            sb.append("</td>\n");
+            counter++;
+            if (counter > 3) {
+                sb.append("</tr><tr>\n");
+                counter = 1;
+            }
+        }
+        if (counter != 1) {
+            for (int i = counter - 1; i <= 3; i++) {
+                sb.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\"></td>\n");
+            }
+        }
+        sb.append("</tr>\n");
+        sb.append("</table></p>\n");
+        // save
+        File file = new File(Config.calibreDbPath + NEWS_FILE);
+        if (file.exists()) {
+            file.renameTo(new File(Config.calibreDbPath + NEWS_FILE + ".bak"));
+        }
+        try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
+            out.println(sb);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static String getJdbcString(String path) {
