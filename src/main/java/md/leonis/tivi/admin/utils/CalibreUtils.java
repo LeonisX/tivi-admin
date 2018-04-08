@@ -834,6 +834,8 @@ public class CalibreUtils {
                     case "cbr":
                     case "doc":
                     case "docx":
+                    case "xls":
+                    case "xlsx":
                     case "rtf":
                     case "jpg":
                     case "scl":
@@ -894,6 +896,8 @@ public class CalibreUtils {
                     case "cbr":
                     case "doc":
                     case "docx":
+                    case "xls":
+                    case "xlsx":
                     case "rtf":
                     case "jpg":
                     case "scl":
