@@ -1,8 +1,1296 @@
 {
+  "field_metadata": {
+    "timestamp": {
+      "table": null, 
+      "display": {
+        "date_format": "dd MMM yyyy"
+      }, 
+      "label": "timestamp", 
+      "datatype": "datetime", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u0414\u0430\u0442\u0430", 
+      "column": null, 
+      "rec_index": 3, 
+      "search_terms": [
+        "date"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "#company": {
+      "table": "custom_column_15", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "company", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u041a\u043e\u043c\u043f\u0430\u043d\u0438\u044f", 
+      "datatype": "text", 
+      "rec_index": 24, 
+      "search_terms": [
+        "#company"
+      ], 
+      "is_editable": true, 
+      "colnum": 15, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "#signed_in_print": {
+      "table": "custom_column_5", 
+      "display": {
+        "date_format": "dd.MM.yyyy", 
+        "description": ""
+      }, 
+      "label": "signed_in_print", 
+      "column": "value", 
+      "is_category": false, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u041f\u043e\u0434\u043f\u0438\u0441\u0430\u043d\u043e \u0432 \u043f\u0435\u0447\u0430\u0442\u044c", 
+      "datatype": "datetime", 
+      "rec_index": 37, 
+      "search_terms": [
+        "#signed_in_print"
+      ], 
+      "is_editable": true, 
+      "colnum": 5, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "#tivi_id": {
+      "table": "custom_column_17", 
+      "display": {
+        "description": "", 
+        "number_format": null
+      }, 
+      "label": "tivi_id", 
+      "column": "value", 
+      "is_category": false, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "TiVi Id", 
+      "datatype": "int", 
+      "rec_index": 39, 
+      "search_terms": [
+        "#tivi_id"
+      ], 
+      "is_editable": true, 
+      "colnum": 17, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "#source": {
+      "table": "custom_column_12", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "source", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a", 
+      "datatype": "text", 
+      "rec_index": 38, 
+      "search_terms": [
+        "#source"
+      ], 
+      "is_editable": true, 
+      "colnum": 12, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "#postprocessing": {
+      "table": "custom_column_4", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "postprocessing", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u041f\u043e\u0441\u0442\u043e\u0431\u0440\u0430\u0431\u043e\u0442\u043a\u0430", 
+      "datatype": "text", 
+      "rec_index": 34, 
+      "search_terms": [
+        "#postprocessing"
+      ], 
+      "is_editable": true, 
+      "colnum": 4, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "news": {
+      "table": "news", 
+      "display": {}, 
+      "label": "news", 
+      "datatype": null, 
+      "is_category": true, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u041d\u043e\u0432\u043e\u0441\u0442\u0438", 
+      "column": "name", 
+      "search_terms": [], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "category", 
+      "category_sort": "name"
+    }, 
+    "#page": {
+      "table": "custom_column_21", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "page", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u0421\u0442\u0440\u0430\u043d\u0438\u0446\u0430 \u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442\u0430", 
+      "datatype": "text", 
+      "rec_index": 32, 
+      "search_terms": [
+        "#page"
+      ], 
+      "is_editable": true, 
+      "colnum": 21, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "#filename": {
+      "table": "custom_column_6", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "filename", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u0418\u043c\u044f \u0444\u0430\u0439\u043b\u0430", 
+      "datatype": "text", 
+      "rec_index": 27, 
+      "search_terms": [
+        "#filename"
+      ], 
+      "is_editable": true, 
+      "colnum": 6, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "#type": {
+      "table": "custom_column_14", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "type", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u0422\u0438\u043f", 
+      "datatype": "text", 
+      "rec_index": 40, 
+      "search_terms": [
+        "#type"
+      ], 
+      "is_editable": true, 
+      "colnum": 14, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "pubdate": {
+      "table": null, 
+      "display": {
+        "date_format": "MMM yyyy"
+      }, 
+      "label": "pubdate", 
+      "datatype": "datetime", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u041e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u043d\u0430", 
+      "column": null, 
+      "rec_index": 15, 
+      "search_terms": [
+        "pubdate"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "#alt_tags": {
+      "table": "custom_column_19", 
+      "display": {
+        "is_names": false, 
+        "description": "\u041d\u0430 \u0442\u043e\u0442 \u0441\u043b\u0443\u0447\u0430\u0439, \u0435\u0441\u043b\u0438, \u043d\u0430\u043f\u0440\u0438\u043c\u0435\u0440, \u043a\u043d\u0438\u0433\u0430 \u0434\u043b\u044f PS One, \u043d\u043e \u0443\u043a\u0430\u0437\u0430\u043d\u043e, \u0447\u0442\u043e \u0435\u0441\u0442\u044c \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u044f \u0438 \u0434\u043b\u044f \u041f\u041a"
+      }, 
+      "label": "alt_tags", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {
+        "cache_to_list": "|", 
+        "ui_to_list": ",", 
+        "list_to_ui": ", "
+      }, 
+      "name": "\u0412\u0441\u043f\u043e\u043c\u043e\u0433\u0430\u0442\u0435\u043b\u044c\u043d\u044b\u0435 \u0442\u0435\u0433\u0438", 
+      "datatype": "text", 
+      "rec_index": 22, 
+      "search_terms": [
+        "#alt_tags"
+      ], 
+      "is_editable": true, 
+      "colnum": 19, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "#pages": {
+      "table": "custom_column_8", 
+      "display": {
+        "description": "", 
+        "number_format": null
+      }, 
+      "label": "pages", 
+      "column": "value", 
+      "is_category": false, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u0421\u0442\u0440\u0430\u043d\u0438\u0446", 
+      "datatype": "int", 
+      "rec_index": 33, 
+      "search_terms": [
+        "#pages"
+      ], 
+      "is_editable": true, 
+      "colnum": 8, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "comments": {
+      "table": null, 
+      "display": {}, 
+      "label": "comments", 
+      "datatype": "text", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u041a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0438", 
+      "column": null, 
+      "rec_index": 7, 
+      "search_terms": [
+        "comments", 
+        "comment"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "uuid": {
+      "table": null, 
+      "display": {}, 
+      "label": "uuid", 
+      "datatype": "text", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": null, 
+      "column": null, 
+      "rec_index": 16, 
+      "search_terms": [
+        "uuid"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "#scanned_by": {
+      "table": "custom_column_7", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "scanned_by", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u0421\u043a\u0430\u043d\u0438\u0440\u043e\u0432\u0430\u043b", 
+      "datatype": "text", 
+      "rec_index": 36, 
+      "search_terms": [
+        "#scanned_by"
+      ], 
+      "is_editable": true, 
+      "colnum": 7, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "identifiers": {
+      "table": null, 
+      "display": {}, 
+      "label": "identifiers", 
+      "datatype": "text", 
+      "is_category": true, 
+      "is_custom": false, 
+      "is_csp": true, 
+      "name": "\u0418\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0442\u043e\u0440\u044b", 
+      "column": null, 
+      "rec_index": 20, 
+      "search_terms": [
+        "identifiers", 
+        "identifier", 
+        "isbn"
+      ], 
+      "is_multiple": {
+        "cache_to_list": ",", 
+        "ui_to_list": ",", 
+        "list_to_ui": ", "
+      }, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "id": {
+      "table": null, 
+      "display": {}, 
+      "label": "id", 
+      "datatype": "int", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": null, 
+      "column": null, 
+      "rec_index": 0, 
+      "search_terms": [
+        "id"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "#udk": {
+      "table": "custom_column_2", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "udk", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u0423\u0414\u041a", 
+      "datatype": "text", 
+      "rec_index": 41, 
+      "search_terms": [
+        "#udk"
+      ], 
+      "is_editable": true, 
+      "colnum": 2, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "languages": {
+      "table": "languages", 
+      "display": {}, 
+      "label": "languages", 
+      "datatype": "text", 
+      "is_category": true, 
+      "is_custom": false, 
+      "link_column": "lang_code", 
+      "is_csp": false, 
+      "name": "\u042f\u0437\u044b\u043a\u0438", 
+      "column": "lang_code", 
+      "rec_index": 21, 
+      "search_terms": [
+        "languages", 
+        "language"
+      ], 
+      "is_multiple": {
+        "cache_to_list": ",", 
+        "ui_to_list": ",", 
+        "list_to_ui": ", "
+      }, 
+      "is_editable": true, 
+      "kind": "field", 
+      "category_sort": "lang_code"
+    }, 
+    "last_modified": {
+      "table": null, 
+      "display": {
+        "date_format": "dd MMM yyyy"
+      }, 
+      "label": "last_modified", 
+      "datatype": "datetime", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u0418\u0437\u043c\u0435\u043d\u0435\u043d\u0430", 
+      "column": null, 
+      "rec_index": 19, 
+      "search_terms": [
+        "last_modified"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "series": {
+      "table": "series", 
+      "display": {}, 
+      "label": "series", 
+      "datatype": "series", 
+      "is_category": true, 
+      "is_custom": false, 
+      "link_column": "series", 
+      "is_csp": false, 
+      "name": "\u0421\u0435\u0440\u0438\u044f", 
+      "column": "name", 
+      "rec_index": 8, 
+      "search_terms": [
+        "series"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field", 
+      "category_sort": "(title_sort(name))"
+    }, 
+    "#release_comment": {
+      "table": "custom_column_20", 
+      "display": {
+        "heading_position": "above", 
+        "interpret_as": "html", 
+        "description": "\u0422\u0443\u0442 \u043e\u0442\u043c\u0435\u0447\u0430\u0435\u043c, \u0435\u0441\u043b\u0438 \u043a\u043d\u0438\u0433\u0430 \u043a\u0440\u0438\u0432\u043e \u043e\u0442\u0441\u043a\u0430\u043d\u0438\u0440\u043e\u0432\u0430\u043d\u0430 \u0438\u043b\u0438 \u043d\u0435 \u0445\u0432\u0430\u0442\u0430\u0435\u0442 \u0441\u0442\u0440\u0430\u043d\u0438\u0446", 
+        "use_decorations": 0
+      }, 
+      "label": "release_comment", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u041a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0439 \u043e \u043a\u043d\u0438\u0433\u0435", 
+      "datatype": "comments", 
+      "rec_index": 35, 
+      "search_terms": [
+        "#release_comment"
+      ], 
+      "is_editable": true, 
+      "colnum": 20, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "#cpu": {
+      "table": "custom_column_16", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "cpu", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u0427\u041f\u0423", 
+      "datatype": "text", 
+      "rec_index": 25, 
+      "search_terms": [
+        "#cpu"
+      ], 
+      "is_editable": true, 
+      "colnum": 16, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "size": {
+      "table": null, 
+      "display": {}, 
+      "label": "size", 
+      "datatype": "float", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u0420\u0430\u0437\u043c\u0435\u0440", 
+      "column": null, 
+      "rec_index": 4, 
+      "search_terms": [
+        "size"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "rating": {
+      "table": "ratings", 
+      "display": {}, 
+      "label": "rating", 
+      "datatype": "rating", 
+      "is_category": true, 
+      "is_custom": false, 
+      "link_column": "rating", 
+      "is_csp": false, 
+      "name": "\u041e\u0446\u0435\u043d\u043a\u0430", 
+      "column": "rating", 
+      "rec_index": 5, 
+      "search_terms": [
+        "rating"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field", 
+      "category_sort": "rating"
+    }, 
+    "#official_title": {
+      "table": "custom_column_13", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "official_title", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u041e\u0444\u0438\u0446\u0438\u0430\u043b\u044c\u043d\u043e\u0435 \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u0435", 
+      "datatype": "text", 
+      "rec_index": 30, 
+      "search_terms": [
+        "#official_title"
+      ], 
+      "is_editable": true, 
+      "colnum": 13, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "series_index": {
+      "table": null, 
+      "display": {}, 
+      "label": "series_index", 
+      "datatype": "float", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": null, 
+      "column": null, 
+      "rec_index": 10, 
+      "search_terms": [
+        "series_index"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "formats": {
+      "table": null, 
+      "display": {}, 
+      "label": "formats", 
+      "datatype": "text", 
+      "is_category": true, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u0424\u043e\u0440\u043c\u0430\u0442\u044b", 
+      "column": null, 
+      "rec_index": 13, 
+      "search_terms": [
+        "formats", 
+        "format"
+      ], 
+      "is_multiple": {
+        "cache_to_list": ",", 
+        "ui_to_list": ",", 
+        "list_to_ui": ", "
+      }, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "path": {
+      "table": null, 
+      "display": {}, 
+      "label": "path", 
+      "datatype": "text", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u041f\u0443\u0442\u044c", 
+      "column": null, 
+      "rec_index": 14, 
+      "search_terms": [], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "#isbn": {
+      "table": "custom_column_1", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "isbn", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "ISBN", 
+      "datatype": "text", 
+      "rec_index": 29, 
+      "search_terms": [
+        "#isbn"
+      ], 
+      "is_editable": true, 
+      "colnum": 1, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "authors": {
+      "table": "authors", 
+      "display": {}, 
+      "label": "authors", 
+      "datatype": "text", 
+      "is_category": true, 
+      "is_custom": false, 
+      "link_column": "author", 
+      "is_csp": false, 
+      "name": "\u0410\u0432\u0442\u043e\u0440\u044b", 
+      "column": "name", 
+      "rec_index": 2, 
+      "search_terms": [
+        "authors", 
+        "author"
+      ], 
+      "is_multiple": {
+        "cache_to_list": ",", 
+        "ui_to_list": "&", 
+        "list_to_ui": " & "
+      }, 
+      "is_editable": true, 
+      "kind": "field", 
+      "category_sort": "sort"
+    }, 
+    "ondevice": {
+      "table": null, 
+      "display": {}, 
+      "label": "ondevice", 
+      "datatype": "text", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u041d\u0430 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0435", 
+      "column": null, 
+      "rec_index": 42, 
+      "search_terms": [
+        "ondevice"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "title": {
+      "table": null, 
+      "display": {}, 
+      "label": "title", 
+      "datatype": "text", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435", 
+      "column": null, 
+      "rec_index": 1, 
+      "search_terms": [
+        "title"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "au_map": {
+      "table": null, 
+      "display": {}, 
+      "label": "au_map", 
+      "datatype": "text", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": null, 
+      "column": null, 
+      "rec_index": 18, 
+      "search_terms": [], 
+      "is_multiple": {
+        "cache_to_list": ",", 
+        "ui_to_list": null, 
+        "list_to_ui": null
+      }, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "series_sort": {
+      "table": null, 
+      "display": {}, 
+      "label": "series_sort", 
+      "datatype": "text", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u0421\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u043a\u0430 \u043f\u043e \u0441\u0435\u0440\u0438\u044f\u043c", 
+      "column": null, 
+      "rec_index": 44, 
+      "search_terms": [
+        "series_sort"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "#edition": {
+      "table": "custom_column_3", 
+      "display": {
+        "description": "", 
+        "number_format": null
+      }, 
+      "label": "edition", 
+      "column": "value", 
+      "is_category": false, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u0422\u0438\u0440\u0430\u0436", 
+      "datatype": "int", 
+      "rec_index": 26, 
+      "search_terms": [
+        "#edition"
+      ], 
+      "is_editable": true, 
+      "colnum": 3, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "#own": {
+      "table": "custom_column_9", 
+      "display": {
+        "description": ""
+      }, 
+      "label": "own", 
+      "column": "value", 
+      "is_category": false, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u0415\u0441\u0442\u044c", 
+      "datatype": "bool", 
+      "rec_index": 31, 
+      "search_terms": [
+        "#own"
+      ], 
+      "is_editable": true, 
+      "colnum": 9, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "author_sort": {
+      "table": null, 
+      "display": {}, 
+      "label": "author_sort", 
+      "datatype": "text", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u0421\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u043e\u0447\u043d\u043e\u0435 \u0438\u043c\u044f \u0430\u0432\u0442\u043e\u0440\u0430", 
+      "column": null, 
+      "rec_index": 12, 
+      "search_terms": [
+        "author_sort"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "tags": {
+      "table": "tags", 
+      "display": {}, 
+      "label": "tags", 
+      "datatype": "text", 
+      "is_category": true, 
+      "is_custom": false, 
+      "link_column": "tag", 
+      "is_csp": false, 
+      "name": "\u0422\u0435\u0433\u0438", 
+      "column": "name", 
+      "rec_index": 6, 
+      "search_terms": [
+        "tags", 
+        "tag"
+      ], 
+      "is_multiple": {
+        "cache_to_list": ",", 
+        "ui_to_list": ",", 
+        "list_to_ui": ", "
+      }, 
+      "is_editable": true, 
+      "kind": "field", 
+      "category_sort": "name"
+    }, 
+    "cover": {
+      "table": null, 
+      "display": {}, 
+      "label": "cover", 
+      "datatype": "int", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u041e\u0431\u043b\u043e\u0436\u043a\u0430", 
+      "column": null, 
+      "rec_index": 17, 
+      "search_terms": [
+        "cover"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "marked": {
+      "table": null, 
+      "display": {}, 
+      "label": "marked", 
+      "datatype": "text", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": null, 
+      "column": null, 
+      "rec_index": 43, 
+      "search_terms": [
+        "marked"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "publisher": {
+      "table": "publishers", 
+      "display": {}, 
+      "label": "publisher", 
+      "datatype": "text", 
+      "is_category": true, 
+      "is_custom": false, 
+      "link_column": "publisher", 
+      "is_csp": false, 
+      "name": "\u0418\u0437\u0434\u0430\u0442\u0435\u043b\u044c", 
+      "column": "name", 
+      "rec_index": 9, 
+      "search_terms": [
+        "publisher"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field", 
+      "category_sort": "name"
+    }, 
+    "sort": {
+      "table": null, 
+      "display": {}, 
+      "label": "sort", 
+      "datatype": "text", 
+      "is_category": false, 
+      "is_custom": false, 
+      "is_csp": false, 
+      "name": "\u0421\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u043a\u0430 \u043f\u043e \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u044f\u043c", 
+      "column": null, 
+      "rec_index": 11, 
+      "search_terms": [
+        "title_sort"
+      ], 
+      "is_multiple": {}, 
+      "is_editable": true, 
+      "kind": "field"
+    }, 
+    "#format": {
+      "table": "custom_column_11", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "format", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u0424\u043e\u0440\u043c\u0430\u0442", 
+      "datatype": "text", 
+      "rec_index": 28, 
+      "search_terms": [
+        "#format"
+      ], 
+      "is_editable": true, 
+      "colnum": 11, 
+      "kind": "field", 
+      "category_sort": "value"
+    }, 
+    "#bbk": {
+      "table": "custom_column_10", 
+      "display": {
+        "description": "", 
+        "use_decorations": 0
+      }, 
+      "label": "bbk", 
+      "column": "value", 
+      "is_category": true, 
+      "is_custom": true, 
+      "link_column": "value", 
+      "is_csp": false, 
+      "is_multiple": {}, 
+      "name": "\u0411\u0411\u041a", 
+      "datatype": "text", 
+      "rec_index": 23, 
+      "search_terms": [
+        "#bbk"
+      ], 
+      "is_editable": true, 
+      "colnum": 10, 
+      "kind": "field", 
+      "category_sort": "value"
+    }
+  }, 
+  "grouped_search_terms": {}, 
+  "qv_display_fields": [
+    [
+      "title", 
+      true
+    ], 
+    [
+      "authors", 
+      true
+    ], 
+    [
+      "series", 
+      true
+    ], 
+    [
+      "languages", 
+      false
+    ], 
+    [
+      "formats", 
+      false
+    ], 
+    [
+      "publisher", 
+      false
+    ], 
+    [
+      "rating", 
+      false
+    ], 
+    [
+      "tags", 
+      false
+    ], 
+    [
+      "identifiers", 
+      false
+    ], 
+    [
+      "author_sort", 
+      false
+    ], 
+    [
+      "id", 
+      false
+    ], 
+    [
+      "last_modified", 
+      false
+    ], 
+    [
+      "path", 
+      false
+    ], 
+    [
+      "pubdate", 
+      false
+    ], 
+    [
+      "sort", 
+      false
+    ], 
+    [
+      "size", 
+      false
+    ], 
+    [
+      "timestamp", 
+      false
+    ], 
+    [
+      "uuid", 
+      false
+    ], 
+    [
+      "#bbk", 
+      false
+    ], 
+    [
+      "#edition", 
+      false
+    ], 
+    [
+      "#filename", 
+      false
+    ], 
+    [
+      "#format", 
+      false
+    ], 
+    [
+      "#isbn", 
+      false
+    ], 
+    [
+      "#own", 
+      false
+    ], 
+    [
+      "#pages", 
+      false
+    ], 
+    [
+      "#postprocessing", 
+      false
+    ], 
+    [
+      "#scanned_by", 
+      false
+    ], 
+    [
+      "#signed_in_print", 
+      false
+    ], 
+    [
+      "#source", 
+      false
+    ], 
+    [
+      "#udk", 
+      false
+    ], 
+    [
+      "#alt_tags", 
+      false
+    ], 
+    [
+      "#company", 
+      false
+    ], 
+    [
+      "#cpu", 
+      false
+    ], 
+    [
+      "#official_title", 
+      false
+    ], 
+    [
+      "#tivi_id", 
+      false
+    ], 
+    [
+      "#type", 
+      false
+    ]
+  ], 
+  "bools_are_tristate": true, 
+  "tag_browser_hidden_categories": [], 
+  "books view split pane state": {
+    "column_sizes": {
+      "timestamp": 100, 
+      "#company": 100, 
+      "#signed_in_print": 100, 
+      "#tivi_id": 100, 
+      "#source": 100, 
+      "#postprocessing": 100, 
+      "#page": 100, 
+      "#filename": 100, 
+      "#type": 100, 
+      "pubdate": 100, 
+      "#alt_tags": 100, 
+      "#pages": 100, 
+      "#scanned_by": 100, 
+      "#udk": 100, 
+      "languages": 100, 
+      "last_modified": 100, 
+      "series": 100, 
+      "#release_comment": 100, 
+      "#cpu": 100, 
+      "size": 100, 
+      "rating": 100, 
+      "#official_title": 100, 
+      "tags": 100, 
+      "#isbn": 100, 
+      "authors": 100, 
+      "title": 100, 
+      "#edition": 100, 
+      "#own": 100, 
+      "publisher": 100, 
+      "#format": 100, 
+      "#bbk": 100
+    }, 
+    "column_positions": {
+      "timestamp": 3, 
+      "#company": 14, 
+      "#signed_in_print": 26, 
+      "#tivi_id": 28, 
+      "#source": 27, 
+      "#postprocessing": 23, 
+      "#page": 31, 
+      "#filename": 17, 
+      "#type": 30, 
+      "pubdate": 9, 
+      "#alt_tags": 12, 
+      "#pages": 22, 
+      "#scanned_by": 25, 
+      "#udk": 29, 
+      "languages": 11, 
+      "last_modified": 10, 
+      "series": 7, 
+      "#release_comment": 24, 
+      "#cpu": 15, 
+      "size": 4, 
+      "rating": 5, 
+      "#official_title": 20, 
+      "tags": 6, 
+      "#isbn": 19, 
+      "authors": 2, 
+      "ondevice": 0, 
+      "title": 1, 
+      "#edition": 16, 
+      "#own": 21, 
+      "publisher": 8, 
+      "#format": 18, 
+      "#bbk": 13
+    }, 
+    "hidden_columns": []
+  }, 
+  "gui_view_history": [
+    [
+      1564, 
+      "PlayStation Portable - \u043a\u0440\u0430\u0442\u043a\u0438\u0439 \u0441\u043f\u0440\u0430\u0432\u043e\u0447\u043d\u0438\u043a PSP-1008"
+    ], 
+    [
+      1557, 
+      "PlayStation 3 - \u0440\u0443\u043a\u043e\u0432\u043e\u0434\u0441\u0442\u0432\u043e \u043f\u043e \u044d\u043a\u0441\u043f\u043b\u0443\u0430\u0442\u0430\u0446\u0438\u0438"
+    ], 
+    [
+      1547, 
+      "XBox Repair Guide v2.1"
+    ], 
+    [
+      1547, 
+      "XBoxRepairGuide21"
+    ], 
+    [
+      1546, 
+      "Manual Subor SB-225 (1995)"
+    ], 
+    [
+      1541, 
+      "Subor"
+    ], 
+    [
+      1545, 
+      "SOBUR-manual"
+    ], 
+    [
+      1542, 
+      "\u041c\u0430\u043d\u0443\u0430\u043b \u043e\u0442 \u043a\u0438\u0442\u0430\u0439\u0441\u043a\u043e\u0439 \u0432\u043e\u0441\u044c\u043c\u0438\u0431\u0438\u0442\u043a\u0438"
+    ], 
+    [
+      1543, 
+      "\u041c\u0430\u043d\u0443\u0430\u043b Dendy Eagle"
+    ], 
+    [
+      1543, 
+      "\u041c\u0430\u043d\u0443\u0430\u043b \u043e\u0442 \u0432\u043e\u0441\u044c\u043c\u0438\u0431\u0438\u0442\u043a\u0438 Dendy Eagle"
+    ], 
+    [
+      1544, 
+      "\u0413\u0430\u0440\u0430\u043d\u0442\u0438\u0439\u043d\u044b\u0439 \u0442\u0430\u043b\u043e\u043d \u043e\u0442 \u0432\u043e\u0441\u044c\u043c\u0438\u0431\u0438\u0442\u043a\u0438 Dendy Eagle"
+    ], 
+    [
+      1540, 
+      "\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435 The Legend of Zelda - The Wind Waker"
+    ], 
+    [
+      1539, 
+      "Resident Evil Gaiden (GameBoy Color)"
+    ], 
+    [
+      1538, 
+      "Legend of Zelda - Ocarina of Time (N64)"
+    ], 
+    [
+      1532, 
+      "WWF Raw"
+    ]
+  ], 
   "column_color_rules": [], 
-  "user_categories": {}, 
+  "column_icon_rules": [], 
   "library_view books view state": {
+    "last_modified_injected": true, 
     "sort_history": [
+      [
+        "#filename", 
+        true
+      ], 
+      [
+        "#page", 
+        true
+      ], 
       [
         "#filename", 
         true
@@ -16,60 +1304,10 @@
         true
       ], 
       [
-        "last_modified", 
-        false
-      ], 
-      [
-        "timestamp", 
-        false
-      ], 
-      [
-        "title", 
-        true
-      ], 
-      [
         "timestamp", 
         false
       ]
     ], 
-    "column_alignment": {
-      "timestamp": "center", 
-      "pubdate": "center", 
-      "size": "center"
-    }, 
-    "languages_injected": true, 
-    "column_sizes": {
-      "series": 105, 
-      "size": 107, 
-      "#pages": 100, 
-      "title": 316, 
-      "#udk": 0, 
-      "authors": 0, 
-      "#company": 100, 
-      "#format": 0, 
-      "#release_comment": 0, 
-      "#cpu": 314, 
-      "#official_title": 664, 
-      "#alt_tags": 277, 
-      "#postprocessing": 0, 
-      "#signed_in_print": 120, 
-      "#tivi_id": 29, 
-      "#edition": 100, 
-      "#scanned_by": 100, 
-      "#filename": 316, 
-      "pubdate": 121, 
-      "tags": 252, 
-      "rating": 0, 
-      "last_modified": 91, 
-      "languages": 0, 
-      "#isbn": 0, 
-      "#own": 100, 
-      "#type": 48, 
-      "#source": 695, 
-      "publisher": 93, 
-      "#bbk": 0, 
-      "timestamp": 0
-    }, 
     "hidden_columns": [
       "authors", 
       "timestamp", 
@@ -82,41 +1320,81 @@
       "#release_comment", 
       "#udk"
     ], 
+    "column_sizes": {
+      "timestamp": 0, 
+      "#company": 113, 
+      "#page": 250, 
+      "#tivi_id": 29, 
+      "#source": 695, 
+      "#signed_in_print": 120, 
+      "authors": 0, 
+      "#filename": 316, 
+      "#type": 48, 
+      "pubdate": 121, 
+      "#alt_tags": 277, 
+      "#edition": 100, 
+      "#scanned_by": 100, 
+      "#udk": 0, 
+      "languages": 0, 
+      "last_modified": 91, 
+      "series": 105, 
+      "#release_comment": 0, 
+      "#cpu": 314, 
+      "size": 107, 
+      "rating": 0, 
+      "#official_title": 320, 
+      "tags": 252, 
+      "#isbn": 0, 
+      "#postprocessing": 0, 
+      "title": 316, 
+      "#pages": 100, 
+      "#own": 100, 
+      "publisher": 93, 
+      "#format": 0, 
+      "#bbk": 0
+    }, 
+    "column_alignment": {
+      "timestamp": "center", 
+      "size": "center", 
+      "pubdate": "center"
+    }, 
     "column_positions": {
+      "timestamp": 11, 
+      "#company": 30, 
+      "#page": 20, 
+      "#tivi_id": 2, 
+      "#source": 13, 
+      "#signed_in_print": 5, 
+      "authors": 10, 
+      "#filename": 4, 
+      "#type": 1, 
+      "pubdate": 17, 
+      "#alt_tags": 9, 
+      "#edition": 26, 
+      "#scanned_by": 28, 
+      "#udk": 25, 
+      "languages": 19, 
+      "last_modified": 18, 
       "series": 15, 
+      "#release_comment": 31, 
+      "#cpu": 8, 
       "size": 12, 
+      "rating": 14, 
+      "#official_title": 21, 
+      "tags": 6, 
+      "#isbn": 23, 
+      "#postprocessing": 29, 
       "ondevice": 0, 
       "title": 3, 
-      "#udk": 24, 
-      "authors": 10, 
-      "#company": 29, 
-      "#format": 26, 
-      "#release_comment": 30, 
-      "#cpu": 8, 
-      "#official_title": 20, 
-      "#alt_tags": 9, 
-      "#postprocessing": 28, 
-      "#signed_in_print": 5, 
-      "#pages": 21, 
-      "#tivi_id": 2, 
-      "#edition": 25, 
-      "#scanned_by": 27, 
-      "#filename": 4, 
-      "pubdate": 17, 
-      "tags": 6, 
-      "rating": 14, 
-      "last_modified": 18, 
-      "languages": 19, 
-      "#isbn": 22, 
+      "#pages": 22, 
       "#own": 7, 
-      "#type": 1, 
-      "#source": 13, 
       "publisher": 16, 
-      "#bbk": 23, 
-      "timestamp": 11
+      "#format": 27, 
+      "#bbk": 24
     }, 
-    "last_modified_injected": true
+    "languages_injected": true
   }, 
+  "cover_grid_icon_rules": [], 
   "book_display_fields": [
     [
       "title", 
@@ -275,1261 +1553,7 @@
       true
     ]
   ], 
-  "grouped_search_terms": {}, 
-  "qv_display_fields": [
-    [
-      "title", 
-      true
-    ], 
-    [
-      "authors", 
-      true
-    ], 
-    [
-      "series", 
-      true
-    ], 
-    [
-      "languages", 
-      false
-    ], 
-    [
-      "formats", 
-      false
-    ], 
-    [
-      "publisher", 
-      false
-    ], 
-    [
-      "rating", 
-      false
-    ], 
-    [
-      "tags", 
-      false
-    ], 
-    [
-      "identifiers", 
-      false
-    ], 
-    [
-      "author_sort", 
-      false
-    ], 
-    [
-      "id", 
-      false
-    ], 
-    [
-      "last_modified", 
-      false
-    ], 
-    [
-      "path", 
-      false
-    ], 
-    [
-      "pubdate", 
-      false
-    ], 
-    [
-      "sort", 
-      false
-    ], 
-    [
-      "size", 
-      false
-    ], 
-    [
-      "timestamp", 
-      false
-    ], 
-    [
-      "uuid", 
-      false
-    ], 
-    [
-      "#bbk", 
-      false
-    ], 
-    [
-      "#edition", 
-      false
-    ], 
-    [
-      "#filename", 
-      false
-    ], 
-    [
-      "#format", 
-      false
-    ], 
-    [
-      "#isbn", 
-      false
-    ], 
-    [
-      "#own", 
-      false
-    ], 
-    [
-      "#pages", 
-      false
-    ], 
-    [
-      "#postprocessing", 
-      false
-    ], 
-    [
-      "#scanned_by", 
-      false
-    ], 
-    [
-      "#signed_in_print", 
-      false
-    ], 
-    [
-      "#source", 
-      false
-    ], 
-    [
-      "#udk", 
-      false
-    ], 
-    [
-      "#alt_tags", 
-      false
-    ], 
-    [
-      "#company", 
-      false
-    ], 
-    [
-      "#cpu", 
-      false
-    ], 
-    [
-      "#official_title", 
-      false
-    ], 
-    [
-      "#tivi_id", 
-      false
-    ], 
-    [
-      "#type", 
-      false
-    ]
-  ], 
-  "bools_are_tristate": true, 
-  "tag_browser_hidden_categories": [], 
-  "gui_view_history": [
-    [
-      1564, 
-      "PlayStation Portable - \u043a\u0440\u0430\u0442\u043a\u0438\u0439 \u0441\u043f\u0440\u0430\u0432\u043e\u0447\u043d\u0438\u043a PSP-1008"
-    ], 
-    [
-      1557, 
-      "PlayStation 3 - \u0440\u0443\u043a\u043e\u0432\u043e\u0434\u0441\u0442\u0432\u043e \u043f\u043e \u044d\u043a\u0441\u043f\u043b\u0443\u0430\u0442\u0430\u0446\u0438\u0438"
-    ], 
-    [
-      1547, 
-      "XBox Repair Guide v2.1"
-    ], 
-    [
-      1547, 
-      "XBoxRepairGuide21"
-    ], 
-    [
-      1546, 
-      "Manual Subor SB-225 (1995)"
-    ], 
-    [
-      1541, 
-      "Subor"
-    ], 
-    [
-      1545, 
-      "SOBUR-manual"
-    ], 
-    [
-      1542, 
-      "\u041c\u0430\u043d\u0443\u0430\u043b \u043e\u0442 \u043a\u0438\u0442\u0430\u0439\u0441\u043a\u043e\u0439 \u0432\u043e\u0441\u044c\u043c\u0438\u0431\u0438\u0442\u043a\u0438"
-    ], 
-    [
-      1543, 
-      "\u041c\u0430\u043d\u0443\u0430\u043b Dendy Eagle"
-    ], 
-    [
-      1543, 
-      "\u041c\u0430\u043d\u0443\u0430\u043b \u043e\u0442 \u0432\u043e\u0441\u044c\u043c\u0438\u0431\u0438\u0442\u043a\u0438 Dendy Eagle"
-    ], 
-    [
-      1544, 
-      "\u0413\u0430\u0440\u0430\u043d\u0442\u0438\u0439\u043d\u044b\u0439 \u0442\u0430\u043b\u043e\u043d \u043e\u0442 \u0432\u043e\u0441\u044c\u043c\u0438\u0431\u0438\u0442\u043a\u0438 Dendy Eagle"
-    ], 
-    [
-      1540, 
-      "\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435 The Legend of Zelda - The Wind Waker"
-    ], 
-    [
-      1539, 
-      "Resident Evil Gaiden (GameBoy Color)"
-    ], 
-    [
-      1538, 
-      "Legend of Zelda - Ocarina of Time (N64)"
-    ], 
-    [
-      1532, 
-      "WWF Raw"
-    ]
-  ], 
-  "update_all_last_mod_dates_on_start": false, 
-  "field_metadata": {
-    "ondevice": {
-      "datatype": "text", 
-      "search_terms": [
-        "ondevice"
-      ], 
-      "name": "\u041d\u0430 \u0443\u0441\u0442\u0440\u043e\u0439\u0441\u0442\u0432\u0435", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 41, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "ondevice", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "marked": {
-      "datatype": "text", 
-      "search_terms": [
-        "marked"
-      ], 
-      "name": null, 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 42, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "marked", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "size": {
-      "datatype": "float", 
-      "search_terms": [
-        "size"
-      ], 
-      "name": "\u0420\u0430\u0437\u043c\u0435\u0440", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 4, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "size", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "#udk": {
-      "datatype": "text", 
-      "search_terms": [
-        "#udk"
-      ], 
-      "colnum": 2, 
-      "name": "\u0423\u0414\u041a", 
-      "table": "custom_column_2", 
-      "is_editable": true, 
-      "rec_index": 40, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "udk", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "use_decorations": 0, 
-        "description": ""
-      }
-    }, 
-    "path": {
-      "datatype": "text", 
-      "search_terms": [], 
-      "name": "\u041f\u0443\u0442\u044c", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 14, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "path", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "title": {
-      "datatype": "text", 
-      "search_terms": [
-        "title"
-      ], 
-      "name": "\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 1, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "title", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "authors": {
-      "datatype": "text", 
-      "search_terms": [
-        "authors", 
-        "author"
-      ], 
-      "name": "\u0410\u0432\u0442\u043e\u0440\u044b", 
-      "table": "authors", 
-      "is_editable": true, 
-      "rec_index": 2, 
-      "is_custom": false, 
-      "is_category": true, 
-      "label": "authors", 
-      "kind": "field", 
-      "is_multiple": {
-        "ui_to_list": "&", 
-        "list_to_ui": " & ", 
-        "cache_to_list": ","
-      }, 
-      "category_sort": "sort", 
-      "is_csp": false, 
-      "column": "name", 
-      "link_column": "author", 
-      "display": {}
-    }, 
-    "cover": {
-      "datatype": "int", 
-      "search_terms": [
-        "cover"
-      ], 
-      "name": "\u041e\u0431\u043b\u043e\u0436\u043a\u0430", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 17, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "cover", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "author_sort": {
-      "datatype": "text", 
-      "search_terms": [
-        "author_sort"
-      ], 
-      "name": "\u0421\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u043e\u0447\u043d\u043e\u0435 \u0438\u043c\u044f \u0430\u0432\u0442\u043e\u0440\u0430", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 12, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "author_sort", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "#company": {
-      "datatype": "text", 
-      "search_terms": [
-        "#company"
-      ], 
-      "colnum": 15, 
-      "name": "\u041a\u043e\u043c\u043f\u0430\u043d\u0438\u044f", 
-      "table": "custom_column_15", 
-      "is_editable": true, 
-      "rec_index": 24, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "company", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "use_decorations": 0, 
-        "description": ""
-      }
-    }, 
-    "#format": {
-      "datatype": "text", 
-      "search_terms": [
-        "#format"
-      ], 
-      "colnum": 11, 
-      "name": "\u0424\u043e\u0440\u043c\u0430\u0442", 
-      "table": "custom_column_11", 
-      "is_editable": true, 
-      "rec_index": 28, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "format", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "use_decorations": 0, 
-        "description": ""
-      }
-    }, 
-    "#release_comment": {
-      "datatype": "comments", 
-      "search_terms": [
-        "#release_comment"
-      ], 
-      "colnum": 20, 
-      "name": "\u041a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0439 \u043e \u043a\u043d\u0438\u0433\u0435", 
-      "table": "custom_column_20", 
-      "is_editable": true, 
-      "rec_index": 34, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "release_comment", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "heading_position": "above", 
-        "interpret_as": "html", 
-        "use_decorations": 0, 
-        "description": "\u0422\u0443\u0442 \u043e\u0442\u043c\u0435\u0447\u0430\u0435\u043c, \u0435\u0441\u043b\u0438 \u043a\u043d\u0438\u0433\u0430 \u043a\u0440\u0438\u0432\u043e \u043e\u0442\u0441\u043a\u0430\u043d\u0438\u0440\u043e\u0432\u0430\u043d\u0430 \u0438\u043b\u0438 \u043d\u0435 \u0445\u0432\u0430\u0442\u0430\u0435\u0442 \u0441\u0442\u0440\u0430\u043d\u0438\u0446"
-      }
-    }, 
-    "#cpu": {
-      "datatype": "text", 
-      "search_terms": [
-        "#cpu"
-      ], 
-      "colnum": 16, 
-      "name": "\u0427\u041f\u0423", 
-      "table": "custom_column_16", 
-      "is_editable": true, 
-      "rec_index": 25, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "cpu", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "use_decorations": 0, 
-        "description": ""
-      }
-    }, 
-    "series": {
-      "datatype": "series", 
-      "search_terms": [
-        "series"
-      ], 
-      "name": "\u0421\u0435\u0440\u0438\u044f", 
-      "table": "series", 
-      "is_editable": true, 
-      "rec_index": 8, 
-      "is_custom": false, 
-      "is_category": true, 
-      "label": "series", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "(title_sort(name))", 
-      "is_csp": false, 
-      "column": "name", 
-      "link_column": "series", 
-      "display": {}
-    }, 
-    "#official_title": {
-      "datatype": "text", 
-      "search_terms": [
-        "#official_title"
-      ], 
-      "colnum": 13, 
-      "name": "\u041e\u0444\u0438\u0446\u0438\u0430\u043b\u044c\u043d\u043e\u0435 \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u0435", 
-      "table": "custom_column_13", 
-      "is_editable": true, 
-      "rec_index": 30, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "official_title", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "use_decorations": 0, 
-        "description": ""
-      }
-    }, 
-    "#alt_tags": {
-      "datatype": "text", 
-      "search_terms": [
-        "#alt_tags"
-      ], 
-      "colnum": 19, 
-      "name": "\u0412\u0441\u043f\u043e\u043c\u043e\u0433\u0430\u0442\u0435\u043b\u044c\u043d\u044b\u0435 \u0442\u0435\u0433\u0438", 
-      "table": "custom_column_19", 
-      "is_editable": true, 
-      "rec_index": 22, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "alt_tags", 
-      "kind": "field", 
-      "is_multiple": {
-        "ui_to_list": ",", 
-        "list_to_ui": ", ", 
-        "cache_to_list": "|"
-      }, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "is_names": false, 
-        "description": "\u041d\u0430 \u0442\u043e\u0442 \u0441\u043b\u0443\u0447\u0430\u0439, \u0435\u0441\u043b\u0438, \u043d\u0430\u043f\u0440\u0438\u043c\u0435\u0440, \u043a\u043d\u0438\u0433\u0430 \u0434\u043b\u044f PS One, \u043d\u043e \u0443\u043a\u0430\u0437\u0430\u043d\u043e, \u0447\u0442\u043e \u0435\u0441\u0442\u044c \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u044f \u0438 \u0434\u043b\u044f \u041f\u041a"
-      }
-    }, 
-    "#postprocessing": {
-      "datatype": "text", 
-      "search_terms": [
-        "#postprocessing"
-      ], 
-      "colnum": 4, 
-      "name": "\u041f\u043e\u0441\u0442\u043e\u0431\u0440\u0430\u0431\u043e\u0442\u043a\u0430", 
-      "table": "custom_column_4", 
-      "is_editable": true, 
-      "rec_index": 33, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "postprocessing", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "use_decorations": 0, 
-        "description": ""
-      }
-    }, 
-    "#signed_in_print": {
-      "datatype": "datetime", 
-      "search_terms": [
-        "#signed_in_print"
-      ], 
-      "colnum": 5, 
-      "name": "\u041f\u043e\u0434\u043f\u0438\u0441\u0430\u043d\u043e \u0432 \u043f\u0435\u0447\u0430\u0442\u044c", 
-      "table": "custom_column_5", 
-      "is_editable": true, 
-      "rec_index": 36, 
-      "is_custom": true, 
-      "is_category": false, 
-      "label": "signed_in_print", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "date_format": "dd.MM.yyyy", 
-        "description": ""
-      }
-    }, 
-    "#pages": {
-      "datatype": "int", 
-      "search_terms": [
-        "#pages"
-      ], 
-      "colnum": 8, 
-      "name": "\u0421\u0442\u0440\u0430\u043d\u0438\u0446", 
-      "table": "custom_column_8", 
-      "is_editable": true, 
-      "rec_index": 32, 
-      "is_custom": true, 
-      "is_category": false, 
-      "label": "pages", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "number_format": null, 
-        "description": ""
-      }
-    }, 
-    "au_map": {
-      "datatype": "text", 
-      "search_terms": [], 
-      "name": null, 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 18, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "au_map", 
-      "kind": "field", 
-      "is_multiple": {
-        "ui_to_list": null, 
-        "list_to_ui": null, 
-        "cache_to_list": ","
-      }, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "sort": {
-      "datatype": "text", 
-      "search_terms": [
-        "title_sort"
-      ], 
-      "name": "\u0421\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u043a\u0430 \u043f\u043e \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u044f\u043c", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 11, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "sort", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "formats": {
-      "datatype": "text", 
-      "search_terms": [
-        "formats", 
-        "format"
-      ], 
-      "name": "\u0424\u043e\u0440\u043c\u0430\u0442\u044b", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 13, 
-      "is_custom": false, 
-      "is_category": true, 
-      "label": "formats", 
-      "kind": "field", 
-      "is_multiple": {
-        "ui_to_list": ",", 
-        "list_to_ui": ", ", 
-        "cache_to_list": ","
-      }, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "#tivi_id": {
-      "datatype": "int", 
-      "search_terms": [
-        "#tivi_id"
-      ], 
-      "colnum": 17, 
-      "name": "TiVi Id", 
-      "table": "custom_column_17", 
-      "is_editable": true, 
-      "rec_index": 38, 
-      "is_custom": true, 
-      "is_category": false, 
-      "label": "tivi_id", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "number_format": null, 
-        "description": ""
-      }
-    }, 
-    "comments": {
-      "datatype": "text", 
-      "search_terms": [
-        "comments", 
-        "comment"
-      ], 
-      "name": "\u041a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0438", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 7, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "comments", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "#edition": {
-      "datatype": "int", 
-      "search_terms": [
-        "#edition"
-      ], 
-      "colnum": 3, 
-      "name": "\u0422\u0438\u0440\u0430\u0436", 
-      "table": "custom_column_3", 
-      "is_editable": true, 
-      "rec_index": 26, 
-      "is_custom": true, 
-      "is_category": false, 
-      "label": "edition", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "number_format": null, 
-        "description": ""
-      }
-    }, 
-    "#scanned_by": {
-      "datatype": "text", 
-      "search_terms": [
-        "#scanned_by"
-      ], 
-      "colnum": 7, 
-      "name": "\u0421\u043a\u0430\u043d\u0438\u0440\u043e\u0432\u0430\u043b", 
-      "table": "custom_column_7", 
-      "is_editable": true, 
-      "rec_index": 35, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "scanned_by", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "use_decorations": 0, 
-        "description": ""
-      }
-    }, 
-    "publisher": {
-      "datatype": "text", 
-      "search_terms": [
-        "publisher"
-      ], 
-      "name": "\u0418\u0437\u0434\u0430\u0442\u0435\u043b\u044c", 
-      "table": "publishers", 
-      "is_editable": true, 
-      "rec_index": 9, 
-      "is_custom": false, 
-      "is_category": true, 
-      "label": "publisher", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "name", 
-      "is_csp": false, 
-      "column": "name", 
-      "link_column": "publisher", 
-      "display": {}
-    }, 
-    "pubdate": {
-      "datatype": "datetime", 
-      "search_terms": [
-        "pubdate"
-      ], 
-      "name": "\u041e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u043d\u0430", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 15, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "pubdate", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {
-        "date_format": "MMM yyyy"
-      }
-    }, 
-    "series_sort": {
-      "datatype": "text", 
-      "search_terms": [
-        "series_sort"
-      ], 
-      "name": "\u0421\u043e\u0440\u0442\u0438\u0440\u043e\u0432\u043a\u0430 \u043f\u043e \u0441\u0435\u0440\u0438\u044f\u043c", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 43, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "series_sort", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "rating": {
-      "datatype": "rating", 
-      "search_terms": [
-        "rating"
-      ], 
-      "name": "\u041e\u0446\u0435\u043d\u043a\u0430", 
-      "table": "ratings", 
-      "is_editable": true, 
-      "rec_index": 5, 
-      "is_custom": false, 
-      "is_category": true, 
-      "label": "rating", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "rating", 
-      "is_csp": false, 
-      "column": "rating", 
-      "link_column": "rating", 
-      "display": {}
-    }, 
-    "last_modified": {
-      "datatype": "datetime", 
-      "search_terms": [
-        "last_modified"
-      ], 
-      "name": "\u0418\u0437\u043c\u0435\u043d\u0435\u043d\u0430", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 19, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "last_modified", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {
-        "date_format": "dd MMM yyyy"
-      }
-    }, 
-    "languages": {
-      "datatype": "text", 
-      "search_terms": [
-        "languages", 
-        "language"
-      ], 
-      "name": "\u042f\u0437\u044b\u043a\u0438", 
-      "table": "languages", 
-      "is_editable": true, 
-      "rec_index": 21, 
-      "is_custom": false, 
-      "is_category": true, 
-      "label": "languages", 
-      "kind": "field", 
-      "is_multiple": {
-        "ui_to_list": ",", 
-        "list_to_ui": ", ", 
-        "cache_to_list": ","
-      }, 
-      "category_sort": "lang_code", 
-      "is_csp": false, 
-      "column": "lang_code", 
-      "link_column": "lang_code", 
-      "display": {}
-    }, 
-    "identifiers": {
-      "datatype": "text", 
-      "search_terms": [
-        "identifiers", 
-        "identifier", 
-        "isbn"
-      ], 
-      "name": "\u0418\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0442\u043e\u0440\u044b", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 20, 
-      "is_custom": false, 
-      "is_category": true, 
-      "label": "identifiers", 
-      "kind": "field", 
-      "is_multiple": {
-        "ui_to_list": ",", 
-        "list_to_ui": ", ", 
-        "cache_to_list": ","
-      }, 
-      "is_csp": true, 
-      "column": null, 
-      "display": {}
-    }, 
-    "tags": {
-      "datatype": "text", 
-      "search_terms": [
-        "tags", 
-        "tag"
-      ], 
-      "name": "\u0422\u0435\u0433\u0438", 
-      "table": "tags", 
-      "is_editable": true, 
-      "rec_index": 6, 
-      "is_custom": false, 
-      "is_category": true, 
-      "label": "tags", 
-      "kind": "field", 
-      "is_multiple": {
-        "ui_to_list": ",", 
-        "list_to_ui": ", ", 
-        "cache_to_list": ","
-      }, 
-      "category_sort": "name", 
-      "is_csp": false, 
-      "column": "name", 
-      "link_column": "tag", 
-      "display": {}
-    }, 
-    "#isbn": {
-      "datatype": "text", 
-      "search_terms": [
-        "#isbn"
-      ], 
-      "colnum": 1, 
-      "name": "ISBN", 
-      "table": "custom_column_1", 
-      "is_editable": true, 
-      "rec_index": 29, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "isbn", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "use_decorations": 0, 
-        "description": ""
-      }
-    }, 
-    "#own": {
-      "datatype": "bool", 
-      "search_terms": [
-        "#own"
-      ], 
-      "colnum": 9, 
-      "name": "\u0415\u0441\u0442\u044c", 
-      "table": "custom_column_9", 
-      "is_editable": true, 
-      "rec_index": 31, 
-      "is_custom": true, 
-      "is_category": false, 
-      "label": "own", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "description": ""
-      }
-    }, 
-    "id": {
-      "datatype": "int", 
-      "search_terms": [
-        "id"
-      ], 
-      "name": null, 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 0, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "id", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "#type": {
-      "datatype": "text", 
-      "search_terms": [
-        "#type"
-      ], 
-      "colnum": 14, 
-      "name": "\u0422\u0438\u043f", 
-      "table": "custom_column_14", 
-      "is_editable": true, 
-      "rec_index": 39, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "type", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "use_decorations": 0, 
-        "description": ""
-      }
-    }, 
-    "#source": {
-      "datatype": "text", 
-      "search_terms": [
-        "#source"
-      ], 
-      "colnum": 12, 
-      "name": "\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a", 
-      "table": "custom_column_12", 
-      "is_editable": true, 
-      "rec_index": 37, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "source", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "use_decorations": 0, 
-        "description": ""
-      }
-    }, 
-    "uuid": {
-      "datatype": "text", 
-      "search_terms": [
-        "uuid"
-      ], 
-      "name": null, 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 16, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "uuid", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "series_index": {
-      "datatype": "float", 
-      "search_terms": [
-        "series_index"
-      ], 
-      "name": null, 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 10, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "series_index", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {}
-    }, 
-    "#filename": {
-      "datatype": "text", 
-      "search_terms": [
-        "#filename"
-      ], 
-      "colnum": 6, 
-      "name": "\u0418\u043c\u044f \u0444\u0430\u0439\u043b\u0430", 
-      "table": "custom_column_6", 
-      "is_editable": true, 
-      "rec_index": 27, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "filename", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "use_decorations": 0, 
-        "description": ""
-      }
-    }, 
-    "#bbk": {
-      "datatype": "text", 
-      "search_terms": [
-        "#bbk"
-      ], 
-      "colnum": 10, 
-      "name": "\u0411\u0411\u041a", 
-      "table": "custom_column_10", 
-      "is_editable": true, 
-      "rec_index": 23, 
-      "is_custom": true, 
-      "is_category": true, 
-      "label": "bbk", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "category_sort": "value", 
-      "is_csp": false, 
-      "column": "value", 
-      "link_column": "value", 
-      "display": {
-        "use_decorations": 0, 
-        "description": ""
-      }
-    }, 
-    "timestamp": {
-      "datatype": "datetime", 
-      "search_terms": [
-        "date"
-      ], 
-      "name": "\u0414\u0430\u0442\u0430", 
-      "table": null, 
-      "is_editable": true, 
-      "rec_index": 3, 
-      "is_custom": false, 
-      "is_category": false, 
-      "label": "timestamp", 
-      "kind": "field", 
-      "is_multiple": {}, 
-      "is_csp": false, 
-      "column": null, 
-      "display": {
-        "date_format": "dd MMM yyyy"
-      }
-    }, 
-    "news": {
-      "datatype": null, 
-      "search_terms": [], 
-      "name": "\u041d\u043e\u0432\u043e\u0441\u0442\u0438", 
-      "table": "news", 
-      "is_editable": true, 
-      "is_custom": false, 
-      "is_category": true, 
-      "label": "news", 
-      "kind": "category", 
-      "is_multiple": {}, 
-      "category_sort": "name", 
-      "is_csp": false, 
-      "column": "name", 
-      "display": {}
-    }
-  }, 
-  "cover_grid_icon_rules": [], 
-  "books view split pane state": {
-    "hidden_columns": [], 
-    "column_sizes": {
-      "series": 100, 
-      "size": 100, 
-      "#udk": 100, 
-      "title": 100, 
-      "authors": 100, 
-      "#company": 100, 
-      "#format": 100, 
-      "#release_comment": 100, 
-      "#cpu": 100, 
-      "#official_title": 100, 
-      "#alt_tags": 100, 
-      "#postprocessing": 100, 
-      "#signed_in_print": 100, 
-      "#pages": 100, 
-      "#tivi_id": 100, 
-      "#edition": 100, 
-      "#scanned_by": 100, 
-      "publisher": 100, 
-      "pubdate": 100, 
-      "tags": 100, 
-      "rating": 100, 
-      "last_modified": 100, 
-      "languages": 100, 
-      "#isbn": 100, 
-      "#own": 100, 
-      "#type": 100, 
-      "#source": 100, 
-      "#filename": 100, 
-      "#bbk": 100, 
-      "timestamp": 100
-    }, 
-    "column_positions": {
-      "ondevice": 0, 
-      "size": 4, 
-      "#udk": 29, 
-      "title": 1, 
-      "authors": 2, 
-      "#company": 14, 
-      "#format": 18, 
-      "#release_comment": 24, 
-      "#cpu": 15, 
-      "series": 7, 
-      "#official_title": 20, 
-      "#alt_tags": 12, 
-      "#postprocessing": 23, 
-      "#signed_in_print": 26, 
-      "#pages": 22, 
-      "#tivi_id": 28, 
-      "#edition": 16, 
-      "#scanned_by": 25, 
-      "publisher": 8, 
-      "pubdate": 9, 
-      "tags": 6, 
-      "rating": 5, 
-      "last_modified": 10, 
-      "languages": 11, 
-      "#isbn": 19, 
-      "#own": 21, 
-      "#type": 30, 
-      "#source": 27, 
-      "#filename": 17, 
-      "#bbk": 13, 
-      "timestamp": 3
-    }
-  }, 
   "saved_searches": {}, 
-  "column_icon_rules": []
+  "update_all_last_mod_dates_on_start": false, 
+  "user_categories": {}
 }
