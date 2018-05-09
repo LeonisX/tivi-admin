@@ -766,7 +766,11 @@ public class BookUtils {
                 files.clear();
             }
         }
-        video.setMirror(""); // exturl
+        if (calibreBook.getExternalLink() != null && ! calibreBook.getExternalLink().isEmpty()) {
+            video.setMirror(calibreBook.getExternalLink());
+        } else {
+            video.setMirror(""); // exturl
+        }
         video.setAge(""); // extsize
         video.setDescription(getDescription(calibreBook, category));
         video.setKeywords(getKeywords(calibreBook, category));
@@ -860,7 +864,11 @@ public class BookUtils {
                 //files.clear();
             //}
         }
-        video.setMirror(""); // exturl
+        if (calibreBook.getExternalLink() != null && ! calibreBook.getExternalLink().isEmpty()) {
+            video.setMirror(calibreBook.getExternalLink());
+        } else {
+            video.setMirror(""); // exturl
+        }
         video.setAge(""); // extsize
         //TODO custom
         video.setDescription(getDescription(calibreBook, category));

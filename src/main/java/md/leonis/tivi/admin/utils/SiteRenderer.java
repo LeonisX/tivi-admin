@@ -274,15 +274,19 @@ public class SiteRenderer {
 
         manual.setText(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"%s\" alt=\"%s\" />%s %s</p>",
                 translation.getImageTitle() + catName, imageLink, translation.getImageAlt() + declension.getRod(), translation.getShortText(), declension.getRod()));
-        //TODO download or link
+
         manual.setFullText(calibreBooks.stream().map(b -> {
             String authors = b.getAuthors().stream().map(Author::getName).collect(joining(", ")).replace("|", ",");
             if (authors.equalsIgnoreCase("неизвестный")) {
                 authors = b.getPublisher().getName();
             }
-            return String.format("<p><a href=\"up/media/%s/%s/%s.%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" /></a>%s (C) %s, %s</p>",
-                    translation.getPlural(), category, b.getFileName() != null ? b.getFileName() : b.getTitle(), b.getDataList().get(0).getFormat().toLowerCase(),
-                    trimHtmlTags(b.getTextMore().replace("\n", "")), formatDate(b.getSignedInPrint()), authors);
+            String downloadLink = b.getDataList().isEmpty() ? "" :
+                    String.format("<a href=\"up/media/%s/%s/%s.%s><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" /></a>", translation.getPlural(), category,
+                    b.getFileName() != null ? b.getFileName() : b.getTitle(), b.getDataList().get(0).getFormat().toLowerCase());
+            String externalLink = b.getExternalLink() == null || b.getExternalLink().isEmpty() ? ""
+                    : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page.png\" alt=\"download\" /></a> ", b.getExternalLink());
+            return String.format("<p>%s%s%s (C) %s, %s</p>",
+                    externalLink, downloadLink, trimHtmlTags(b.getTextMore().replace("\n", "")), formatDate(b.getSignedInPrint()), authors);
         }).collect(joining()));
     }
 

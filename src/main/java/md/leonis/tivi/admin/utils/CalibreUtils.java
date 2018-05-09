@@ -96,7 +96,7 @@ public class CalibreUtils {
             calibreBook.setAuthors(authors.stream().filter(author -> ids.contains(author.getId())).collect(toList()));
         });
 
-        Integer[] c = {1, 2, 4, 6, 7, 10, 11, 12, 13, 14, 15, 16, 19, 20};
+        Integer[] c = {1, 2, 4, 6, 7, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21};
 
         Map<Integer, List<Link>> links = Arrays.stream(c).collect(Collectors.toMap(i -> i, i -> selectAllFrom("books_custom_column_" + i + "_link", Link.class)));
 
@@ -120,6 +120,7 @@ public class CalibreUtils {
 
         List<SignedInPrint> signedInPrint = selectAllFrom("custom_column_5", SignedInPrint.class);
         List<CustomColumn> fileNames = selectAllFrom("custom_column_6", CustomColumn.class);
+        List<CustomColumn> externalLinks = selectAllFrom("custom_column_21", CustomColumn.class);
         List<CustomColumn> scannedBys = selectAllFrom("custom_column_7", CustomColumn.class);
         List<Link> pages = selectAllFrom("custom_column_8", Link.class);
         List<Own> owns = selectAllFrom("custom_column_9", Own.class);
@@ -161,6 +162,9 @@ public class CalibreUtils {
 
             List<Long> ids6 = links.get(6).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
             calibreBook.setFileName(fileNames.stream().filter(i -> ids6.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
+
+            List<Long> ids21 = links.get(21).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
+            calibreBook.setExternalLink(externalLinks.stream().filter(i -> ids21.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
 
             List<Long> ids7 = links.get(7).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
             calibreBook.setScannedBy(scannedBys.stream().filter(i -> ids7.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));

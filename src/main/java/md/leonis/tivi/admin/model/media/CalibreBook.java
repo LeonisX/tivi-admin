@@ -38,6 +38,7 @@ public class CalibreBook extends Book {
     private String postprocessing;
     private LocalDateTime signedInPrint;
     private String fileName;
+    private String externalLink;
     private String scannedBy;
     private Integer pages;
     private Boolean own;
