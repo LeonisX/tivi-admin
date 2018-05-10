@@ -78,8 +78,14 @@ public class AuditController extends SubPane {
 
     public List<CalibreBook> getFileNames() {
         return calibreBooks.stream()
-                .filter(calibreBook -> !calibreBook.getDataList().isEmpty()
-                        && (!(calibreBook.getOwn() == null) || calibreBook.getOwn())).filter(b -> b.getFileName() != null)
+                .filter(b -> !b.getDataList().isEmpty())
+                .peek(b -> {
+                    System.out.println(b.getTitle());
+                    System.out.println(b.getOwn());
+                })
+                .filter(b -> b.getOwn() != null)
+                .filter(b -> b.getOwn())
+                .filter(b -> b.getFileName() != null)
                 .filter(b -> b.getFileName().contains("/") || b.getFileName().contains("\\") || b.getFileName().contains(":") || b.getFileName().contains("\t")
                         || b.getFileName().contains("\n") || b.getFileName().contains("\r") || b.getFileName().contains("\"")).collect(toList());
     }

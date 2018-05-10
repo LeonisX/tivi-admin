@@ -264,7 +264,16 @@ public class SiteRenderer {
     }
 
 
+    //TODO renderer for guides
     private static void setManualText(List<CalibreBook> calibreBooks, Video manual, String category, TypeTranslation translation) {
+        if (translation.getPlural().equals("guides")) {
+            guideRenderer(calibreBooks, manual, category, translation);
+        }  else {
+            manualRenderer(calibreBooks, manual, category, translation);
+        }
+    }
+
+    private static void manualRenderer(List<CalibreBook> calibreBooks, Video manual, String category, TypeTranslation translation) {
         String catName = BookUtils.getCategoryByCpu(category).getCatname();
         Declension declension = StringUtils.getDeclension(catName);
         manual.setTitle(translation.getShortText() + " " + declension.getRod());
@@ -278,16 +287,74 @@ public class SiteRenderer {
         manual.setFullText(calibreBooks.stream().map(b -> {
             String authors = b.getAuthors().stream().map(Author::getName).collect(joining(", ")).replace("|", ",");
             if (authors.equalsIgnoreCase("неизвестный")) {
-                authors = b.getPublisher().getName();
+                authors = b.getPublisher() != null ? b.getPublisher().getName() : "";
             }
             String downloadLink = b.getDataList().isEmpty() ? "" :
-                    String.format("<a href=\"up/media/%s/%s/%s.%s><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" /></a>", translation.getPlural(), category,
-                    b.getFileName() != null ? b.getFileName() : b.getTitle(), b.getDataList().get(0).getFormat().toLowerCase());
+                    String.format("<a href=\"up/media/%s/%s/%s.%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" /></a>", translation.getPlural(), category,
+                            b.getFileName() != null ? b.getFileName() : b.getTitle(), b.getDataList().get(0).getFormat().toLowerCase());
             String externalLink = b.getExternalLink() == null || b.getExternalLink().isEmpty() ? ""
                     : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page.png\" alt=\"download\" /></a> ", b.getExternalLink());
-            return String.format("<p>%s%s%s (C) %s, %s</p>",
-                    externalLink, downloadLink, trimHtmlTags(b.getTextMore().replace("\n", "")), formatDate(b.getSignedInPrint()), authors);
+            String text = b.getTextShort().isEmpty() ? b.getTextMore() : b.getTextShort();
+            String spoiler = "";
+            if (!text.equals(b.getTextMore()) && !b.getTextMore().isEmpty()) {
+                spoiler += "<br /><span class=\"spoiler\" style=\"display: none;\">" + b.getTextMore() + "</span>";
+            }
+            text = trimHtmlTags(text.replace("\n", ""));
+            String br = text.length() < 108 && spoiler.isEmpty() ? "<br /><br />" : "";
+            return String.format("<p>%s%s%s (C) %s, %s%s%s</p>",
+                    externalLink, downloadLink, text, authors, formatDate(b.getSignedInPrint()), br, spoiler);
         }).collect(joining()));
+    }
+
+    //TODO remove code duplicates
+    private static void guideRenderer(List<CalibreBook> calibreBooks, Video manual, String category, TypeTranslation translation) {
+        String catName = BookUtils.getCategoryByCpu(category).getCatname();
+        Declension declension = StringUtils.getDeclension(catName);
+        manual.setTitle(translation.getShortText() + " " + declension.getRod());
+
+        CalibreBook book = calibreBooks.stream().filter(cb -> cb.getHasCover() != 0).findFirst().get();
+        //TODO need???
+        String imageLink = String.format("images/books/thumb/%s/%s.jpg", BookUtils.getCategoryByTags(book), book.getCpu());
+
+        manual.setText(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"%s\" alt=\"%s\" />%s %s</p>",
+                translation.getImageTitle() + catName, imageLink, translation.getImageAlt() + declension.getRod(), translation.getShortText(), declension.getRod()));
+
+        String fulltext = "<div class=\"tab-games\">" +
+                "<table><thead><tr>" +
+                "<td class=\"col-n\">Название игры</td>" +
+                "<td class=\"col-u\"><img src=\"images/pages.png\" width=\"16\" height=\"16\"></td>" +
+                "<td class=\"col-y\">Автор</td>" +
+                "<td class=\"col-y\">Дата</td>" +
+                "</tr></thead><tbody>";
+
+        boolean[] k = new boolean[1];
+        k[0] = false;
+        manual.setFullText(fulltext + calibreBooks.stream().map(b -> {
+            String authors = b.getAuthors().stream().map(Author::getName).collect(joining(", ")).replace("|", ",");
+            if (authors.equalsIgnoreCase("неизвестный")) {
+                authors = b.getPublisher() != null ? b.getPublisher().getName() : "";
+            }
+            String downloadLink = b.getDataList().isEmpty() ? "" :
+                    String.format("<a href=\"up/media/%s/%s/%s.%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book-16.png\" alt=\"download\" /></a>", translation.getPlural(), category,
+                            b.getFileName() != null ? b.getFileName() : b.getTitle(), b.getDataList().get(0).getFormat().toLowerCase());
+            String externalLink = b.getExternalLink() == null || b.getExternalLink().isEmpty() ? ""
+                    : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page-16.png\" alt=\"download\" /></a> ", b.getExternalLink());
+            String text = b.getTextShort().isEmpty() ? b.getTextMore() : b.getTextShort();
+            /*String spoiler = "";
+            if (!text.equals(b.getTextMore()) && !b.getTextMore().isEmpty()) {
+                spoiler += "<br /><span class=\"spoiler\" style=\"display: none;\">" + b.getTextMore() + "</span>";
+            }*/
+            String spoiler = "";
+            if (!text.equals(b.getTextMore()) && !b.getTextMore().isEmpty()) {
+                spoiler = " " + b.getTextMore();
+            }
+            text = trimHtmlTags(text.replace("\n", ""));
+            String className = k[0] ? "odd" : "";
+            k[0] = !k[0];
+            String pages = b.getPages() == null ? "-" : b.getPages().toString();
+            return String.format("<tr class=\"%s\"><td class=\"col-n\">%s%s%s%s</td><td class=\"col-u\">%s</td><td class=\"col-y\">%s</td><td class=\"col-y\">%s</td></td></tr>",
+                    className, externalLink, downloadLink, text, spoiler, pages, authors, formatDate(b.getSignedInPrint()));
+        }).collect(joining()) + "</tr></tbody></table></div>");
     }
 
     private static String trimHtmlTags(String text) {
