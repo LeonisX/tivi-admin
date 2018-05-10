@@ -79,10 +79,10 @@ public class AuditController extends SubPane {
     public List<CalibreBook> getFileNames() {
         return calibreBooks.stream()
                 .filter(b -> !b.getDataList().isEmpty())
-                .peek(b -> {
+                /*.peek(b -> {
                     System.out.println(b.getTitle());
                     System.out.println(b.getOwn());
-                })
+                })*/
                 .filter(b -> b.getOwn() != null)
                 .filter(b -> b.getOwn())
                 .filter(b -> b.getFileName() != null)
