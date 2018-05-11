@@ -463,6 +463,7 @@ public class AuditController extends SubPane {
         /*getDirtyHtml()*/calibreBooks.forEach(b -> {
             if (b.getComment() != null && !b.getComment().isEmpty()) {
                 String text = CalibreUtils.sanitize(CalibreUtils.getFullText(b.getTextShort(), b.getTextMore()));
+                text = CalibreUtils.fixSomeChars(text);
                 String q = String.format("UPDATE `comments` SET text='%s' WHERE book=%d", text.replace("'", "''"), b.getId());
                 Integer id = CalibreUtils.executeInsertQuery(q);
                 System.out.println(id);

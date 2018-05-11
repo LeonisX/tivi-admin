@@ -355,6 +355,16 @@ public class SiteRenderer {
             return String.format("<tr class=\"%s\"><td class=\"col-n\">%s%s%s%s</td><td class=\"col-u\">%s</td><td class=\"col-y\">%s</td><td class=\"col-y\">%s</td></td></tr>",
                     className, externalLink, downloadLink, text, spoiler, pages, authors, formatDate(b.getSignedInPrint()));
         }).collect(joining()) + "</tr></tbody></table></div>");
+        manual.setFullText(fixLatinChars(manual.getFullText()));
+    }
+
+    //TODO probably for books, magazines too
+    //TODO probably for vBulletin renderers too, need to check
+    private static String fixLatinChars(String fullText) {
+        fullText = fullText.replace("ü", "&#xfc;");
+        fullText = fullText.replace("ō", "&#x14d;");
+        fullText = fullText.replace("ū", "&#x16b;");
+        return fullText;
     }
 
     private static String trimHtmlTags(String text) {

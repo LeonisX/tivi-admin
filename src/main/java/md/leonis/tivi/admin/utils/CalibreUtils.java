@@ -228,7 +228,24 @@ public class CalibreUtils {
             calibreBook.setReleaseNote(releaseNotes.stream().filter(t -> ids.contains(t.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
         });
 
-        calibreBooks.forEach(System.out::println);
+        //calibreBooks.forEach(System.out::println);
+        System.out.println("Readed books: " + calibreBooks.size());
+        String validChars = " qwertyuiopasdfghjklzxcvbnmйцукенгшщзхъёфывапролджэячсмитьбю1234567890-_=+[{]};:'\",<.>/?!@#$%^&*()`~|©«®°µ»‘’“”•…№™";
+        String validLatinChars = "üōū";
+
+        String allChars = validChars + validChars.toUpperCase();
+        calibreBooks.forEach(b -> {
+            String text = b.getTitle() + b.getAuthors().stream().map(Author::getName).collect(joining()) + b.getComment();
+            text.chars().mapToObj(i -> (char) i).forEach(ch -> {
+                if (allChars.indexOf(ch) == -1 && validLatinChars.indexOf(ch) == -1) {
+                    int id = ch.charValue();
+                    System.out.println(ch + " = " + String.format("&#x%x;", id));
+                    System.out.println(text);
+                    System.out.println("Dirty chars!");
+                    System.exit(256);
+                }
+            });
+        });
         return calibreBooks;
     }
 
@@ -1036,4 +1053,14 @@ public class CalibreUtils {
         });
     }
 
+    public static String fixSomeChars(String text) {
+        text = text.replace('´', '\'');
+        text = text.replace('·', '•');
+        text = text.replace('·', '•');
+        text = text.replace('˚', '°');
+        text = text.replace('–', '-');
+        text = text.replace('—', '-');
+        text = text.replace((char) 0x0A + "", "");
+        return text;
+    }
 }
