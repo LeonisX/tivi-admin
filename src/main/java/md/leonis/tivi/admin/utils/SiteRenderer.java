@@ -319,7 +319,7 @@ public class SiteRenderer {
         manual.setText(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"%s\" alt=\"%s\" />%s %s</p>",
                 translation.getImageTitle() + catName, imageLink, translation.getImageAlt() + declension.getRod(), translation.getShortText(), declension.getRod()));
 
-        String fulltext = "<div class=\"tab-games\">" +
+        String fulltext = "<div class=\"tab-guides\">" +
                 "<table><thead><tr>" +
                 "<td class=\"col-n\">Название игры</td>" +
                 "<td class=\"col-u\"><img src=\"images/pages.png\" width=\"16\" height=\"16\"></td>" +
@@ -329,7 +329,7 @@ public class SiteRenderer {
 
         boolean[] k = new boolean[1];
         k[0] = false;
-        manual.setFullText(fulltext + calibreBooks.stream().map(b -> {
+        manual.setFullText(fulltext + calibreBooks.stream().sorted(Comparator.comparing(Book::getSort)).map(b -> {
             String authors = b.getAuthors().stream().map(Author::getName).collect(joining(", ")).replace("|", ",");
             if (authors.equalsIgnoreCase("неизвестный")) {
                 authors = b.getPublisher() != null ? b.getPublisher().getName() : "";
