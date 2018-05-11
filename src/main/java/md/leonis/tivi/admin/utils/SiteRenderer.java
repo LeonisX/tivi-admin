@@ -340,13 +340,10 @@ public class SiteRenderer {
             String externalLink = b.getExternalLink() == null || b.getExternalLink().isEmpty() ? ""
                     : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page-16.png\" alt=\"download\" /></a> ", b.getExternalLink());
             String text = b.getTextShort().isEmpty() ? b.getTextMore() : b.getTextShort();
-            /*String spoiler = "";
-            if (!text.equals(b.getTextMore()) && !b.getTextMore().isEmpty()) {
-                spoiler += "<br /><span class=\"spoiler\" style=\"display: none;\">" + b.getTextMore() + "</span>";
-            }*/
             String spoiler = "";
             if (!text.equals(b.getTextMore()) && !b.getTextMore().isEmpty()) {
-                spoiler = " " + b.getTextMore();
+                spoiler += " <span class=\"spoiler\" style=\"display: none;\"><br />"
+                        + "<div style=\"padding-left: 20px; padding-top: 10px;\">" + b.getTextMore() + "</div></span>";
             }
             text = trimHtmlTags(text.replace("\n", ""));
             String className = k[0] ? "odd" : "";
