@@ -475,7 +475,6 @@ public class BookUtils {
 
 
     public static ComparisionResult<Video> compare(String category) throws IOException { //category == cpu
-        CalibreUtils.readBookRecords(false);
         ComparisionResult<Video> comparisionResult = null;
         if (category == null) {
             for (int i = 0; i < categories.size(); i++) {
@@ -801,10 +800,6 @@ public class BookUtils {
         }
         System.out.println(calibreBook.getDataList());
         return calibreBook.getDataList().stream()
-                .peek(f -> System.out.println(CalibreUtils.bookRecordMap.get(f.getCrc32())))
-                //TODO problem - can't get crc32 for file in archive
-                /*.filter(f -> f.getName().startsWith("http") ||
-                        CalibreUtils.bookRecordMap.get(f.getCrc32()).getChecked())*/
                 .peek(data -> data.setFileName(findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0))).collect(toList());
     }
 

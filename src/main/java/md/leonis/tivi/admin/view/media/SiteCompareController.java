@@ -41,9 +41,7 @@ public class SiteCompareController extends SubPane {
     public Label siteTotals;
     public ComboBox<BookCategory> categoryComboBox;
     public TreeTableView<View> treeTableView;
-    public CheckBox onlyForSiteCheckBox;
     public TextField cloudStorageLink;
-    public Label bookTotals;
     public Label categoriesTotals;
 
     @FXML
@@ -83,12 +81,10 @@ public class SiteCompareController extends SubPane {
     public void compare() throws IOException {
         setupTreeTableView();
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
-        CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
         fillTreeTableView(BookUtils.compare(categoryComboBox.getValue().getCatcpu()));
     }
 
     public void generate() throws IOException {
-        CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
         ComparisionResult<Video> comparisionResult = BookUtils.compare(categoryComboBox.getValue().getCatcpu());
         BookUtils.syncDataWithSite(comparisionResult, calibreDir.getText(), categoryComboBox.getValue().getCatcpu());
@@ -108,24 +104,8 @@ public class SiteCompareController extends SubPane {
     }
 
     public void dumpBooks() throws IOException {
-        CalibreUtils.dumpBooks(onlyForSiteCheckBox.isSelected());
+        CalibreUtils.dumpBooks();
     }
-
-    public void getBooksList() throws IOException {
-        /*Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information Dialog");
-        alert.setHeaderText("Lists now disabled");
-        alert.setContentText("This button wont work");
-
-        alert.showAndWait();*/
-        CalibreUtils.generateBooksList();
-    }
-
-    public void reloadBooksList() throws IOException {
-        CalibreUtils.readBookRecords(onlyForSiteCheckBox.isSelected());
-        bookTotals.setText("" + CalibreUtils.bookRecords.size());
-    }
-
 
     public void reloadCategories() {
         //reloadSiteData();
@@ -203,6 +183,7 @@ public class SiteCompareController extends SubPane {
         return directoryChooser;
     }
 
+    @SuppressWarnings("unchecked")
     private void setupTreeTableView() {
         TreeTableColumn<View, String> titleCol = new TreeTableColumn<>("Title");
         TreeTableColumn<View, String> leftCol = new TreeTableColumn<>("Left");
@@ -290,7 +271,7 @@ public class SiteCompareController extends SubPane {
         treeTableView.getColumns().setAll(titleCol, leftCol, rightCol);
     }
 
-
+    @SuppressWarnings("unchecked")
     private void fillTreeTableView(ComparisionResult<Video> comparisionResult) {
         TreeItem<View> addedItem = new TreeItem<>(new View("Added"));
         TreeItem<View> deletedItem = new TreeItem<>(new View("Deleted"));
