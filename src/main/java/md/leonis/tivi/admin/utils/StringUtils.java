@@ -4,68 +4,59 @@ import md.leonis.tivi.admin.model.Declension;
 import md.leonis.tivi.admin.model.media.PlatformsTranslation;
 import md.leonis.tivi.admin.model.media.TypeTranslation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Класс переводит русский текст в транслит. Например, строка "Текст" будет
  * преобразована в "Tekst".
- * User: Deady
- * Date: 04.12.2007
- * Time: 15:56:47
  */
-public class StringUtils {
+class StringUtils {
 
-
-    private static final String[] charTable = new String[81];
-
-    private static final char START_CHAR = 'Ё';
+    private static final Map<Integer, String> CHAR_MAP;
 
     static {
-        charTable['А' - START_CHAR] = "A";
-        charTable['Б' - START_CHAR] = "B";
-        charTable['В' - START_CHAR] = "V";
-        charTable['Г' - START_CHAR] = "G";
-        charTable['Д' - START_CHAR] = "D";
-        charTable['Е' - START_CHAR] = "E";
-        charTable['Ё' - START_CHAR] = "E";
-        charTable['Ж' - START_CHAR] = "ZH";
-        charTable['З' - START_CHAR] = "Z";
-        charTable['И' - START_CHAR] = "I";
-        charTable['Й' - START_CHAR] = "Y";
-        charTable['К' - START_CHAR] = "K";
-        charTable['Л' - START_CHAR] = "L";
-        charTable['М' - START_CHAR] = "M";
-        charTable['Н' - START_CHAR] = "N";
-        charTable['О' - START_CHAR] = "O";
-        charTable['П' - START_CHAR] = "P";
-        charTable['Р' - START_CHAR] = "R";
-        charTable['С' - START_CHAR] = "S";
-        charTable['Т' - START_CHAR] = "T";
-        charTable['У' - START_CHAR] = "U";
-        charTable['Ф' - START_CHAR] = "F";
-        charTable['Х' - START_CHAR] = "H";
-        charTable['Ц' - START_CHAR] = "C";
-        charTable['Ч' - START_CHAR] = "CH";
-        charTable['Ш' - START_CHAR] = "SH";
-        charTable['Щ' - START_CHAR] = "SH";
-        charTable['Ъ' - START_CHAR] = ""; // "
-        charTable['Ы' - START_CHAR] = "Y";
-        charTable['Ь' - START_CHAR] = ""; // '
-        charTable['Э' - START_CHAR] = "E";
-        charTable['Ю' - START_CHAR] = "U";
-        charTable['Я' - START_CHAR] = "YA";
+        Map<Character, String> upperCharMap = new HashMap<>();
+        upperCharMap.put('А', "A");
+        upperCharMap.put('Б', "B");
+        upperCharMap.put('В', "V");
+        upperCharMap.put('Г', "G");
+        upperCharMap.put('Д', "D");
+        upperCharMap.put('Е', "E");
+        upperCharMap.put('Ё', "E");
+        upperCharMap.put('Ж', "ZH");
+        upperCharMap.put('З', "Z");
+        upperCharMap.put('И', "I");
+        upperCharMap.put('Й', "Y");
+        upperCharMap.put('К', "K");
+        upperCharMap.put('Л', "L");
+        upperCharMap.put('М', "M");
+        upperCharMap.put('Н', "N");
+        upperCharMap.put('О', "O");
+        upperCharMap.put('П', "P");
+        upperCharMap.put('Р', "R");
+        upperCharMap.put('С', "S");
+        upperCharMap.put('Т', "T");
+        upperCharMap.put('У', "U");
+        upperCharMap.put('Ф', "F");
+        upperCharMap.put('Х', "H");
+        upperCharMap.put('Ц', "C");
+        upperCharMap.put('Ч', "CH");
+        upperCharMap.put('Ш', "SH");
+        upperCharMap.put('Щ', "SH");
+        upperCharMap.put('Ъ', ""); // "
+        upperCharMap.put('Ы', "Y");
+        upperCharMap.put('Ь', ""); // '
+        upperCharMap.put('Э', "E");
+        upperCharMap.put('Ю', "U");
+        upperCharMap.put('Я', "YA");
 
-        for (int i = 0; i < charTable.length; i++) {
-            char idx = (char) ((char) i + START_CHAR);
-            char lower = new String(new char[]{idx}).toLowerCase().charAt(0);
-            if (charTable[i] != null) {
-                charTable[lower - START_CHAR] = charTable[i].toLowerCase();
-            }
-        }
+        Map<Character, String> lowerCharMap = upperCharMap.entrySet().stream()
+                .collect(Collectors.toMap(e -> Character.toLowerCase(e.getKey()), e -> e.getValue().toLowerCase()));
+
+        CHAR_MAP = Stream.concat(upperCharMap.entrySet().stream(), lowerCharMap.entrySet().stream())
+                .collect(Collectors.toMap(e -> (int) e.getKey(), Map.Entry::getValue));
     }
 
 
@@ -77,22 +68,14 @@ public class StringUtils {
      * @param text исходный текст с русскими символами
      * @return результат
      */
-    public static String toTranslit(String text) {
-        char charBuffer[] = text.toCharArray();
-        StringBuilder sb = new StringBuilder(text.length());
-        for (char symbol : charBuffer) {
-            int i = symbol - START_CHAR;
-            if (i >= 0 && i < charTable.length) {
-                String replace = charTable[i];
-                sb.append(replace == null ? symbol : replace);
-            } else {
-                sb.append(symbol);
-            }
-        }
-        return sb.toString();
+    static String toTranslit(String text) {
+        return text.chars().mapToObj(c -> {
+            String replace = CHAR_MAP.get(c);
+            return (replace == null) ? Character.valueOf((char) c).toString() : replace;
+        }).collect(Collectors.joining());
     }
 
-    public static String choosePluralMerge(long number, String caseOne, String caseTwo, String caseFive) {
+    static String choosePluralMerge(long number, String caseOne, String caseTwo, String caseFive) {
         /* Выбирает правильную форму существительного в зависимости от числа.
            Чтобы легко запомнить, в каком порядке указывать варианты, пользуйтесь мнемоническим правилом:
            один-два-пять - один гвоздь, два гвоздя, пять гвоздей.
@@ -135,12 +118,12 @@ public class StringUtils {
         declensionMap = declensions.stream().collect(Collectors.toMap(Declension::getIm, item -> item));
     }
 
-    public static Declension getDeclension(String term) {
+    static Declension getDeclension(String term) {
         return declensionMap.getOrDefault(term.toLowerCase(), new Declension(term, term, term, term, term, term));
     }
 
-    public static Map<String, TypeTranslation> listTypeTranslationMap = new HashMap<>();
-    public static Map<String, TypeTranslation> viewTypeTranslationMap = new HashMap<>();
+    static Map<String, TypeTranslation> listTypeTranslationMap = new HashMap<>();
+    static Map<String, TypeTranslation> viewTypeTranslationMap = new HashMap<>();
 
     static {
         listTypeTranslationMap.put("doc", new TypeTranslation("docs", "Documentation for", "Документация для", "Документация для", "")); // род
@@ -152,7 +135,7 @@ public class StringUtils {
         viewTypeTranslationMap.put("magazine", new TypeTranslation("magazines", "", "", "Упоминания %s в журналах", "<p>Информацию об играх для %s так же можно найти в периодических изданиях.</p>"));
     }
 
-    public static Map<String, PlatformsTranslation> platformsTranslationMap = new HashMap<>();
+    static Map<String, PlatformsTranslation> platformsTranslationMap = new HashMap<>();
 
     //TODO другие типы
     static {
