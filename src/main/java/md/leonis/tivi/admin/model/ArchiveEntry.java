@@ -7,8 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ArchiveEntry {
 
-    private String name;
-    private long crc32;
-    private long size;
-
+    private final String name;
+    private final long crc32;
+    private final long size;
 }

@@ -59,12 +59,12 @@ public class BookUtils {
         tableStatuses = JsonUtils.gson.fromJson(queryRequest("SHOW TABLE STATUS"), type);
     }
 
-    private static Type videosType = new TypeToken<List<Video>>() {
+    private static final Type videosType = new TypeToken<List<Video>>() {
     }.getType();
 
     public static List<TableStatus> tableStatuses;
 
-    private static ColumnsResolver MediaResolver = new ColumnsResolver("danny_media");
+    private static final ColumnsResolver MediaResolver = new ColumnsResolver("danny_media");
 
     public static void auditBooks() {
         JavaFxUtils.showPane("media/Audit.fxml");
@@ -97,7 +97,7 @@ public class BookUtils {
             System.out.println(requestURL);
             String jsonString = WebUtils.readFromUrl(requestURL);
             //String jsonString = ascii2Native(WebUtils.readFromUrl(requestURL));
-            int len = jsonString.length() > 1024 ? 1024 : jsonString.length();
+            int len = Math.min(jsonString.length(), 1024);
             //System.out.println(jsonString.substring(0, len));
             return jsonString;
             //videos = JsonUtils.gson.fromJson(jsonString, videosType);
@@ -501,7 +501,7 @@ public class BookUtils {
             return compareMagazines(category);
         }
         //List<CalibreBook> filteredCalibreBooks = calibreBooks.stream().filter(b -> !b.getType().equals("magazines"))
-        List<CalibreBook> filteredCalibreBooks = calibreBooks.stream().filter(b -> b.getType().equals("book"))
+        List<CalibreBook> filteredCalibreBooks = calibreBooks.stream().filter(b -> b.getType() != null && b.getType().equals("book"))
                 .filter(b -> b.getOwn() != null && b.getOwn()).sorted(Comparator.comparing(Book::getTitle)).collect(toList());
 
         List<String> multi = Arrays.asList("consoles", "computers"); //computers реально не задействован - только для журналов.

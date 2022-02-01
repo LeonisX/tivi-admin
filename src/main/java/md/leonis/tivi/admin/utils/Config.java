@@ -3,12 +3,14 @@ package md.leonis.tivi.admin.utils;
 import md.leonis.tivi.admin.view.MainStageController;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 public class Config {
+
     public static String apiPath;
     public static String sitePath;
     public static String sampleVideo;
@@ -20,11 +22,13 @@ public class Config {
 
     static String serverSecret;
 
+    public static Path home = Paths.get(".");
+
     static final String resourcePath = "/" + MainStageController.class.getPackage().getName().replaceAll("\\.", "/") + "/";
 
     public static void loadProperties() throws IOException {
+
         try (InputStream inputStream = Config.class.getClassLoader().getResourceAsStream("config.properties")) {
-            if (inputStream == null) throw new FileNotFoundException("Property file not found...");
             Properties prop = new Properties();
             prop.load(inputStream);
             sampleVideo = prop.getProperty("sample.video");
@@ -32,6 +36,7 @@ public class Config {
     }
 
     public static void loadProtectedProperties() throws IOException {
+
         try (InputStream inputStream = Config.class.getClassLoader().getResourceAsStream("protected.properties")) {
             Properties prop = new Properties();
             prop.load(inputStream);

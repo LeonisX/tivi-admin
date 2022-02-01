@@ -23,7 +23,7 @@ import javafx.beans.property.ObjectPropertyBase;
 public class PathProperty<B, T> extends ObjectPropertyBase<T> {
 
     private final String fieldPath;
-    private PropertyMethodHandles propMethHandles;
+    private final PropertyMethodHandles propMethHandles;
     private final B bean;
 
 
@@ -48,9 +48,10 @@ public class PathProperty<B, T> extends ObjectPropertyBase<T> {
         } catch (final Throwable t) {
             throw new RuntimeException("Unable to set value: " + v, t);
         }
-    };
+    }
 
     @Override
+    @SuppressWarnings("all")
     public T get() {
         try {
             return (T) getPropMethHandles().getAccessor().invoke();

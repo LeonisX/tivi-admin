@@ -1,16 +1,20 @@
 package helloworld;
 
-import java.util.List;
-import java.util.regex.Pattern;
-import javafx.application.*;
+import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
-import javafx.event.*;
-import javafx.scene.*;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.effect.*;
-import javafx.scene.image.*;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.Stage;
+
+import java.util.List;
+import java.util.regex.Pattern;
 
 // Source: https://gist.github.com/jewelsea/2514709
 // Read: http://stackoverflow.com/questions/10075841/how-to-hide-the-controls-of-htmleditor
@@ -50,20 +54,18 @@ public class HTMLEditorCustomizationSample extends Application {
                 // Select a font from out limited font selection.
                 // Selection done in Platform.runLater because if you try to do
                 // the selection immediately, it won't take place.
-                Platform.runLater(new Runnable() {
-                    @Override public void run() {
-                        boolean fontSelected = false;
-                        for (final MenuItem item: fontSelections) {
-                            if ("Comic Sans MS".equals(item.getText())) {
-                                if (item instanceof RadioMenuItem) {
-                                    ((RadioMenuItem) item).setSelected(true);
-                                    fontSelected = true;
-                                }
+                Platform.runLater(() -> {
+                    boolean fontSelected = false;
+                    for (final MenuItem item: fontSelections) {
+                        if ("Comic Sans MS".equals(item.getText())) {
+                            if (item instanceof RadioMenuItem) {
+                                ((RadioMenuItem) item).setSelected(true);
+                                fontSelected = true;
                             }
                         }
-                        if (!fontSelected && fontSelections.size() > 0 && fontSelections.get(0) instanceof RadioMenuItem) {
-                            ((RadioMenuItem) fontSelections.get(0)).setSelected(true);
-                        }
+                    }
+                    if (!fontSelected && fontSelections.size() > 0 && fontSelections.get(0) instanceof RadioMenuItem) {
+                        ((RadioMenuItem) fontSelections.get(0)).setSelected(true);
                     }
                 });
             }
@@ -77,11 +79,7 @@ public class HTMLEditorCustomizationSample extends Application {
             graphic.setEffect(new DropShadow());
             Button smurfButton = new Button("", graphic);
             bar.getItems().add(smurfButton);
-            smurfButton.setOnAction(new EventHandler<ActionEvent>() {
-                @Override public void handle(ActionEvent arg0) {
-                    htmlEditor.setHtmlText("<font face='Comic Sans MS' color='blue'>Smurfs are having fun :-)</font>");
-                }
-            });
+            smurfButton.setOnAction(arg0 -> htmlEditor.setHtmlText("<font face='Comic Sans MS' color='blue'>Smurfs are having fun :-)</font>"));
         }
     }
 

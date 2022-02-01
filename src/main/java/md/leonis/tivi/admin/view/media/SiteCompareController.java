@@ -1,5 +1,6 @@
 package md.leonis.tivi.admin.view.media;
 
+import com.github.junrar.exception.RarException;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -103,7 +104,7 @@ public class SiteCompareController extends SubPane {
         CalibreUtils.dumpImages();
     }
 
-    public void dumpBooks() throws IOException {
+    public void dumpBooks() throws IOException, RarException {
         CalibreUtils.dumpBooks();
     }
 

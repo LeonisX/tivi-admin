@@ -1,6 +1,5 @@
 package md.leonis.tivi.admin.utils;
 
-import md.leonis.tivi.admin.MainApp;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -16,10 +15,11 @@ public class JavaFxUtils {
     private static BorderPane rootLayout;
 
     public static void showMainPane(Stage primaryStage) {
+
         primaryStage.setTitle("TiVi Admin Panel");
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(Config.resourcePath + "MainStage.fxml"));
+            loader.setLocation(JavaFxUtils.class.getResource("/fxml/MainStage.fxml"));
             rootLayout = loader.load();
             //MainStageController controller = loader.getController();
             Scene scene = new Scene(rootLayout, 1280, 960);
@@ -40,7 +40,7 @@ public class JavaFxUtils {
     static void showPane(String resource) {
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource(Config.resourcePath + resource));
+            loader.setLocation(JavaFxUtils.class.getResource("/fxml/" + resource));
             Parent parent = loader.load();
             Object controller = loader.getController();
             if (controller instanceof SubPane) ((SubPane) controller).init();

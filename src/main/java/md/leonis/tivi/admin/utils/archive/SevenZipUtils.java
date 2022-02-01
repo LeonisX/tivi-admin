@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.StreamSupport;
-import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -134,6 +133,8 @@ public class SevenZipUtils {
         Path result;
         //TODO remove try
         try {
+            fileName = fileName.replace("\"", "");
+            fileName = fileName.replace(":", " -");
             result = path.resolve(fileName + incrToString(incr) + "." + ext);
         } catch (Exception e) {
             throw new RuntimeException(e);

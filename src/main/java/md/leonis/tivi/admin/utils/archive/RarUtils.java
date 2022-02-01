@@ -74,7 +74,7 @@ public class RarUtils {
     }*/
 
 
-    public static void extractArchive(Path sourcePath, Path destPath, String fileName) {
+    public static void extractArchive(Path sourcePath, Path destPath, String fileName) throws RarException {
         System.out.println(sourcePath);
         Archive arch = null;
         try {
@@ -94,14 +94,14 @@ public class RarUtils {
                 }
                 if (fh.isEncrypted()) {
                     throw new RuntimeException("file is encrypted cannot extract: "
-                            + fh.getFileNameString());
+                            + fh.getFileName());
                 }
                 try {
                     if (fh.isDirectory()) {
                         createDirectory(fh, destPath.toFile());
                     } else {
-                        System.out.println("Extracting: " + fh.getFileNameString());
-                        File f = createFile(destPath.toFile(), fileName + "." + SevenZipUtils.getExtension(getName(fh)));
+                        System.out.println("Extracting: " + fh.getFileName());
+                        File f = createFile(destPath.toFile(), fileName + "." + SevenZipUtils.getExtension(fh.getFileName()));
                         OutputStream os = new FileOutputStream(f);
                         arch.extractFile(fh, os);
                         os.close();
@@ -113,7 +113,7 @@ public class RarUtils {
         }
     }
 
-    public static List<ArchiveEntry> getRarFileList(File file) {
+    public static List<ArchiveEntry> getRarFileList(File file) throws RarException {
         List<ArchiveEntry> files = new ArrayList<>();
         Archive arch = null;
         try {
@@ -133,20 +133,12 @@ public class RarUtils {
                 }
                 if (fh.isEncrypted()) {
                     throw new RuntimeException("file is encrypted cannot extract: "
-                            + fh.getFileNameString());
+                            + fh.getFileName());
                 }
-                files.add(new ArchiveEntry(getName(fh), fh.getFileCRC(), fh.getUnpSize()));
+                files.add(new ArchiveEntry(fh.getFileName(), fh.getFileCRC(), fh.getUnpSize()));
             }
         }
         return files;
-    }
-
-    private static String getName(FileHeader fh) {
-        if (fh.isUnicode()) {
-            return fh.getFileNameW();
-        } else {
-            return fh.getFileNameString();
-        }
     }
 
     @SneakyThrows
@@ -185,16 +177,11 @@ public class RarUtils {
     }
 
     private static void createDirectory(FileHeader fh, File destination) {
-        File f;
-        if (fh.isDirectory() && fh.isUnicode()) {
-            f = new File(destination, fh.getFileNameW());
+
+        if (fh.isDirectory()) {
+            File f = new File(destination, fh.getFileName());
             if (!f.exists()) {
-                makeDirectory(destination, fh.getFileNameW());
-            }
-        } else if (fh.isDirectory() && !fh.isUnicode()) {
-            f = new File(destination, fh.getFileNameString());
-            if (!f.exists()) {
-                makeDirectory(destination, fh.getFileNameString());
+                makeDirectory(destination, fh.getFileName());
             }
         }
     }

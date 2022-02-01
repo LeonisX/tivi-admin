@@ -6,15 +6,13 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import unneeded.PathProperty;
 
-
 public class MainPathProperties extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         TextField myTextField = new TextField("123");
         Person person = new Person();
-        PathProperty prop = new PathProperty(
-                person, "address", String.class);
+        PathProperty<Person, String> prop = new PathProperty<>(person, "address", String.class);
 // bind it to a JavaFX control
         Bindings.bindBidirectional(prop, myTextField.textProperty());
 
@@ -28,19 +26,24 @@ public class MainPathProperties extends Application {
         System.out.println("Address POJO: " + person.getAddress());
     }
 
-    public class Person {
+    public static class Person {
+
         private String firstName;
         private String lastName;
         private String address;
+
         public String getFirstName() {
             return firstName;
         }
+
         public void setFirstName(String firstName) {
             this.firstName = firstName;
         }
+
         public String getLastName() {
             return lastName;
         }
+
         public void setLastName(String lastName) {
             this.lastName = lastName;
         }
@@ -54,7 +57,7 @@ public class MainPathProperties extends Application {
         }
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         launch(args);
     }
 }

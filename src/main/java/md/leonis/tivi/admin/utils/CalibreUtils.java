@@ -1,5 +1,6 @@
 package md.leonis.tivi.admin.utils;
 
+import com.github.junrar.exception.RarException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -8,8 +9,8 @@ import com.google.gson.reflect.TypeToken;
 import javafx.util.Pair;
 import md.leonis.tivi.admin.model.ArchiveEntry;
 import md.leonis.tivi.admin.model.ComparisionResult;
-import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.model.media.Comment;
+import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.model.media.links.*;
 import md.leonis.tivi.admin.utils.archive.RarUtils;
 import md.leonis.tivi.admin.utils.archive.SevenZipUtils;
@@ -60,6 +61,8 @@ public class CalibreUtils {
                 //calibreBook.setTextShort(chunks[0].trim());
                 Element element = Jsoup.parseBodyFragment(chunks[0]).body();
                 if (element.childNodeSize() == 0) {
+                    calibreBook.setTextShort(element.html().trim());
+                } else if (element.childrenSize() == 0) {
                     calibreBook.setTextShort(element.html().trim());
                 } else if (element.child(0).tagName().equals("div") && element.child(0).childNodeSize() == 1) {
                     calibreBook.setTextShort(element.child(0).html().trim());
@@ -219,22 +222,23 @@ public class CalibreUtils {
 
         //calibreBooks.forEach(System.out::println);
         System.out.println("Readed books: " + calibreBooks.size());
-        String validChars = " qwertyuiopasdfghjklzxcvbnmйцукенгшщзхъёфывапролджэячсмитьбю1234567890-_=+[{]};:'\",<.>/?!@#$%^&*()`~|©«®°µ»‘’“”•…№™";
+        String validChars = " qwertyuiopasdfghjklzxcvbnmйцукенгшщзхъёфывапролджэячсмитьбю1234567890-_=+[{]};:'\",<.>/?!@#$%^&*()`~|©«®°µ»‘’“”•…№™u000a";
         String validLatinChars = "üōū";
 
-        String allChars = validChars + validChars.toUpperCase();
+        //TODO rollback, fix all descriptions не работает чистка описаний в аудите
+        /*String allChars = validChars + validChars.toUpperCase();
         calibreBooks.forEach(b -> {
             String text = b.getTitle() + b.getAuthors().stream().map(Author::getName).collect(joining()) + b.getComment();
             text.chars().mapToObj(i -> (char) i).forEach(ch -> {
-                if (allChars.indexOf(ch) == -1 && validLatinChars.indexOf(ch) == -1) {
-                    int id = ch.charValue();
+                if (allChars.indexOf(ch) == -1 && validLatinChars.indexOf(ch) == -1 && ch != 10 && ch != 0xA0) { // неразрывный пробел TODO менять на обычный
+                    int id = ch;
                     System.out.println(ch + " = " + String.format("&#x%x;", id));
                     System.out.println(text);
                     System.out.println("Dirty chars!");
                     System.exit(256);
                 }
             });
-        });
+        });*/
         return calibreBooks;
     }
 
@@ -255,9 +259,9 @@ public class CalibreUtils {
         List<CalibreBook> allBooks = new ArrayList<>(oldBooks);
         allBooks.addAll(newBooks);
         List<Pair<CalibreBook, CalibreBook>> changed = allBooks.stream().collect(groupingBy(Book::getId))
-                .entrySet().stream().filter(e -> e.getValue().size() == 2)
-                .filter(e -> !e.getValue().get(0).equals(e.getValue().get(1)))
-                .map(e -> new Pair<>(e.getValue().get(0), e.getValue().get(1))).collect(toList());
+                .values().stream().filter(calibreBooks -> calibreBooks.size() == 2)
+                .filter(calibreBooks -> !calibreBooks.get(0).equals(calibreBooks.get(1)))
+                .map(calibreBooks -> new Pair<>(calibreBooks.get(0), calibreBooks.get(1))).collect(toList());
 
         //Map<CalibreBook, List<Pair<String, String>>> changedBooks = new HashMap<>();
 
@@ -477,7 +481,7 @@ public class CalibreUtils {
                 .create();
         JsonObject jsonObject = gson.toJsonTree(object, clazz).getAsJsonObject();
 
-        String keys = jsonObject.keySet().stream().collect(Collectors.joining(","));
+        String keys = String.join(",", jsonObject.keySet());
         List<String> valuesList = jsonObject.entrySet().stream().map(v -> {
             if (v.getValue().getAsJsonPrimitive().isString()) {
                 return "'" + escape(v.getValue().getAsJsonPrimitive().getAsString()) + "'";
@@ -485,7 +489,7 @@ public class CalibreUtils {
                 return v.getValue().getAsJsonPrimitive().getAsString();
             }
         }).collect(toList());
-        String values = valuesList.stream().collect(Collectors.joining(","));
+        String values = String.join(",", valuesList);
 
         return "INSERT INTO `" + tableName + "` (" + keys + ") values (" + values + ")";
     }
@@ -742,7 +746,7 @@ public class CalibreUtils {
         });
     }
 
-    public static void dumpBooks() throws IOException {
+    public static void dumpBooks() throws IOException, RarException {
         //Config.loadProperties();
         //Config.loadProtectedProperties();
 
@@ -772,9 +776,15 @@ public class CalibreUtils {
                 system = b.getTags().get(0).getName();
             }
             Path destPath;
+            System.out.println(b);
             switch (b.getType()) {
                 case "magazine":
                     //TODO may be languages in path
+                    System.out.println("====================");
+                    System.out.println(magazinesDir.toPath());
+                    System.out.println(b);
+                    System.out.println(b.getSeries());
+                    System.out.println(b.getSeries());
                     destPath = magazinesDir.toPath().resolve(b.getSeries().getName());
                     break;
                 case "manual":
@@ -841,6 +851,7 @@ public class CalibreUtils {
                     case "gif":
                     case "scl":
                     case "trd":
+                    case "tap":
                     case "chm":
                     case "txt":
                     case "exe":
@@ -868,26 +879,26 @@ public class CalibreUtils {
         System.out.println(String.format("%d of %d: Copy: %s", i, size, srcBook));
         Path destBook = SevenZipUtils.findFreeFileName(destPath, fileName, ext.toLowerCase(), 0);
         try {
+            Files.createDirectories(destBook.getParent());
             Files.copy(srcBook, destBook, REPLACE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static Set<String> imgs = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "gif", "exe", "py", "html", "gs0", "diz"));
+    private static final Set<String> IMGS = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "gif", "exe", "py", "html", "gs0", "diz"));
 
     private static boolean uncompress(List<ArchiveEntry> fileNames) {
         Set<String> exts = fileNames.stream().map(ArchiveEntry::getName).map(SevenZipUtils::getExtension).map(String::toLowerCase).collect(toSet());
         String joined = fileNames.stream().map(ArchiveEntry::getName).collect(joining());
-        return Collections.disjoint(exts, imgs) && !joined.contains("\\") && !joined.contains("/");
+        return Collections.disjoint(exts, IMGS) && !joined.contains("\\") && !joined.contains("/");
     }
 
     private static void deleteFileOrFolder(final Path path) throws IOException {
         Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
             @Override
-            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs)
-                    throws IOException {
-                Files.delete(file);
+            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                Files.deleteIfExists(file);
                 return CONTINUE;
             }
 
@@ -905,7 +916,7 @@ public class CalibreUtils {
             public FileVisitResult postVisitDirectory(final Path dir, final IOException e)
                     throws IOException {
                 if (e != null) return handleException(e);
-                Files.delete(dir);
+                Files.deleteIfExists(dir);
                 return CONTINUE;
             }
         });
