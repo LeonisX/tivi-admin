@@ -767,25 +767,26 @@ public class CalibreUtils {
 
         List<CalibreBook> shallowCopy = BookUtils.calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
         Collections.reverse(shallowCopy);
+
         int i = 1;
-        for (CalibreBook b : shallowCopy) {
+        for (CalibreBook book : shallowCopy) {
             String system;
-            if (b.getTags().size() > 1) {
+            if (book.getTags().size() > 1) {
                 system = "consoles"; //TODO computers
             } else {
-                system = b.getTags().get(0).getName();
+                system = book.getTags().get(0).getName();
             }
             Path destPath;
-            System.out.println(b);
-            switch (b.getType()) {
+            System.out.println(book);
+            switch (book.getType()) {
                 case "magazine":
                     //TODO may be languages in path
                     System.out.println("====================");
                     System.out.println(magazinesDir.toPath());
-                    System.out.println(b);
-                    System.out.println(b.getSeries());
-                    System.out.println(b.getSeries());
-                    destPath = magazinesDir.toPath().resolve(b.getSeries().getName());
+                    System.out.println(book);
+                    System.out.println(book.getSeries());
+                    System.out.println(book.getSeries());
+                    destPath = magazinesDir.toPath().resolve(book.getSeries().getName());
                     break;
                 case "manual":
                     //TODO may be languages in path
@@ -812,28 +813,23 @@ public class CalibreUtils {
                     break;
             }
             mkdirs(destPath);
-            final String fileName = b.getFileName() == null ? b.getTitle() : b.getFileName();
-            for (Data data : b.getDataList()) {
-                Path srcBook = Paths.get(Config.calibreDbPath).resolve(b.getPath()).resolve(data.getName() + "." + data.getFormat().toLowerCase());
+            final String fileName = book.getFileName() == null ? book.getTitle() : book.getFileName();
+            //сначала надо копировать, а архивы обрабатывать в конце
+            for (Data data : book.getDataList()) {
+                Path srcBook = Paths.get(Config.calibreDbPath).resolve(book.getPath()).resolve(data.getName() + "." + data.getFormat().toLowerCase());
                 switch (data.getFormat().toLowerCase()) {
                     case "zip":
-                        if (uncompress(SevenZipUtils.getZipFileList(srcBook.toFile()))) {
-                            SevenZipUtils.extractZip(srcBook, destPath, fileName);
-                        } else {
+                        if (!needToExtract(SevenZipUtils.getZipFileList(srcBook.toFile()))) {
                             copyFile(srcBook, destPath, fileName, data.getFormat(), i, shallowCopy.size());
                         }
                         break;
                     case "7z":
-                        if (uncompress(SevenZipUtils.get7zFileList(srcBook.toFile()))) {
-                            SevenZipUtils.extract7z(srcBook, destPath, fileName);
-                        } else {
+                        if (!needToExtract(SevenZipUtils.get7zFileList(srcBook.toFile()))) {
                             copyFile(srcBook, destPath, fileName, data.getFormat(), i, shallowCopy.size());
                         }
                         break;
                     case "rar":
-                        if (uncompress(RarUtils.getRarFileList(srcBook.toFile()))) {
-                            RarUtils.extractArchive(srcBook, destPath, fileName);
-                        } else {
+                        if (!needToExtract(RarUtils.getRarFileList(srcBook.toFile()))) {
                             copyFile(srcBook, destPath, fileName, data.getFormat(), i, shallowCopy.size());
                         }
                         break;
@@ -841,6 +837,8 @@ public class CalibreUtils {
                     case "djvu":
                     case "cbr":
                     case "cbz":
+                    case "epub":
+                    case "fb2":
                     case "doc":
                     case "docx":
                     case "xls":
@@ -861,8 +859,35 @@ public class CalibreUtils {
                         throw new RuntimeException(data.toString());
                 }
             }
+            for (Data data : book.getDataList()) {
+                Path srcBook = Paths.get(Config.calibreDbPath).resolve(book.getPath()).resolve(data.getName() + "." + data.getFormat().toLowerCase());
+                switch (data.getFormat().toLowerCase()) {
+                    case "zip":
+                        if (needToExtract(SevenZipUtils.getZipFileList(srcBook.toFile()))) {
+                            SevenZipUtils.extractZip(srcBook, destPath, fileName);
+                        }
+                        break;
+                    case "7z":
+                        if (needToExtract(SevenZipUtils.get7zFileList(srcBook.toFile()))) {
+                            SevenZipUtils.extract7z(srcBook, destPath, fileName);
+                        }
+                        break;
+                    case "rar":
+                        if (needToExtract(RarUtils.getRarFileList(srcBook.toFile()))) {
+                            RarUtils.extractArchive(srcBook, destPath, fileName);
+                        }
+                        break;
+                }
+            }
             i++;
         }
+
+        //delete empty dirs
+        Files.walk(Paths.get(Config.workPath))
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .filter(File::isDirectory)
+                .forEach(File::delete);
     }
 
     //TODO separate utils
@@ -888,7 +913,7 @@ public class CalibreUtils {
 
     private static final Set<String> IMGS = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "gif", "exe", "py", "html", "gs0", "diz"));
 
-    private static boolean uncompress(List<ArchiveEntry> fileNames) {
+    private static boolean needToExtract(List<ArchiveEntry> fileNames) {
         Set<String> exts = fileNames.stream().map(ArchiveEntry::getName).map(SevenZipUtils::getExtension).map(String::toLowerCase).collect(toSet());
         String joined = fileNames.stream().map(ArchiveEntry::getName).collect(joining());
         return Collections.disjoint(exts, IMGS) && !joined.contains("\\") && !joined.contains("/");

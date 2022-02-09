@@ -79,17 +79,18 @@ public class SiteCompareController extends SubPane {
         calibreTotals.setText("" + calibreBooks.size());
     }
 
-    public void compare() throws IOException {
+    public void compare() {
         setupTreeTableView();
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
         fillTreeTableView(BookUtils.compare(categoryComboBox.getValue().getCatcpu()));
     }
 
-    public void generate() throws IOException {
+    public void generate() {
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
         ComparisionResult<Video> comparisionResult = BookUtils.compare(categoryComboBox.getValue().getCatcpu());
         BookUtils.syncDataWithSite(comparisionResult, calibreDir.getText(), categoryComboBox.getValue().getCatcpu());
         reloadSiteData();
+        reloadCalibreData();
     }
 
     public void dumpCalibreDB() {
