@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import md.leonis.tivi.admin.model.BookCategory;
+import md.leonis.tivi.admin.model.media.Book;
 import md.leonis.tivi.admin.model.media.CalibreBook;
 import md.leonis.tivi.admin.model.media.CustomColumn;
 import md.leonis.tivi.admin.model.media.Language;
@@ -84,7 +85,7 @@ public class AuditController extends SubPane {
                     System.out.println(b.getOwn());
                 })*/
                 .filter(b -> b.getOwn() != null)
-                .filter(b -> b.getOwn())
+                .filter(CalibreBook::getOwn)
                 .filter(b -> b.getFileName() != null)
                 .filter(b -> b.getFileName().contains("/") || b.getFileName().contains("\\") || b.getFileName().contains(":") || b.getFileName().contains("\t")
                         || b.getFileName().contains("\n") || b.getFileName().contains("\r") || b.getFileName().contains("\"")).collect(toList());
@@ -259,13 +260,7 @@ public class AuditController extends SubPane {
     public void checkSeriesTitles() {
         auditLog.clear();
         calibreBooks.stream().filter(calibreBook -> calibreBook.getSeries() != null)
-                .sorted((b1, b2) -> {
-                    int result = b1.getSeries().getSort().compareTo(b2.getSeries().getSort());
-                    if (result != 0) {
-                        return result;
-                    }
-                    return b1.getSort().compareTo(b2.getSort());
-                })
+                .sorted(Comparator.comparing((CalibreBook b) -> b.getSeries().getSort()).thenComparing(Book::getSort))
                 .forEach(calibreBook -> System.out.println(calibreBook.getSeries().getName() + " [" + calibreBook.getSerieIndex() + "] : " + calibreBook.getTitle()));
     }
 
@@ -304,7 +299,7 @@ public class AuditController extends SubPane {
         calibreBooks.stream()
                 .filter(calibreBook -> calibreBook.getTiviId() != null)
                 .collect(Collectors.groupingBy(CalibreBook::getTiviId))
-                .entrySet().stream().filter(f -> f.getValue().size() > 1).map(Map.Entry::getValue).flatMap(List::stream)
+                .values().stream().filter(books -> books.size() > 1).flatMap(List::stream)
                 .forEach(calibreBook -> addLog("   - " + calibreBook.getTitle() + " (" + calibreBook.getTiviId() + ")"));
     }
 
@@ -318,7 +313,7 @@ public class AuditController extends SubPane {
         calibreBooks.stream()
                 .filter(calibreBook -> calibreBook.getCpu() != null)
                 .collect(Collectors.groupingBy(CalibreBook::getCpu))
-                .entrySet().stream().filter(f -> uniqueCount(f.getValue()) > 1).map(Map.Entry::getValue).flatMap(List::stream)
+                .values().stream().filter(books -> uniqueCount(books) > 1).flatMap(List::stream)
                 .forEach(calibreBook -> addLog("   - " + calibreBook.getTitle() + " (" + calibreBook.getCpu() + ")"));
     }
 
@@ -334,7 +329,7 @@ public class AuditController extends SubPane {
 
     private List<CalibreBook> getCpuValid() {
         return calibreBooks.stream()
-                .filter(calibreBook -> (calibreBook.getCpu() != null) && !isValidCpu(calibreBook.getCpu())).collect(toList());
+                .filter(calibreBook -> (calibreBook.getCpu() != null) && isInvalidCpu(calibreBook.getCpu())).collect(toList());
     }
 
     public void fixCpu() {
@@ -346,7 +341,7 @@ public class AuditController extends SubPane {
 
             query = String.format("DELETE FROM `books_custom_column_16_link` WHERE book=%d AND value=%d", calibreBook.getId(), cpuId);
             System.out.println(query);
-            Integer id = CalibreUtils.executeUpdateQuery(query);
+            int id = CalibreUtils.executeUpdateQuery(query);
             System.out.println(id);
 
             query = String.format("SELECT * FROM `books_custom_column_16_link` WHERE value=%d", cpuId);
@@ -364,7 +359,7 @@ public class AuditController extends SubPane {
         getCpuOwn().forEach(calibreBook -> {
             String cpu = calibreBook.getFileName() == null ? calibreBook.getTitle() : calibreBook.getFileName();
             cpu = BookUtils.generateCpu(cpu);
-            if (!isValidCpu(cpu)) {
+            if (isInvalidCpu(cpu)) {
                 System.out.println(cpu);
             }
             //find in custom_column_16
@@ -388,8 +383,8 @@ public class AuditController extends SubPane {
         });
     }
 
-    private static boolean isValidCpu(String cpu) {
-        return cpu.matches("^[a-z0-9_]+$")/* && cpu.length() < 64*/;
+    private static boolean isInvalidCpu(String cpu) {
+        return !cpu.matches("^[a-z0-9_]+$")/* && cpu.length() < 64*/;
     }
 
     // solutions, manuals???, docs, programming, ???
@@ -400,12 +395,10 @@ public class AuditController extends SubPane {
         }
         String catName = calibreBook.getTags().size() > 1 ? "consoles" : calibreBook.getTags().get(0).getName();
         // TODO
-        switch (calibreBook.getType()) {
-            case "calibreBook":
-                return catName;
-            default:
-                return catName;
+        if ("calibreBook".equals(calibreBook.getType())) {
+            return catName;
         }
+        return catName;
 
     }
 
@@ -480,5 +473,4 @@ public class AuditController extends SubPane {
 
     public void reloadSiteBooks() {
     }
-
 }

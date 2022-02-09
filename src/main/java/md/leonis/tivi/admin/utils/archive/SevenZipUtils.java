@@ -165,7 +165,7 @@ public class SevenZipUtils {
         if (i > p) {
             extension = fileName.substring(i + 1);
         }
-        return extension;
+        return extension.toLowerCase();
     }
 
     /*public static String crc32(Path path) {

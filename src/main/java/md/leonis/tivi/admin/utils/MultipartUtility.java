@@ -9,23 +9,25 @@ import java.net.URLConnection;
 /**
  * This utility class provides an abstraction layer for sending multipart HTTP
  * POST requests to a web server.
+ *
  * @author www.codejava.net
  * Modifications by Leonis
- *
  */
 class MultipartUtility {
+
     private final String boundary;
     private static final String LINE_FEED = "\r\n";
-    private HttpURLConnection httpConn;
-    private String charset;
-    private OutputStream outputStream;
-    private PrintWriter writer;
+    private final HttpURLConnection httpConn;
+    private final String charset;
+    private final OutputStream outputStream;
+    private final PrintWriter writer;
 
     /**
      * This constructor initializes a new HTTP POST request with content type
      * is set to multipart/form-data
+     *
      * @param requestURL requestURL
-     * @param charset charset
+     * @param charset    charset
      * @throws IOException .
      */
     MultipartUtility(String requestURL, String charset) throws IOException {
@@ -39,26 +41,23 @@ class MultipartUtility {
         httpConn.setUseCaches(false);
         httpConn.setDoOutput(true); // indicates POST method
         httpConn.setDoInput(true);
-        httpConn.setRequestProperty("Content-Type",
-                "multipart/form-data; boundary=" + boundary);
+        httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
         httpConn.setRequestProperty("User-Agent", "CodeJava Agent");
         httpConn.setRequestProperty("AuthToken", Config.serverSecret);
         outputStream = httpConn.getOutputStream();
-        writer = new PrintWriter(new OutputStreamWriter(outputStream, charset),
-                true);
+        writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
     }
 
     /**
      * Adds a form field to the request
-     * @param name field name
+     *
+     * @param name  field name
      * @param value field value
      */
     void addFormField(String name, String value) {
         writer.append("--").append(boundary).append(LINE_FEED);
-        writer.append("Content-Disposition: form-data; name=\"").append(name).append("\"")
-                .append(LINE_FEED);
-        writer.append("Content-Type: text/plain; charset=").append(charset).append(
-                LINE_FEED);
+        writer.append("Content-Disposition: form-data; name=\"").append(name).append("\"").append(LINE_FEED);
+        writer.append("Content-Type: text/plain; charset=").append(charset).append(LINE_FEED);
         writer.append(LINE_FEED);
         writer.append(value).append(LINE_FEED);
         writer.flush();
@@ -66,12 +65,12 @@ class MultipartUtility {
 
     /**
      * Adds a upload file section to the request
-     * @param fieldName name attribute in <input type="file" name="..." />
+     *
+     * @param fieldName  name attribute in <input type="file" name="..." />
      * @param uploadFile a File to be uploaded
      * @throws IOException .
      */
-    public void addFilePart(String fieldName, File uploadFile)
-            throws IOException {
+    public void addFilePart(String fieldName, File uploadFile) throws IOException {
         String fileName = uploadFile.getName();
         writer.append("--").append(boundary).append(LINE_FEED);
         writer.append("Content-Disposition: form-data; name=\"").append(fieldName)
@@ -96,25 +95,24 @@ class MultipartUtility {
 
     /**
      * Adds a upload file section to the request
-     * @param fieldName name attribute in <input type="file" name="..." />
+     *
+     * @param fieldName   name attribute in <input type="file" name="..." />
      * @param inputStream a File to be uploaded
      * @throws IOException .
      */
-    void addInputStream(String fieldName, String imageName, InputStream inputStream)
-            throws IOException {
+    void addInputStream(String fieldName, String imageName, InputStream inputStream) throws IOException {
         //String fileName = uploadFile.getName();
         writer.append("--").append(boundary).append(LINE_FEED);
         writer.append("Content-Disposition: form-data; name=\"").append(fieldName).append("\"; filename=\"")
                 .append(imageName).append("\"").append(LINE_FEED);
-        writer.append("Content-Type: ").append(URLConnection.guessContentTypeFromName(imageName))
-                .append(LINE_FEED);
+        writer.append("Content-Type: ").append(URLConnection.guessContentTypeFromName(imageName)).append(LINE_FEED);
         writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
         writer.append(LINE_FEED);
         writer.flush();
 
         //FileInputStream inputStream = new FileInputStream(uploadFile);
         byte[] buffer = new byte[4096];
-        int bytesRead = -1;
+        int bytesRead;
         while ((bytesRead = inputStream.read(buffer)) != -1) {
             outputStream.write(buffer, 0, bytesRead);
         }
@@ -127,12 +125,12 @@ class MultipartUtility {
 
     /**
      * Adds a upload file section to the request
+     *
      * @param fieldName name attribute in <input type="file" name="..." />
-     * @param json - json to be uploaded
+     * @param json      - json to be uploaded
      * @throws IOException .
      */
-    void addJson(String fieldName, String json)
-            throws IOException {
+    void addJson(String fieldName, String json) throws IOException {
         writer.append("--").append(boundary).append(LINE_FEED);
         writer.append("Content-Disposition: form-data; name=\"").append(fieldName).append("\"; filename=\"")
                 .append(fieldName).append(".json\"").append(LINE_FEED);
@@ -156,7 +154,8 @@ class MultipartUtility {
 
     /**
      * Adds a header field to the request.
-     * @param name - name of the header field
+     *
+     * @param name  - name of the header field
      * @param value - value of the header field
      */
     void addHeaderField(String name, String value) {
@@ -166,12 +165,13 @@ class MultipartUtility {
 
     /**
      * Completes the request and receives response from the server.
+     *
      * @return a list of Strings as response in case the server returned
      * status OK, otherwise an exception is thrown.
      * @throws IOException .
      */
     public String finish() throws IOException {
-        String response = "";
+        String response;
 
         writer.append(LINE_FEED).flush();
         writer.append("--").append(boundary).append("--").append(LINE_FEED);
@@ -181,7 +181,7 @@ class MultipartUtility {
         int status = httpConn.getResponseCode();
         httpConn.disconnect();
         if (status != HttpURLConnection.HTTP_OK) {
-             throw new IOException(status + ": " + response);
+            throw new IOException(status + ": " + response);
         }
         return response;
     }
@@ -189,7 +189,7 @@ class MultipartUtility {
     static String readResponse(HttpURLConnection conn) {
         StringBuilder stringBuilder = new StringBuilder();
         BufferedReader reader;
-        int responseCode = 999;
+        int responseCode;
         try {
             responseCode = conn.getResponseCode();
             if (responseCode < 300) {

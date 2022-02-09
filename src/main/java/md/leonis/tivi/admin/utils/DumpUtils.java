@@ -6,6 +6,7 @@ import md.leonis.tivi.admin.model.mysql.TableStatus;
 
 import java.io.*;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,10 +17,9 @@ import static md.leonis.tivi.admin.utils.BookUtils.rawQueryRequest;
 
 public class DumpUtils {
 
-
     // Fixed charset
     public static void dumpDB0() {
-        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream("E:\\dump.txt"), "utf-8"))) {
+        try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream("E:\\dump.txt"), StandardCharsets.UTF_8))) {
             //queryRequest("SHOW COLUMNS FROM `danny_media`");
             //queryRequest("SHOW TABLE STATUS");
             doDump0(out);
@@ -28,9 +28,7 @@ public class DumpUtils {
             queryRequest("SHOW TABLE STATUS");
             queryRequest("SHOW CREATE TABLE `danny_media`");
             queryRequest("SHOW COLUMNS FROM `danny_media`");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         //TODO какие-то проверки
@@ -162,8 +160,6 @@ public class DumpUtils {
         }
     }
 
-
-
     private static void doDump0(PrintWriter out) {
         Type type = new TypeToken<List<TableStatus>>() {
         }.getType();
@@ -251,5 +247,4 @@ public class DumpUtils {
             }
         }
     }
-
 }

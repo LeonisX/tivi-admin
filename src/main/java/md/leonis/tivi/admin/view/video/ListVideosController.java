@@ -3,17 +3,18 @@ package md.leonis.tivi.admin.view.video;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import md.leonis.tivi.admin.model.*;
+import md.leonis.tivi.admin.model.Actions;
+import md.leonis.tivi.admin.model.MixedTitle;
+import md.leonis.tivi.admin.model.VideoView;
 import md.leonis.tivi.admin.utils.*;
 
 import java.util.Arrays;
@@ -25,15 +26,15 @@ import java.util.stream.IntStream;
 import static md.leonis.tivi.admin.utils.VideoUtils.listVideousSettings;
 import static md.leonis.tivi.admin.utils.VideoUtils.video;
 
-
 public class ListVideosController extends SubPane {
+
     @FXML
     private ComboBox<String> category;
 
     @FXML
     private ToggleGroup countToggleGroup;
 
-    private ToggleGroup pagesToggleGroup = new ToggleGroup();
+    private final ToggleGroup pagesToggleGroup = new ToggleGroup();
 
     @FXML
     public TableView<VideoView> videousTableView;
@@ -86,13 +87,13 @@ public class ListVideosController extends SubPane {
         fillFields();
     }
 
-    private ObservableList<String> sortOptions =
+    private final ObservableList<String> sortOptions =
             FXCollections.observableArrayList(
                     "ID", "Категория", "Дата публикации", "Название", "Картинка", "Количество просмотров",
                     "Количество комментариев", "Рейтинг"
             );
 
-    private List<String> sortFields = Arrays.asList(
+    private final List<String> sortFields = Arrays.asList(
             "downid", "catid", "public", "title", "image", "hits", "comments", "rate"
     );
 
@@ -167,7 +168,7 @@ public class ListVideosController extends SubPane {
     }
 
 
-    private class MixedTitleCell extends TableCell<VideoView, MixedTitle> {
+    private static class MixedTitleCell extends TableCell<VideoView, MixedTitle> {
         final Label title = new Label();
         final Label category = new Label();
         final VBox box = new VBox();
@@ -193,7 +194,7 @@ public class ListVideosController extends SubPane {
 
     private enum Reaction {VIEW, EDIT, CLONE, DELETE}
 
-    private class ButtonsCell extends TableCell<VideoView, Boolean> {
+    private static class ButtonsCell extends TableCell<VideoView, Boolean> {
         int size = 30;
         List<String> icons = Arrays.asList("view2.png", "edit.gif", "clone.png", "del.gif");
         List<Button> buttons = icons.stream().map(icon -> new Button("", new ImageView(new Image(icon)))).collect(Collectors.toList());

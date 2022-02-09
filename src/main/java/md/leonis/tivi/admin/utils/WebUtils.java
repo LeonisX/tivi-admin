@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.*;
 
 public class WebUtils {
+
     public static String readFromUrl(String urlAddress) throws IOException {
+
         URL url = new URL(urlAddress);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
@@ -13,8 +15,8 @@ public class WebUtils {
         return MultipartUtility.readResponse(conn);
     }
 
-
     public static void openWebPage(String url) {
+
         String os = System.getProperty("os.name").toLowerCase();
         Runtime rt = Runtime.getRuntime();
 
@@ -39,11 +41,9 @@ public class WebUtils {
 
                 rt.exec(new String[]{"sh", "-c", cmd.toString()});
 
-            } else {
-                return;
             }
         } catch (Exception e) {
-            return;
+            e.printStackTrace();
         }
     }
 }

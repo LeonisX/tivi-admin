@@ -46,5 +46,4 @@ public class AddVideoController extends SubPane {
         if (index != -1) result = url.substring(0, index);
         return result;
     }
-
 }

@@ -11,5 +11,4 @@ public class Stats {
     String index;
     Integer width;
     Integer height;
-
 }

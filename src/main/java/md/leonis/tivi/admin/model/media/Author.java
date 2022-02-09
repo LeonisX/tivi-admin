@@ -9,5 +9,4 @@ public class Author {
     private String name;
     private String sort;
     private String link;
-
 }

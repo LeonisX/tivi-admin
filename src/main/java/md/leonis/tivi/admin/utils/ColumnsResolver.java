@@ -12,7 +12,6 @@ import static md.leonis.tivi.admin.utils.BookUtils.queryRequest;
 
 public class ColumnsResolver {
 
-    private final List<Field> fields;
     private final List<String> numericColumns;
     private final List<String> floatColumns;
     private final List<String> blobColumns;
@@ -20,7 +19,7 @@ public class ColumnsResolver {
     public ColumnsResolver(String tableName) {
         String result = queryRequest(String.format("SHOW COLUMNS FROM `%s`", tableName));
         Type fieldType = new TypeToken<List<Field>>() {}.getType();
-        fields = JsonUtils.gson.fromJson(result, fieldType);
+        List<Field> fields = JsonUtils.gson.fromJson(result, fieldType);
         numericColumns = fields.stream().filter(t -> t.getType().matches("^(\\w*int.*)")).map(Field::getField).collect(toList());
         floatColumns = fields.stream().filter(t -> t.getType().matches("^(float.*|real.*|double.*|dec.*|fixed.*|decimal.*|numeric.*)")).map(Field::getField).collect(toList());
         blobColumns = fields.stream().filter(t -> t.getType().matches("^(\\w*blob.*)")).map(Field::getField).collect(toList());

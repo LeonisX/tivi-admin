@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CheckUtils {
-    private List<String> notes = new ArrayList<>();
+
+    private final List<String> notes = new ArrayList<>();
 
     public CheckUtils() {
         notes.clear();
@@ -38,10 +39,10 @@ public class CheckUtils {
     }
 
     public String getErrors() {
-        String errorString = "";
+        StringBuilder errorString = new StringBuilder();
         for (String note: notes) {
-            errorString += note + "\n\n";
+            errorString.append(note).append("\n\n");
         }
-        return errorString;
+        return errorString.toString();
     }
 }

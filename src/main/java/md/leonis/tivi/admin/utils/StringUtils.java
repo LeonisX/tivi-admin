@@ -59,7 +59,6 @@ class StringUtils {
                 .collect(Collectors.toMap(e -> (int) e.getKey(), Map.Entry::getValue));
     }
 
-
     /**
      * Переводит русский текст в транслит. В результирующей строке
      * каждая русская буква будет заменена на соответствующую английскую.
@@ -85,7 +84,7 @@ class StringUtils {
            out: строка (число + существительное в нужном падеже).
          */
 
-        String str = Long.toString(number) + " ";
+        String str = number + " ";
         number = Math.abs(number);
 
         if (number % 10 == 1 && number % 100 != 11) {
@@ -99,13 +98,17 @@ class StringUtils {
         return str;
     }
 
-    private static List<Declension> declensions = new ArrayList<>();
-    private static Map<String, Declension> declensionMap;
+    private static final List<Declension> declensions = new ArrayList<>();
+    private static final Map<String, Declension> declensionMap;
 
     static {
         declensions.add(new Declension("компьютеры", "компьютеров", "компьютерам", "компьютеры", "компьютерами", "о компьютерах"));
         declensions.add(new Declension("приставки", "приставок", "приставкам", "приставки", "приставками", "о приставках"));
         declensions.add(new Declension("arcade", "игровых автоматов", "игровым автоматам", "игровые автоматы", "игровыми автоматами", "об игровых автоматах"));
+        declensions.add(new Declension("калькуляторы", "калькуляторов", "калькуляторам", "калькуляторы", "калькуляторами", "о калькуляторах"));
+        //declensions.add(new Declension("сайт и всё околоигровое", "другими тематиками", "другим тематикам", "других тематик", "других тематик", "о других тематиках"));
+        declensions.add(new Declension("мобильные устройства", "мобильных устройств", "мобильным устройствам", "мобильные устройства", "мобильными устройствами", "о мобильных устройствах"));
+
         //declensions.add(new Declension("cdi", "Philips CD-i", "Philips CD-i", "Philips CD-i", "Philips CD-i", "Philips CD-i"));
 
         // 1. Именительный - КТО ? ЧТО ?
@@ -132,12 +135,11 @@ class StringUtils {
         listTypeTranslationMap.put("manual", new TypeTranslation("manuals", "Manuals for", "Мануалы, учебники для", "Мануалы для", "")); // род
 
         viewTypeTranslationMap.put("comics", new TypeTranslation("comics", "", "", "Комиксы и манга по мотивам игр %s", "<p>Мы собрали небольшую коллекцию комиксов, связанных с %s.</p>"));
-        viewTypeTranslationMap.put("magazine", new TypeTranslation("magazines", "", "", "Упоминания %s в журналах", "<p>Информацию об играх для %s так же можно найти в периодических изданиях.</p>"));
+        viewTypeTranslationMap.put("magazine", new TypeTranslation("magazines", "", "", "Упоминания %s в журналах", "<p>Игры для %s так же рассмотрены в следующих журналах.</p>"));
     }
 
     static Map<String, PlatformsTranslation> platformsTranslationMap = new HashMap<>();
 
-    //TODO другие типы
     static {
         platformsTranslationMap.put("book", new PlatformsTranslation("Книга", "<p>В книге представлены описания игр для %s</p>",
                 "<p>Так же здесь можно найти описания для %s</p>", "Книга %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
@@ -152,5 +154,4 @@ class StringUtils {
         platformsTranslationMap.put("emulator", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
         platformsTranslationMap.put("comics", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
     }
-
 }

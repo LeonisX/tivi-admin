@@ -6,7 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Sql {
-
     private String sql;
-
 }

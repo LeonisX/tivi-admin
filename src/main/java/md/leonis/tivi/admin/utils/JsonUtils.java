@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 
 public class JsonUtils {
 
-    private static DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     public static Gson gson;
 

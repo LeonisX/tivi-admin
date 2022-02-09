@@ -13,5 +13,4 @@ public class TableInfo {
     private Boolean notnull;
     private String dflt_value;
     private Boolean pk;
-
 }

@@ -19,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 
 public class AddVideo3Controller extends SubPane {
+
     @FXML
     private FlowPane imageViews;
 
@@ -163,14 +164,14 @@ public class AddVideo3Controller extends SubPane {
 
     private void showImage() {
         System.out.println(VideoUtils.video.getImage());
-        Boolean visible = !VideoUtils.video.getImage().isEmpty();
+        boolean visible = !VideoUtils.video.getImage().isEmpty();
         if (visible) {
             String path = VideoUtils.video.getImage();
             if (!path.startsWith("http")) path = Config.sitePath + path;
             Image image = new Image(path);
             System.out.println(image.isError());
             imageView.setImage(image);
-            sizeLabel.setText("(" + String.valueOf(getImageSize(image)) + " байт)");
+            sizeLabel.setText("(" + getImageSize(image) + " байт)");
         }
         imageView.setVisible(visible);
         deleteButton.setVisible(visible);

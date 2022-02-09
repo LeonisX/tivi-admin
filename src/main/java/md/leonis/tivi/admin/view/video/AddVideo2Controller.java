@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 public class AddVideo2Controller extends SubPane {
+
     @FXML
     private TextField title;
     @FXML

@@ -1,29 +1,29 @@
 package md.leonis.tivi.admin.utils;
 
-
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import md.leonis.tivi.admin.model.Category;
-import md.leonis.tivi.admin.model.Video;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class CatUtils {
-    private List<String> catList = null;
-    private List<Integer> catIds = null;
+
+    private final List<String> catList;
+    private final List<Integer> catIds;
 
     public CatUtils(List<Category> categories) {
         catList = new ArrayList<>();
         catIds = new ArrayList<>();
 
-        categories.sort((o1, o2) -> o1.getParentid().compareTo(o2.getParentid()));
+        categories.sort(Comparator.comparing(Category::getParentid));
 
-        for (Category category: categories) {
+        for (Category category : categories) {
             String name = "";
-            for (Category cat: categories) if (cat.getCatid().equals(category.getParentid())) name = cat.getCatname();
-            Integer k = name.isEmpty() ? (catList.size() - 1) : catList.indexOf(name);
+            for (Category cat : categories) if (cat.getCatid().equals(category.getParentid())) name = cat.getCatname();
+            int k = name.isEmpty() ? (catList.size() - 1) : catList.indexOf(name);
             catList.add(k + 1, category.getCatname());
             catIds.add(k + 1, category.getCatid());
         }
@@ -40,14 +40,15 @@ public class CatUtils {
     public void setCategoryTextValue(ComboBox<String> category, int catId) {
         String catName = "";
         if (catId > 0) {
-            for (Category cat: VideoUtils.categories) if (cat.getCatid() == catId) catName = cat.getCatname();
+            for (Category cat : VideoUtils.categories) if (cat.getCatid() == catId) catName = cat.getCatname();
         }
         catName = (catName.isEmpty()) ? "Выберите категорию" : catName;
         category.setValue(catName);
     }
 
     public static int getParentId(String catname) {
-        for (Category category: VideoUtils.categories) if (category.getCatname().equals(catname)) return category.getParentid();
+        for (Category category : VideoUtils.categories)
+            if (category.getCatname().equals(catname)) return category.getParentid();
         return -1;
     }
 

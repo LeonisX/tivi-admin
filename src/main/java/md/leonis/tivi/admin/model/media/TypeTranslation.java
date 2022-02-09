@@ -7,9 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public class TypeTranslation {
 
-    private String plural;
-    private String imageTitle;
-    private String imageAlt;
-    private String shortText;
-    private String text;
+    private final String plural;
+    private final String imageTitle;
+    private final String imageAlt;
+    private final String shortText;
+    private final String text;
 }
