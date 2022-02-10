@@ -19,10 +19,7 @@ import md.leonis.tivi.admin.model.BookCategory;
 import md.leonis.tivi.admin.model.ComparisionResult;
 import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.model.View;
-import md.leonis.tivi.admin.utils.BookUtils;
-import md.leonis.tivi.admin.utils.CalibreUtils;
-import md.leonis.tivi.admin.utils.Config;
-import md.leonis.tivi.admin.utils.SubPane;
+import md.leonis.tivi.admin.utils.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -82,11 +79,13 @@ public class SiteCompareController extends SubPane {
     public void compare() {
         setupTreeTableView();
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
+        SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
         fillTreeTableView(BookUtils.compare(categoryComboBox.getValue().getCatcpu()));
     }
 
     public void generate() {
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
+        SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
         ComparisionResult<Video> comparisionResult = BookUtils.compare(categoryComboBox.getValue().getCatcpu());
         BookUtils.syncDataWithSite(comparisionResult, calibreDir.getText(), categoryComboBox.getValue().getCatcpu());
         reloadSiteData();

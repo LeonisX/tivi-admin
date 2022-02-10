@@ -51,7 +51,7 @@ public class BookUtils {
     public static String cloudStorageLink;
 
     // on cloud: book, magazine, comics
-    public static List<String> onSiteList = Arrays.asList("doc", "emulator", "guide", "manual");
+    public static List<String> onSiteList = Arrays.asList(/*"doc", */"emulator", "guide"/*, "manual"*/);
 
     static {
         Type type = new TypeToken<List<TableStatus>>() {
@@ -101,7 +101,7 @@ public class BookUtils {
             //System.out.println(jsonString.substring(0, len));
             return jsonString;
             //videos = JsonUtils.gson.fromJson(jsonString, videosType);
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Error");
         }
         return null;
@@ -129,7 +129,7 @@ public class BookUtils {
             String requestURL = Config.apiPath + "media.php?to=raw_query&query_string=" + URLEncoder.encode(query, Config.encoding);
             String result = WebUtils.readFromUrl(requestURL);
             //String result = ascii2Native(WebUtils.readFromUrl(requestURL));
-            int len = result.length() > 1024 ? 1024 : result.length();
+            int len = Math.min(result.length(), 1024);
             //System.out.println(result.substring(0, len));
             return result;
         } catch (IOException e) {
@@ -235,7 +235,7 @@ public class BookUtils {
         List<String> ops = new ArrayList<>();
         //TODO dates???
         entry.getValue().forEach(e -> ops.add(e.getKey() + "=" + (e.getValue().getValue() == null ? "NULL" : "'" + e.getValue().getValue().replace("'", "''") + "'")));
-        return String.format("UPDATE `%s` SET %s WHERE downid=%d;\n", tableName, ops.stream().collect(joining(", ")), entry.getKey().getId());
+        return String.format("UPDATE `%s` SET %s WHERE downid=%d;\n", tableName, String.join(", ", ops), entry.getKey().getId());
     }
 
     public static void dumpDB() throws FileNotFoundException {
@@ -318,14 +318,14 @@ public class BookUtils {
             }
             jsons.add(result);
             offset += limit;
-            System.out.println(result.substring(0, result.length() > 256 ? 256 : result.length()).trim());
+            System.out.println(result.substring(0, Math.min(result.length(), 256)).trim());
         } while (!result.isEmpty());
 
         return "[" + jsons.stream().filter(s -> !s.isEmpty()).collect(joining(",")) + "]";
     }
 
     public static List<Pair<BookCategory, BookCategory>> compareCategories() {
-        List<Pair<BookCategory,BookCategory>> result = categories.stream().map(c -> new Pair<>(c, new BookCategory(c))).collect(toList());
+        List<Pair<BookCategory, BookCategory>> result = categories.stream().map(c -> new Pair<>(c, new BookCategory(c))).collect(toList());
         result.forEach(p -> p.getValue().setTotal(0));
         result.forEach(p -> {
             List<Video> children = siteBooks.stream().filter(b -> b.getCategoryId().equals(p.getValue().getCatid())).collect(toList());
@@ -340,7 +340,7 @@ public class BookUtils {
         return result.stream().filter(p -> !p.getKey().getTotal().equals(p.getValue().getTotal())).filter(p -> !p.getValue().getCatcpu().equals("gd")).collect(toList());
     }
 
-    private static void updateParentTotals(BookCategory bookCategory, List<Pair<BookCategory,BookCategory>> result) {
+    private static void updateParentTotals(BookCategory bookCategory, List<Pair<BookCategory, BookCategory>> result) {
         if (bookCategory.getParentid() == 0) {
             return;
         }
@@ -474,7 +474,7 @@ public class BookUtils {
     }
 
 
-    public static ComparisionResult<Video> compare(String category) throws IOException { //category == cpu
+    public static ComparisionResult<Video> compare(String category) { //category == cpu
         ComparisionResult<Video> comparisionResult = null;
         if (category == null) {
             for (int i = 0; i < categories.size(); i++) {
@@ -497,6 +497,8 @@ public class BookUtils {
     }
 
     public static ComparisionResult<Video> doCompare(String category) {
+
+        System.out.println("============================= doCompare: " + category);
         if (getParentRoot(categories, category).getCatcpu().equals("magazines") && !category.equals("gd")) {
             return compareMagazines(category);
         }
@@ -563,10 +565,10 @@ public class BookUtils {
                 .filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getTiviId() != null && b.getTiviId() > 0)
                 .map(b -> calibreToVideo(b, category)).collect(toList()));*/
         List<Pair<Video, Video>> changed = allBooks.stream().collect(groupingBy(Video::getId))
-                .entrySet().stream().filter(e -> e.getValue().size() == 2)
-                .map(e -> {
-                    Video siteBook = e.getValue().get(0);
-                    Video calibreBook = e.getValue().get(1);
+                .values().stream().filter(videos -> videos.size() == 2)
+                .map(videos -> {
+                    Video siteBook = videos.get(0);
+                    Video calibreBook = videos.get(1);
                     calibreBook.setCategoryId(siteBook.getCategoryId());
                     //calibreBook.setCategoryId(getCategoryByCpu(category).getCatid());
                     calibreBook.setImage_align(siteBook.getImage_align());
@@ -589,7 +591,15 @@ public class BookUtils {
             JsonObject oldJsonObject = JsonUtils.gson.toJsonTree(pair.getKey()).getAsJsonObject();
             JsonObject newJsonObject = JsonUtils.gson.toJsonTree(pair.getValue()).getAsJsonObject();
             oldJsonObject.entrySet().forEach(e -> {
-                if (!e.getValue().toString().equals(newJsonObject.get(e.getKey()).toString())) {
+                String ov = e.getValue().isJsonNull() ? "" : clean(e.getValue().getAsString());
+                String nv = newJsonObject.get(e.getKey()).isJsonNull() ? "" : clean(newJsonObject.get(e.getKey()).getAsString());
+                if (!ov.equals(nv)) {
+                    /*try {
+                        Files.write(Paths.get("1.txt"), ov.getBytes());
+                        Files.write(Paths.get("2.txt"), nv.getBytes());
+                    } catch (Exception ee) {
+
+                    }*/
                     if (e.getKey().equals("public")) {
                         String oldDate = Long.toString(timestampToDate(e.getValue().getAsLong(), 0).toLocalDate().atStartOfDay(ZoneId.ofOffset("UTC", ZoneOffset.ofHours(0))).toEpochSecond());
                         String newDate = Long.toString(timestampToDate(newJsonObject.get(e.getKey()).getAsLong(), 1).toLocalDate().atStartOfDay(ZoneId.ofOffset("UTC", ZoneOffset.ofHours(0))).toEpochSecond());
@@ -607,9 +617,16 @@ public class BookUtils {
                 }
             });
             return res;
-        }));
+        })).entrySet().stream().filter(e -> !e.getValue().isEmpty()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         return new ComparisionResult<>(addedBooks, deletedBooks, changedBooks);
+    }
+
+    private static String clean(String str) {
+        return str.trim().replace("\\r", "").replace("\\n", "")
+                .replace("\r", "").replace("\n", "")
+                .replace("\u0000", "").replace(" ", "")
+                .replace("<p></p><p>", "<p>").replace("</p><p></p>", "</p>");
     }
 
     public static ComparisionResult<Video> compareMagazines(String category) {
@@ -621,19 +638,14 @@ public class BookUtils {
         Map<CalibreBook, List<CalibreBook>> groupedMagazines = calibreMagazines.stream()/*.filter(b ->*/
                 /*b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
                         (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)))*/
-                .peek(b -> {if (b.getSeries() == null) {
-                    b.setSeries(new PublisherSeries(0L, b.getTitle(), ""));}})
+                .peek(b -> {
+                    if (b.getSeries() == null) {
+                        b.setSeries(new PublisherSeries(0L, b.getTitle(), ""));
+                    }
+                })
                 .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()))
                 .entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey))
                 .collect(Collectors.toMap(entry -> entry.getValue().get(0), Map.Entry::getValue));
-
-
-        //TODO подумать как убрать этот хак
-        /*groupedMagazines.forEach((key, value) -> {
-            if (key.getTextMore() == null) {
-                key.setTextMore("");
-            }
-        });*/
 
         List<Video> siteMagazines = siteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryByCpu(category).getCatid())).collect(toList());
 
@@ -657,10 +669,10 @@ public class BookUtils {
         List<Video> allBooks = new ArrayList<>(siteMagazines);
         allBooks.addAll(oldBooks);
         List<Pair<Video, Video>> changed = allBooks.stream().collect(groupingBy(Video::getId))
-                .entrySet().stream().filter(e -> e.getValue().size() == 2)
-                .map(e -> {
-                    Video siteBook = e.getValue().get(0);
-                    Video calibreBook = e.getValue().get(1);
+                .values().stream().filter(videos -> videos.size() == 2)
+                .map(videos -> {
+                    Video siteBook = videos.get(0);
+                    Video calibreBook = videos.get(1);
                     calibreBook.setCategoryId(siteBook.getCategoryId());
                     calibreBook.setImage_align(siteBook.getImage_align());
                     calibreBook.setViews(siteBook.getViews());
@@ -669,6 +681,9 @@ public class BookUtils {
                     calibreBook.setRated_count(siteBook.getRated_count());
                     calibreBook.setTotal_rating(siteBook.getTotal_rating());
                     calibreBook.setComments(siteBook.getComments());
+                    /*calibreBook.setStartDate(siteBook.getStartDate());
+                    calibreBook.setEndDatedate(siteBook.getEndDatedate());
+                    calibreBook.setDate(siteBook.getDate());*/
                     if (Math.abs(siteBook.getDate() - calibreBook.getDate()) <= 24 * 60 * 60) {
                         siteBook.setDate(calibreBook.getDate());
                     }
@@ -682,13 +697,18 @@ public class BookUtils {
             JsonObject oldJsonObject = JsonUtils.gson.toJsonTree(pair.getKey()).getAsJsonObject();
             JsonObject newJsonObject = JsonUtils.gson.toJsonTree(pair.getValue()).getAsJsonObject();
             oldJsonObject.entrySet().forEach(e -> {
-                if (!e.getValue().toString().equals(newJsonObject.get(e.getKey()).toString())) {
+                if (!clean(e.getValue().toString()).equals(clean(newJsonObject.get(e.getKey()).toString()))) {
+                    /*try {
+                        Files.write(Paths.get("1.txt"), clean(e.getValue().toString()).getBytes());
+                        Files.write(Paths.get("2.txt"), clean(newJsonObject.get(e.getKey()).toString()).getBytes());
+                    } catch (Exception ee) {
+
+                    }*/
                     if (e.getKey().equals("public")) {
                         String oldDate = Long.toString(timestampToDate(e.getValue().getAsLong(), 0).toLocalDate().atStartOfDay(ZoneId.ofOffset("UTC", ZoneOffset.ofHours(0))).toEpochSecond());
                         String newDate = Long.toString(timestampToDate(newJsonObject.get(e.getKey()).getAsLong(), 1).toLocalDate().atStartOfDay(ZoneId.ofOffset("UTC", ZoneOffset.ofHours(0))).toEpochSecond());
                         if (!oldDate.equals(newDate)) {
-                            Pair<String, String> value = new Pair<>(oldDate, newDate);
-                            res.add(new Pair<>(e.getKey(), value));
+                            res.add(new Pair<>(e.getKey(), new Pair<>(oldDate, newDate)));
                         }
                     } else {
                         Pair<String, String> value = new Pair<>(e.getValue().getAsString(), newJsonObject.get(e.getKey()).getAsString());
@@ -700,7 +720,7 @@ public class BookUtils {
                 }
             });
             return res;
-        }));
+        })).entrySet().stream().filter(e -> !e.getValue().isEmpty()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         return new ComparisionResult<>(addedBooks, deletedBooks, changedBooks);
     }
@@ -734,7 +754,7 @@ public class BookUtils {
         }
         if (calibreBook.getSignedInPrint() != null) {
             if (calibreBook.getSignedInPrint().isBefore(LocalDateTime.of(LocalDate.of(1970, 1, 1), LocalTime.ofNanoOfDay(0)))) {
-                video.setDate(4294967295L + 24*60*60 + calibreBook.getSignedInPrint().toEpochSecond(ZoneOffset.ofHours(-2)));
+                video.setDate(4294967295L + 24 * 60 * 60 + calibreBook.getSignedInPrint().toEpochSecond(ZoneOffset.ofHours(-2)));
             } else {
                 video.setDate(calibreBook.getSignedInPrint().toEpochSecond(ZoneOffset.ofHours(-2)));
             }
@@ -747,28 +767,25 @@ public class BookUtils {
         video.setStartDate(0L);
         video.setEndDatedate(0L);
 
-        //TODO url; // locurl //TODO if year > 2007 ==> external
-        //TODO right file
-
-        //TODO list of valid files
-        //TODO что делать с ссылками???
         List<Data> files = getDatasWithFileName(calibreBook);
 
         if (calibreBook.getDataList().isEmpty()) {
             video.setUrl("");
+            video.setMirror("");
         } else {
             if (onSiteList.contains(calibreBook.getType())) {
                 video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category, files.get(0)));
                 files.remove(0);
             } else {
-                video.setUrl(cloudStorageLink);
+                video.setUrl("");
+                video.setMirror(cloudStorageLink);
                 files.clear();
             }
         }
-        if (calibreBook.getExternalLink() != null && ! calibreBook.getExternalLink().isEmpty()) {
+        if (calibreBook.getExternalLink() != null && !calibreBook.getExternalLink().isEmpty()) {
             video.setMirror(calibreBook.getExternalLink());
         } else {
-            video.setMirror(""); // exturl
+            video.setMirror(cloudStorageLink); // exturl
         }
         video.setAge(""); // extsize
         video.setDescription(getDescription(calibreBook, category));
@@ -841,25 +858,27 @@ public class BookUtils {
         if (calibreBook.getSignedInPrint() != null) {
             video.setDate(calibreBook.getSignedInPrint().toEpochSecond(ZoneOffset.ofHours(-2)));
         }
-        video.setCpu(generateCpu(calibreBook.getSeries().getName()));
+        if (category.equalsIgnoreCase("comics")) {
+            video.setCpu(calibreBook.getCpu());
+        } else {
+            video.setCpu(generateCpu(calibreBook.getSeries().getName()));
+        }
         video.setStartDate(0L);
         video.setEndDatedate(0L);
 
         if (groupedMagazines.getValue().size() != 1 || calibreBook.getDataList().isEmpty()) {
             video.setUrl("");
         } else {
-            //TODO что делать с ссылками???
-            //TODO
             //List<Data> files = getDatasWithFileName(calibreBook);
             /*if (onSiteList.contains(calibreBook.getType())) {
                 video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category, files.get(0)));
                 files.remove(0);
             } else {*/
-                video.setUrl(cloudStorageLink);
-                //files.clear();
+            video.setUrl(cloudStorageLink);
+            //files.clear();
             //}
         }
-        if (calibreBook.getExternalLink() != null && ! calibreBook.getExternalLink().isEmpty()) {
+        if (calibreBook.getExternalLink() != null && !calibreBook.getExternalLink().isEmpty()) {
             video.setMirror(calibreBook.getExternalLink());
         } else {
             video.setMirror(""); // exturl
@@ -875,7 +894,7 @@ public class BookUtils {
         }
         String cpu = calibreBook.getHasCover().equals(0) ? groupedMagazines.getValue().stream()
                 .filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0)
-                .sorted(Comparator.comparing(Book::getSort)).map(CalibreBook::getCpu).findFirst().orElse(null) :calibreBook.getCpu();
+                .sorted(Comparator.comparing(Book::getSort)).map(CalibreBook::getCpu).findFirst().orElse(null) : calibreBook.getCpu();
         video.setText(SiteRenderer.getTextShort(calibreBook, cpu));
         /*if (calibreBook.getHasCover().equals(0)) {
             CalibreBook bookWithCover = groupedMagazines.getValue().stream().filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0).sorted(Comparator.comparing(Book::getSort)).findFirst().orElse(null);
@@ -887,7 +906,6 @@ public class BookUtils {
             groupedMagazines.getValue().get(0).setHasCover(0);
         }*/
         //TODO custom, generate - for all books
-        //TODO right file, if year > 2007 -> remote
         //TODO list other (all) files
         video.setFullText(SiteRenderer.getMagazineFullText(groupedMagazines, category, cpu));
         video.setUserText("");
@@ -983,6 +1001,7 @@ public class BookUtils {
                     List<Video> videoList = JsonUtils.gson.fromJson(BookUtils.queryRequest("SELECT * FROM danny_media WHERE cpu='" + b.getCpu() + "' AND catid=" + b.getCategoryId()), videosType);
                     Integer tiviId = videoList.get(0).getId();
                     System.out.println(tiviId);
+                    System.out.println(b.getCpu());
                     Long bookId = calibreBooks.stream().filter(cb -> cb.getCpu() != null && cb.getCpu().equals(b.getCpu())).findFirst().get().getId();
 
                     CustomColumn cb = CalibreUtils.readObject("SELECT * FROM `custom_column_17` WHERE book=" + bookId, CustomColumn.class);
@@ -1127,7 +1146,6 @@ public class BookUtils {
         private final ProgressBar pb = new ProgressBar();
         private final ProgressIndicator pin = new ProgressIndicator();
         private final Label label = new Label();
-        private final Scene scene;
 
         ProgressForm() {
             dialogStage = new Stage();
@@ -1153,7 +1171,7 @@ public class BookUtils {
 
             vBox.getChildren().addAll(hb, label);
 
-            scene = new Scene(vBox);
+            Scene scene = new Scene(vBox);
             dialogStage.setScene(scene);
         }
 
@@ -1168,5 +1186,4 @@ public class BookUtils {
             return dialogStage;
         }
     }
-
 }

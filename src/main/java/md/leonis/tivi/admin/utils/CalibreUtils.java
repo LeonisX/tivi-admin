@@ -67,12 +67,9 @@ public class CalibreUtils {
                 } else if (element.child(0).tagName().equals("div") && element.child(0).childNodeSize() == 1) {
                     calibreBook.setTextShort(element.child(0).html().trim());
                 } else {
-                    calibreBook.setTextShort(element.child(0).outerHtml().trim());
+                    calibreBook.setTextShort(element.child(0).outerHtml().trim().replace("<p></p>\n", "").replace("<p></p>", ""));
                 }
 
-                if (calibreBook.getTitle().equals("Видео-АСС Корона № 1 (1994)")) {
-                    System.out.println(comment);
-                }
                 if (chunks.length > 1) {
                     calibreBook.setTextMore(Jsoup.parseBodyFragment(chunks[1]).body().html().trim());
                 } else {
@@ -286,10 +283,8 @@ public class CalibreUtils {
     }
 
     static <K, V> Collection<V> mapDifference(Map<? extends K, ? extends V> left, Map<? extends K, ? extends V> right) {
-        Map<K, V> difference = new HashMap<>();
-        difference.putAll(left);
-        difference.putAll(right);
-        difference.entrySet().removeAll(right.entrySet());
+        Map<K, V> difference = new HashMap<>(right);
+        left.forEach((key, value) -> difference.remove(key));
         return difference.values();
     }
 
@@ -770,12 +765,7 @@ public class CalibreUtils {
 
         int i = 1;
         for (CalibreBook book : shallowCopy) {
-            String system;
-            if (book.getTags().size() > 1) {
-                system = "consoles"; //TODO computers
-            } else {
-                system = book.getTags().get(0).getName();
-            }
+            String system = selectSystem(book);
             Path destPath;
             System.out.println(book);
             switch (book.getType()) {
@@ -888,6 +878,14 @@ public class CalibreUtils {
                 .map(Path::toFile)
                 .filter(File::isDirectory)
                 .forEach(File::delete);
+    }
+
+    public static String selectSystem(CalibreBook book) {
+        if (book.getTags().size() > 1) {
+            return "consoles"; //TODO computers
+        } else {
+            return book.getTags().get(0).getName();
+        }
     }
 
     //TODO separate utils

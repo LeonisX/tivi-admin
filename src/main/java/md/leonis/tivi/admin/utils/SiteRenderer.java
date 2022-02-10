@@ -3,6 +3,7 @@ package md.leonis.tivi.admin.utils;
 import md.leonis.tivi.admin.model.Declension;
 import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.model.media.*;
+import md.leonis.tivi.admin.utils.archive.SevenZipUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -14,14 +15,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
-import static md.leonis.tivi.admin.utils.StringUtils.listTypeTranslationMap;
-import static md.leonis.tivi.admin.utils.StringUtils.platformsTranslationMap;
-import static md.leonis.tivi.admin.utils.StringUtils.viewTypeTranslationMap;
+import static java.util.stream.Collectors.*;
+import static md.leonis.tivi.admin.utils.StringUtils.*;
 
 public class SiteRenderer {
+
+    public static String cloudStorageLink;
 
     public static String getSystemIconLink(String catCpu) {
         return String.format("images/systems/%s.png", catCpu);
@@ -57,6 +56,7 @@ public class SiteRenderer {
         }
     }
 
+    // Упоминания в других книгах
     public static void generateCitationsPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
         List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("book"))
                 .filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
@@ -92,6 +92,7 @@ public class SiteRenderer {
         }
     }
 
+    // Книги в розыске
     public static void generateSearchPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
         List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals("book")).filter(b -> b.getOwn() == null || !b.getOwn()).collect(toList());
         calibreBooks = calibreBooks.stream().filter(b ->
@@ -104,7 +105,7 @@ public class SiteRenderer {
             Video newManual = new Video();
             newManual.setCpu(category + "_search");
             newManual.setCategoryId(BookUtils.getCategoryByCpu(category).getCatid());
-            newManual.setTitle("Книги в поиске");
+            newManual.setTitle("Книги в розыске");
             newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже книг.</p>");
             newManual.setFullText(generateTableView(calibreBooks));
             newManual.setUrl("");
@@ -113,7 +114,7 @@ public class SiteRenderer {
         } else if (!calibreBooks.isEmpty()) {
             // change
             Video newManual = new Video(manual.get());
-            newManual.setTitle("Книги в поиске");
+            newManual.setTitle("Книги в розыске");
             newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже книг.</p>");
             newManual.setFullText(generateTableView(calibreBooks));
             oldBooks.add(newManual);
@@ -150,6 +151,7 @@ public class SiteRenderer {
         }
     }
 
+    // Разыскиваемые журналы
     public static void generateMagazinesSearchPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
         List<CalibreBook> calibreMagazines = allCalibreBooks.stream().filter(b -> b.getType().equals("magazine") && !category.equals("gd"))
                 //.filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category))
@@ -160,7 +162,7 @@ public class SiteRenderer {
                 //        (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)))
                 .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()))
                 .entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().get(0), Map.Entry::getValue))
-                .entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getSeries().getName())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         Optional<Video> manual = filteredSiteBooks.stream().filter(b -> b.getCpu().equals("magazines_in_search")).findFirst();
         if (!groupedMagazines.isEmpty() && !manual.isPresent()) {
@@ -173,10 +175,10 @@ public class SiteRenderer {
             StringBuilder sb = new StringBuilder();
             //TODO link
             //TODO table with images
-            groupedMagazines.forEach((key, value) -> {
-                sb.append(String.format("<h3>%s</h3>", key.getSeries().getName()));
+            groupedMagazines.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getSeries().getName())).forEach(e -> {
+                sb.append(String.format("<h3>%s</h3>", e.getKey().getSeries().getName()));
                 sb.append("<ul class=\"file-info\">\n");
-                value.forEach(c -> sb.append(String.format("<li>%s</li>", c.getTitle())));
+                e.getValue().forEach(c -> sb.append(String.format("<li>%s</li>", c.getTitle())));
                 sb.append("</ul>\n");
             });
             newManual.setFullText(sb.toString());
@@ -191,10 +193,10 @@ public class SiteRenderer {
             StringBuilder sb = new StringBuilder();
             //TODO link
             //TODO table with images
-            groupedMagazines.forEach((key, value) -> {
-                sb.append(String.format("<h3>%s</h3>", key.getSeries().getName()));
+            groupedMagazines.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getSeries().getName())).forEach(e -> {
+                sb.append(String.format("<h3>%s</h3>", e.getKey().getSeries().getName()));
                 sb.append("<ul class=\"file-info\">\n");
-                value.forEach(c -> sb.append(String.format("<li>%s</li>", c.getTitle())));
+                e.getValue().forEach(c -> sb.append(String.format("<li>%s</li>", c.getTitle())));
                 sb.append("</ul>\n");
             });
             newManual.setFullText(sb.toString());
@@ -208,7 +210,14 @@ public class SiteRenderer {
         manual.setText(String.format(translation.getText(), declension.getRod()));
         StringBuilder sb = new StringBuilder();
         sb.append("<ul class=\"file-info\">\n");
-        new TreeMap<>(books).forEach((key, value) -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", BookUtils.generateCpu(key), key)));
+        // new TreeMap<>(books).forEach((key, value) -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", value.get(0).getCpu(), key)));
+        new TreeMap<>(books).forEach((key, value) -> {
+            if (value.get(0).getType().equals("comics")) {
+                sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", value.get(0).getCpu(), key));
+            } else {
+                sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", BookUtils.generateCpu(value.get(0).getSeries().getName()), key));
+            }
+        });
         sb.append("</ul>\n");
         manual.setFullText(sb.toString());
     }
@@ -263,13 +272,11 @@ public class SiteRenderer {
         return sb.toString();
     }
 
-
-    //TODO renderer for guides
     private static void setManualText(List<CalibreBook> calibreBooks, Video manual, String category, TypeTranslation translation) {
-        if (translation.getPlural().equals("guides")) {
-            guideRenderer(calibreBooks, manual, category, translation);
-        }  else {
+        if (translation.getPlural().equals("manuals") || translation.getPlural().equals("docs")) {
             manualRenderer(calibreBooks, manual, category, translation);
+        } else {
+            guideRenderer(calibreBooks, manual, category, translation);
         }
     }
 
@@ -282,7 +289,7 @@ public class SiteRenderer {
         String imageLink = String.format("images/books/thumb/%s/%s.jpg", BookUtils.getCategoryByTags(book), book.getCpu());
 
         manual.setText(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"%s\" alt=\"%s\" />%s %s</p>",
-                translation.getImageTitle() + catName, imageLink, translation.getImageAlt() + declension.getRod(), translation.getShortText(), declension.getRod()));
+                translation.getImageTitle() + " " + catName, imageLink, translation.getImageAlt() + " " + declension.getRod(), translation.getShortText(), declension.getRod()));
 
         manual.setFullText(calibreBooks.stream().map(b -> {
             String authors = b.getAuthors().stream().map(Author::getName).collect(joining(", ")).replace("|", ",");
@@ -290,8 +297,10 @@ public class SiteRenderer {
                 authors = b.getPublisher() != null ? b.getPublisher().getName() : "";
             }
             String downloadLink = b.getDataList().isEmpty() ? "" :
+                    String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" target=\"_blank\" /></a>", cloudStorageLink);
+            /*String downloadLink = b.getDataList().isEmpty() ? "" :
                     String.format("<a href=\"up/media/%s/%s/%s.%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" /></a>", translation.getPlural(), category,
-                            b.getFileName() != null ? b.getFileName() : b.getTitle(), b.getDataList().get(0).getFormat().toLowerCase());
+                            b.getFileName() != null ? b.getFileName() : b.getTitle(), b.getDataList().get(0).getFormat().toLowerCase());*/
             String externalLink = b.getExternalLink() == null || b.getExternalLink().isEmpty() ? ""
                     : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page.png\" alt=\"download\" /></a> ", b.getExternalLink());
             String text = b.getTextShort().isEmpty() ? b.getTextMore() : b.getTextShort();
@@ -299,10 +308,11 @@ public class SiteRenderer {
             if (!text.equals(b.getTextMore()) && !b.getTextMore().isEmpty()) {
                 spoiler += "<br /><span class=\"spoiler\" style=\"display: none;\">" + b.getTextMore() + "</span>";
             }
-            text = trimHtmlTags(text.replace("\n", ""));
+            text = trimHtmlTags(text.replace("\n", "").replace("\r", ""));
             String br = text.length() < 108 && spoiler.isEmpty() ? "<br /><br />" : "";
-            return String.format("<p>%s%s%s (C) %s, %s%s%s</p>",
-                    externalLink, downloadLink, text, authors, formatDate(b.getSignedInPrint()), br, spoiler);
+            String author = authors.isEmpty() ? "" : String.format("%s,", authors);
+            return String.format("<p>%s%s%s (C) %s,%s%s%s</p>",
+                    externalLink, downloadLink, text, author, formatDate(b.getSignedInPrint()), br, spoiler);
         }).collect(joining()));
     }
 
@@ -317,35 +327,38 @@ public class SiteRenderer {
         String imageLink = String.format("images/books/thumb/%s/%s.jpg", BookUtils.getCategoryByTags(book), book.getCpu());
 
         manual.setText(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"%s\" alt=\"%s\" />%s %s</p>",
-                translation.getImageTitle() + catName, imageLink, translation.getImageAlt() + declension.getRod(), translation.getShortText(), declension.getRod()));
+                translation.getImageTitle() + " " + catName, imageLink, translation.getImageAlt() + " " + declension.getRod(), translation.getShortText(), declension.getRod()));
 
-        String fulltext = "<div class=\"tab-guides\">" +
+        String fulltext = "<div class=\"tab-guides\" style=\"display: inline-block\">" +
                 "<table><thead><tr>" +
-                "<td class=\"col-n\">Название игры</td>" +
+                "<td class=\"col-n\">Название</td>" +
                 "<td class=\"col-u\"><img src=\"images/pages.png\" width=\"16\" height=\"16\"></td>" +
                 "<td class=\"col-y\">Автор</td>" +
                 "<td class=\"col-y\">Дата</td>" +
                 "</tr></thead><tbody>";
 
         boolean[] k = new boolean[1];
-        k[0] = false;
         manual.setFullText(fulltext + calibreBooks.stream().sorted(Comparator.comparing(Book::getSort)).map(b -> {
             String authors = b.getAuthors().stream().map(Author::getName).collect(joining(", ")).replace("|", ",");
             if (authors.equalsIgnoreCase("неизвестный")) {
                 authors = b.getPublisher() != null ? b.getPublisher().getName() : "";
             }
+            Set<String> fileNames = new HashSet<>();
             String downloadLink = b.getDataList().isEmpty() ? "" :
-                    String.format("<a href=\"up/media/%s/%s/%s.%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book-16.png\" alt=\"download\" /></a>", translation.getPlural(), category,
-                            b.getFileName() != null ? b.getFileName() : b.getTitle(), b.getDataList().get(0).getFormat().toLowerCase());
+                    b.getDataList().stream().map(d -> {
+                        String fileName = findFreeFileName(fileNames, b.getFileName() != null ? b.getFileName() : b.getTitle(), d.getFormat().toLowerCase(), 0);
+                        return String.format("<a href=\"up/media/%s/%s/%s\"><img style=\"float: left; margin-right: 5px;\" src=\"%s\" alt=\"download\" target=\"_blank\"/></a>",
+                                translation.getPlural(), CalibreUtils.selectSystem(b), fileName, getTypeLink(d.getFormat()));
+                    }).collect(Collectors.joining(" "));
             String externalLink = b.getExternalLink() == null || b.getExternalLink().isEmpty() ? ""
-                    : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page-16.png\" alt=\"download\" /></a> ", b.getExternalLink());
+                    : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page-16.png\" alt=\"download\" target=\"_blank\" /></a> ", b.getExternalLink());
             String text = b.getTextShort().isEmpty() ? b.getTextMore() : b.getTextShort();
             String spoiler = "";
             if (!text.equals(b.getTextMore()) && !b.getTextMore().isEmpty()) {
                 spoiler += " <span class=\"spoiler\" style=\"display: none;\"><br />"
                         + "<div style=\"padding-left: 20px; padding-top: 10px;\">" + b.getTextMore() + "</div></span>";
             }
-            text = trimHtmlTags(text.replace("\n", ""));
+            text = trimHtmlTags(text.replace("\n", "").replace("\r", ""));
             String className = k[0] ? "odd" : "";
             k[0] = !k[0];
             String pages = b.getPages() == null ? "-" : b.getPages().toString();
@@ -355,6 +368,43 @@ public class SiteRenderer {
         manual.setFullText(fixLatinChars(manual.getFullText()));
     }
 
+    public static String findFreeFileName(Set<String> fileNames, String fileName, String ext, int incr) {
+        String result = SevenZipUtils.prepareFileName(fileName, ext, incr);
+        if (fileNames.contains(result)) {
+            return findFreeFileName(fileNames, fileName, ext, ++incr);
+        }
+        fileNames.add(result);
+        return result;
+    }
+
+    private static String getTypeLink(String type) {
+        switch (type.toLowerCase()) {
+            case "7z":
+            case "djvu":
+            case "doc":
+            case "docx":
+            case "gif":
+            case "jpg":
+            case "pdf":
+            case "png":
+            case "psd":
+            case "rar":
+            case "rtf":
+            case "tif":
+            case "txt":
+            case "xls":
+            case "xlsx":
+            case "zip":
+            case "cbr":
+            case "cbz":
+                return String.format("images/books/type/%s.gif", type.toLowerCase());
+            default:
+                return "images/book-16.png";
+
+        }
+    }
+
+    //TODO
     //TODO probably for books, magazines too
     //TODO probably for vBulletin renderers too, need to check
     private static String fixLatinChars(String fullText) {
@@ -427,7 +477,6 @@ public class SiteRenderer {
                 .collect(joining("\n"));
     }
 
-
     public static String getTextShort(CalibreBook book, String cpu) {
         StringBuilder sb = new StringBuilder();
         if (cpu != null) {
@@ -442,7 +491,7 @@ public class SiteRenderer {
         if (book.getOfficialTitle() != null && !book.getOfficialTitle().equals(book.getTitle())) {
             sb.append(String.format("<li><span>Название:</span> %s</li>\n", book.getOfficialTitle()));
         }
-        if (book.getFileName() != null && !book.getFileName().equals(book.getTitle()) && !book.getFileName().equals(book.getOfficialTitle())) {
+        if (book.getFileName() != null && !book.getFileName().equals(book.getTitle()) && !book.getFileName().equals(book.getOfficialTitle()) && !book.getType().equalsIgnoreCase("magazine")) {
             sb.append(String.format("<li><span>Неофициальное название:</span> %s</li>\n", book.getFileName()));
         }
         if (book.getSeries() != null) {
@@ -483,7 +532,7 @@ public class SiteRenderer {
             sb.append(String.format("<li><span>Формат:</span> %s</li>\n", book.getFormat()));
         }
         if (book.getScannedBy() != null) {
-            sb.append(String.format("<li><span>Сканировал:</span> <a rel=\"nofollow\" href=\"%s\">%s</a>\n", book.getSource(), book.getScannedBy()));
+            sb.append(String.format("<li><span>Сканировал:</span> <a rel=\"nofollow\" target=\"_blank\" href=\"%s\">%s</a>\n", book.getSource(), book.getScannedBy()));
         }
         if (book.getPostprocessing() != null) {
             sb.append(String.format("<li><span>Постобработка:</span>%s\n", book.getPostprocessing()));

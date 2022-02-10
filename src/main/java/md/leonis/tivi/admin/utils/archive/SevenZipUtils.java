@@ -130,19 +130,17 @@ public class SevenZipUtils {
 
 
     public static Path findFreeFileName(Path path, String fileName, String ext, int incr) {
-        Path result;
-        //TODO remove try
-        try {
-            fileName = fileName.replace("\"", "");
-            fileName = fileName.replace(":", " -");
-            result = path.resolve(fileName + incrToString(incr) + "." + ext);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        Path result = path.resolve(prepareFileName(fileName, ext, incr));
         if (Files.exists(result)) {
             return findFreeFileName(path, fileName, ext, ++incr);
         }
         return result;
+    }
+
+    public static String prepareFileName(String fileName, String ext, int incr) {
+        fileName = fileName.replace("\"", "");
+        fileName = fileName.replace(":", " -");
+        return fileName + incrToString(incr) + "." + ext;
     }
 
     private static String incrToString(int incr) {
