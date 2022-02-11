@@ -473,7 +473,6 @@ public class BookUtils {
         }
     }
 
-
     public static ComparisionResult<Video> compare(String category) { //category == cpu
         ComparisionResult<Video> comparisionResult = null;
         if (category == null) {

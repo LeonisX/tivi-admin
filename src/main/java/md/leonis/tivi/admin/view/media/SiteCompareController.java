@@ -19,6 +19,7 @@ import md.leonis.tivi.admin.model.BookCategory;
 import md.leonis.tivi.admin.model.ComparisionResult;
 import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.model.View;
+import md.leonis.tivi.admin.model.media.CalibreBook;
 import md.leonis.tivi.admin.utils.*;
 
 import java.io.File;
@@ -90,6 +91,11 @@ public class SiteCompareController extends SubPane {
         BookUtils.syncDataWithSite(comparisionResult, calibreDir.getText(), categoryComboBox.getValue().getCatcpu());
         reloadSiteData();
         reloadCalibreData();
+    }
+
+    public void generateForumGuides() {
+        SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
+        SiteRenderer.forumGuideRenderer(calibreBooks.stream().filter(b -> b.getType().equals("guide")).filter(CalibreBook::getOwn).collect(toList()));
     }
 
     public void dumpCalibreDB() {

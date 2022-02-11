@@ -17,134 +17,146 @@
         <TextArea fx:id="auditLog" maxHeight="1.7976931348623157E308" minHeight="247.0" prefHeight="240.0" prefWidth="1000.0" BorderPane.alignment="CENTER" />
     </center>
    <top>
-      <VBox alignment="CENTER" prefHeight="509.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
-         <children>
-                <Label alignment="CENTER" prefHeight="16.0" prefWidth="290.0" text="Аудит базы данных">
-                    <font>
-                        <Font name="System Bold" size="13.0" />
-                    </font>
-                </Label>
-              <GridPane fx:id="gridPane" disable="true" maxHeight="506.0" maxWidth="800.0" minHeight="350.0" minWidth="800.0" prefHeight="506.0" prefWidth="800.0">
-                  <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="773.0" minWidth="10.0" prefWidth="666.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="662.0" minWidth="10.0" prefWidth="229.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="483.0" minWidth="100.0" prefWidth="61.0" />
-                  </columnConstraints>
-                  <rowConstraints>
-                      <RowConstraints maxHeight="24.0" minHeight="0.0" prefHeight="24.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="32.0" minHeight="16.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-                  </rowConstraints>
-                  <children>
-                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="4">
-                          <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Файлы книг / Владею" />
-                          </children>
-                      </HBox>
-                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="5">
-                          <children>
-                              <Label minWidth="269.0" prefHeight="17.0" prefWidth="393.0" text="Ссылка на того, кто сканировал:" />
-                        <TextField fx:id="scannerName" text="Towik" />
-                          </children>
-                      </HBox>
-                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="6">
-                          <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Языки" />
-                          </children>
-                      </HBox>
-                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="7">
-                          <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Теги у имеющихся книг" />
-                          </children>
-                      </HBox>
-                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="8">
-                          <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Отсутствующие имена файлов и дубликаты" />
-                          </children>
-                      </HBox>
-                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="9">
-                          <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Издатели у имеющихся книг" />
-                          </children>
-                      </HBox>
-                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="10">
-                          <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="ISBN" />
-                          </children>
-                      </HBox>
-                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="11">
-                          <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Серии" />
-                          </children>
-                      </HBox>
-                      <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="12">
-                          <children>
-                              <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Категории" />
-                          </children>
-                      </HBox>
-                        <Button fx:id="filesOwnButton" mnemonicParsing="false" onAction="#checkFilesOwn" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <Button fx:id="scannerLinksButton" mnemonicParsing="false" onAction="#checkScannerLinks" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                        <Button mnemonicParsing="false" onAction="#checkLanguages" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                        <Button mnemonicParsing="false" onAction="#checkOwnTags" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                        <Button mnemonicParsing="false" onAction="#checkTitleFileNames" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                        <Button mnemonicParsing="false" onAction="#checkOwnPublishers" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="9" />
-                        <Button mnemonicParsing="false" onAction="#checkIsbns" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="10" />
-                        <Button mnemonicParsing="false" onAction="#checkSeriesTitles" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="11" />
-                      <Button mnemonicParsing="false" onAction="#checkCategories" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="12" />
-                  <Button mnemonicParsing="false" onAction="#reloadCalibreBooks" text="Reload" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                  <Button mnemonicParsing="false" onAction="#reloadSiteBooks" text="Reload" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                  <Label text="Книг в библиотеке Calibre" GridPane.rowIndex="1" />
-                  <Label text="Книг на сайте" GridPane.rowIndex="2" />
-                  <Label fx:id="calibreCountLabel" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Label fx:id="siteCountLabel" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Button mnemonicParsing="false" onAction="#fixFilesOwn" text="Fix" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-                  <Button mnemonicParsing="false" onAction="#fixScannerLinks" text="Fix" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-                  <Button mnemonicParsing="false" onAction="#fixLanguages" text="Fix" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-                  <Button mnemonicParsing="false" onAction="#fixTitleFileNames" text="Fix" GridPane.columnIndex="2" GridPane.rowIndex="8" />
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="13">
-                     <children>
-                        <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="TiviId" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="14">
-                     <children>
-                        <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="ЧПУ" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="15">
-                     <children>
-                        <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="&quot;Грязный&quot; HTML код описаний" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="16">
-                     <children>
-                        <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Имена файлов (проблемные символы)" />
-                     </children>
-                  </HBox>
-                  <Button mnemonicParsing="false" onAction="#checkTiviIdOwn" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="13" />
-                  <Button mnemonicParsing="false" onAction="#checkCpuOwn" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="14" />
-                  <Button mnemonicParsing="false" onAction="#checkDirtyHtml" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="15" />
-                  <Button mnemonicParsing="false" onAction="#checkFileNames" prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="16" />
-                  <Button mnemonicParsing="false" onAction="#fixCpu" text="Fix" GridPane.columnIndex="2" GridPane.rowIndex="14" />
-                  <Button mnemonicParsing="false" onAction="#fixDirtyHtml" text="Fix" GridPane.columnIndex="2" GridPane.rowIndex="15" />
-                  <Button mnemonicParsing="false" onAction="#fixFileNames" text="Fix" GridPane.columnIndex="2" GridPane.rowIndex="16" />
-                  </children>
-              </GridPane>
-         </children>
-      </VBox>
+       <VBox alignment="CENTER" prefHeight="509.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
+           <Label alignment="CENTER" prefHeight="16.0" prefWidth="290.0" text="Аудит базы данных">
+               <font>
+                   <Font name="System Bold" size="13.0"/>
+               </font>
+           </Label>
+           <GridPane fx:id="gridPane" disable="true" maxHeight="506.0" maxWidth="800.0" minHeight="350.0"
+                     minWidth="800.0" prefHeight="506.0" prefWidth="800.0">
+               <columnConstraints>
+                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="773.0" minWidth="10.0" prefWidth="666.0"/>
+                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="662.0" minWidth="10.0" prefWidth="229.0"/>
+                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="483.0" minWidth="100.0" prefWidth="61.0"/>
+               </columnConstraints>
+               <rowConstraints>
+                   <RowConstraints maxHeight="24.0" minHeight="0.0" prefHeight="24.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="16.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+                   <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES"/>
+               </rowConstraints>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="4">
+                   <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Файлы книг / Владею"/>
+               </HBox>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="5">
+                   <Label minWidth="269.0" prefHeight="17.0" prefWidth="393.0"
+                          text="Ссылка на того, кто сканировал:"/>
+                   <TextField fx:id="scannerName" text="Towik"/>
+               </HBox>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="6">
+                   <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Языки"/>
+               </HBox>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="7">
+                   <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Теги у имеющихся книг"/>
+               </HBox>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="8">
+                   <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0"
+                          text="Отсутствующие имена файлов и дубликаты"/>
+               </HBox>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="9">
+                   <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0"
+                          text="Издатели у имеющихся книг"/>
+               </HBox>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="10">
+                   <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="ISBN"/>
+               </HBox>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="11">
+                   <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Серии"/>
+               </HBox>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="12">
+                   <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="Категории"/>
+               </HBox>
+               <Button fx:id="filesOwnButton" mnemonicParsing="false" onAction="#checkFilesOwn" prefHeight="25.0"
+                       prefWidth="97.0" text="Check" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+               <Button fx:id="scannerLinksButton" mnemonicParsing="false" onAction="#checkScannerLinks"
+                       prefHeight="25.0" prefWidth="97.0" text="Check" GridPane.columnIndex="1"
+                       GridPane.rowIndex="5"/>
+               <Button mnemonicParsing="false" onAction="#checkLanguages" prefHeight="25.0" prefWidth="97.0"
+                       text="Check" GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+               <Button mnemonicParsing="false" onAction="#checkOwnTags" prefHeight="25.0" prefWidth="97.0"
+                       text="Check" GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+               <Button mnemonicParsing="false" onAction="#checkTitleFileNames" prefHeight="25.0" prefWidth="97.0"
+                       text="Check" GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+               <Button mnemonicParsing="false" onAction="#checkOwnPublishers" prefHeight="25.0" prefWidth="97.0"
+                       text="Check" GridPane.columnIndex="1" GridPane.rowIndex="9"/>
+               <Button mnemonicParsing="false" onAction="#checkIsbns" prefHeight="25.0" prefWidth="97.0"
+                       text="Check" GridPane.columnIndex="1" GridPane.rowIndex="10"/>
+               <Button mnemonicParsing="false" onAction="#checkSeriesTitles" prefHeight="25.0" prefWidth="97.0"
+                       text="Check" GridPane.columnIndex="1" GridPane.rowIndex="11"/>
+               <Button mnemonicParsing="false" onAction="#checkCategories" prefHeight="25.0" prefWidth="97.0"
+                       text="Check" GridPane.columnIndex="1" GridPane.rowIndex="12"/>
+               <Button mnemonicParsing="false" onAction="#reloadCalibreBooks" text="Reload" GridPane.columnIndex="2"
+                       GridPane.rowIndex="1"/>
+               <Button mnemonicParsing="false" onAction="#reloadSiteBooks" text="Reload" GridPane.columnIndex="2"
+                       GridPane.rowIndex="2"/>
+               <Label text="Книг в библиотеке Calibre" GridPane.rowIndex="1"/>
+               <Label text="Книг на сайте" GridPane.rowIndex="2"/>
+               <Label fx:id="calibreCountLabel" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+               <Label fx:id="siteCountLabel" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+               <Button mnemonicParsing="false" onAction="#fixFilesOwn" text="Fix" GridPane.columnIndex="2"
+                       GridPane.rowIndex="4"/>
+               <Button mnemonicParsing="false" onAction="#fixScannerLinks" text="Fix" GridPane.columnIndex="2"
+                       GridPane.rowIndex="5"/>
+               <Button mnemonicParsing="false" onAction="#fixLanguages" text="Fix" GridPane.columnIndex="2"
+                       GridPane.rowIndex="6"/>
+               <Button mnemonicParsing="false" onAction="#fixTitleFileNames" text="Fix" GridPane.columnIndex="2"
+                       GridPane.rowIndex="8"/>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="13">
+                   <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="TiviId"/>
+               </HBox>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="14">
+                   <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0" text="ЧПУ"/>
+               </HBox>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="15">
+                   <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0"
+                          text="&quot;Грязный&quot; HTML код описаний"/>
+               </HBox>
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0"
+                     GridPane.rowIndex="16">
+                   <Label minWidth="400.0" prefHeight="17.0" prefWidth="457.0"
+                          text="Имена файлов (проблемные символы)"/>
+               </HBox>
+               <Button mnemonicParsing="false" onAction="#checkTiviIdOwn" prefHeight="25.0" prefWidth="97.0"
+                       text="Check" GridPane.columnIndex="1" GridPane.rowIndex="13"/>
+               <Button mnemonicParsing="false" onAction="#checkCpuOwn" prefHeight="25.0" prefWidth="97.0"
+                       text="Check" GridPane.columnIndex="1" GridPane.rowIndex="14"/>
+               <Button mnemonicParsing="false" onAction="#checkDirtyHtml" prefHeight="25.0" prefWidth="97.0"
+                       text="Check" GridPane.columnIndex="1" GridPane.rowIndex="15"/>
+               <Button mnemonicParsing="false" onAction="#checkFileNames" prefHeight="25.0" prefWidth="97.0"
+                       text="Check" GridPane.columnIndex="1" GridPane.rowIndex="16"/>
+               <Button mnemonicParsing="false" onAction="#fixCpu" text="Fix" GridPane.columnIndex="2"
+                       GridPane.rowIndex="14"/>
+               <Button mnemonicParsing="false" onAction="#fixDirtyHtml" text="Fix" GridPane.columnIndex="2"
+                       GridPane.rowIndex="15"/>
+               <Button mnemonicParsing="false" onAction="#fixFileNames" text="Fix" GridPane.columnIndex="2"
+                       GridPane.rowIndex="16"/>
+           </GridPane>
+       </VBox>
    </top>
 </BorderPane>
