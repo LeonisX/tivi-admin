@@ -691,7 +691,7 @@ public class BookUtils {
                 .filter(e -> !e.getKey().equals(e.getValue()))
                 .collect(toList());
 
-        Map<Video, List<Pair<String, Pair<String, String>>>> changedBooks = changed.stream().collect(Collectors.toMap(Pair::getKey, pair -> {
+        Map<Video, List<Pair<String, Pair<String, String>>>> changedBooks = changed.stream().collect(toMap(Pair::getKey, pair -> {
             List<Pair<String, Pair<String, String>>> res = new ArrayList<>();
             JsonObject oldJsonObject = JsonUtils.gson.toJsonTree(pair.getKey()).getAsJsonObject();
             JsonObject newJsonObject = JsonUtils.gson.toJsonTree(pair.getValue()).getAsJsonObject();
@@ -865,22 +865,12 @@ public class BookUtils {
         video.setStartDate(0L);
         video.setEndDatedate(0L);
 
-        if (groupedMagazines.getValue().size() != 1 || calibreBook.getDataList().isEmpty()) {
-            video.setUrl("");
-        } else {
-            //List<Data> files = getDatasWithFileName(calibreBook);
-            /*if (onSiteList.contains(calibreBook.getType())) {
-                video.setUrl(SiteRenderer.getDownloadLink(calibreBook, category, files.get(0)));
-                files.remove(0);
-            } else {*/
-            video.setUrl(cloudStorageLink);
-            //files.clear();
-            //}
-        }
+        video.setUrl("");
+
         if (calibreBook.getExternalLink() != null && !calibreBook.getExternalLink().isEmpty()) {
             video.setMirror(calibreBook.getExternalLink());
         } else {
-            video.setMirror(""); // exturl
+            video.setMirror(cloudStorageLink); // exturl
         }
         video.setAge(""); // extsize
         //TODO custom
