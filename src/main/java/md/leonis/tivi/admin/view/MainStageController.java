@@ -1,6 +1,5 @@
 package md.leonis.tivi.admin.view;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Hyperlink;
@@ -10,16 +9,16 @@ import md.leonis.tivi.admin.utils.CalibreUtils;
 import md.leonis.tivi.admin.utils.VideoUtils;
 
 import java.io.FileNotFoundException;
-import java.io.UnsupportedEncodingException;
 
 public class MainStageController {
 
     @FXML
-    public Hyperlink auditHyperlink;
-    public Hyperlink calibreCompareHyperlink;
-    public Hyperlink siteCompareHyperlink;
     public Hyperlink calibreDumpHyperlink;
     public Hyperlink siteDumpHyperlink;
+    public Hyperlink auditHyperlink;
+    public Hyperlink reportsHyperlink;
+    public Hyperlink calibreCompareHyperlink;
+    public Hyperlink siteCompareHyperlink;
 
     @FXML
     private Accordion accordion;
@@ -45,6 +44,10 @@ public class MainStageController {
         accordion.setExpandedPane(accordion.getPanes().get(2));
     }
 
+    /*
+     * Videos
+     */
+
     @FXML
     private void addVideo() {
         VideoUtils.action = Actions.ADD;
@@ -56,23 +59,32 @@ public class MainStageController {
         VideoUtils.showListVideous();
     }
 
-    public void auditBooks() {
-        BookUtils.auditBooks();
-    }
+    /*
+     * Books
+     */
 
     public void dumpCalibreDB() {
         CalibreUtils.dumpDB();
-    }
-
-    public void compareCalibreDbs() {
-        BookUtils.compareCalibreDbs();
     }
 
     public void dumpSiteDB() throws FileNotFoundException {
         BookUtils.dumpDB();
     }
 
+    public void auditBooks() {
+        BookUtils.auditBooks();
+    }
+
+    public void generateBookReports() {
+        BookUtils.reportBooks();
+    }
+
+    public void compareCalibreDbs() {
+        BookUtils.compareCalibreDbs();
+    }
+
     public void compareWithSite() {
         BookUtils.compareWithSite();
     }
+
 }

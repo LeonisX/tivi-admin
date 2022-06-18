@@ -20,7 +20,7 @@ import md.leonis.tivi.admin.model.*;
 import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.model.mysql.TableStatus;
 import md.leonis.tivi.admin.utils.archive.GZipUtils;
-import md.leonis.tivi.admin.view.media.AuditController;
+import md.leonis.tivi.admin.view.media.CalibreInterface;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -67,7 +67,11 @@ public class BookUtils {
     private static final ColumnsResolver MediaResolver = new ColumnsResolver("danny_media");
 
     public static void auditBooks() {
-        JavaFxUtils.showPane("media/Audit.fxml");
+        JavaFxUtils.showPane("media/CalibreAudit.fxml");
+    }
+
+    public static void reportBooks() {
+        JavaFxUtils.showPane("media/CalibreReports.fxml");
     }
 
     public static void compareCalibreDbs() {
@@ -1090,7 +1094,7 @@ public class BookUtils {
         return String.format("jdbc:sqlite:%s%smetadata.db", path, File.separatorChar);
     }
 
-    public static void readBooks(AuditController auditController) {
+    public static void readBooks(CalibreInterface controller) {
         ProgressForm pForm = new ProgressForm();
 
         // In real life this task would do something useful and return
@@ -1111,7 +1115,7 @@ public class BookUtils {
         // and update the UI based on its value:
         task.setOnSucceeded(event -> {
             pForm.getDialogStage().close();
-            auditController.updateStatus(true);
+            controller.updateStatus(true);
             //startButton.setDisable(false);
         });
 
@@ -1120,7 +1124,7 @@ public class BookUtils {
             pForm.label.setText(text.getText());
 
             pForm.dialogStage.setWidth(text.getLayoutBounds().getWidth() + 10);
-            auditController.updateStatus(false);
+            controller.updateStatus(false);
         });
 
         //startButton.setDisable(true);

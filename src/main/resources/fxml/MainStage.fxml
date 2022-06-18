@@ -32,13 +32,12 @@
             </TitledPane>
             <TitledPane animated="false" text="Книги">
                 <VBox prefHeight="200.0" prefWidth="100.0">
-                  <children>
-                       <Hyperlink fx:id="calibreDumpHyperlink" onAction="#dumpCalibreDB" text="Дамп БД Calibre" />
-                      <Hyperlink fx:id="siteDumpHyperlink" onAction="#dumpSiteDB" text="Дамп БД сайта" />
-                     <Hyperlink fx:id="auditHyperlink" onAction="#auditBooks" text="Аудит" />
-                     <Hyperlink fx:id="calibreCompareHyperlink" onAction="#compareCalibreDbs" text="Сравнение баз Calibre" />
-                      <Hyperlink fx:id="siteCompareHyperlink" onAction="#compareWithSite" text="Сравнение с базой сайта" />
-                  </children>
+                    <Hyperlink fx:id="calibreDumpHyperlink" onAction="#dumpCalibreDB" text="Дамп БД Calibre"/>
+                    <Hyperlink fx:id="siteDumpHyperlink" onAction="#dumpSiteDB" text="Дамп БД сайта"/>
+                    <Hyperlink fx:id="auditHyperlink" onAction="#auditBooks" text="Аудит"/>
+                    <Hyperlink fx:id="reportsHyperlink" onAction="#generateBookReports" text="Отчёты"/>
+                    <Hyperlink fx:id="calibreCompareHyperlink" onAction="#compareCalibreDbs" text="Сравнение баз Calibre"/>
+                    <Hyperlink fx:id="siteCompareHyperlink" onAction="#compareWithSite" text="Сравнение с базой сайта"/>
                 </VBox>
             </TitledPane>
         </panes>

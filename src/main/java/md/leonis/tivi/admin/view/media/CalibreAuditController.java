@@ -22,16 +22,18 @@ import static java.util.stream.Collectors.toList;
 import static md.leonis.tivi.admin.utils.BookUtils.calibreBooks;
 import static md.leonis.tivi.admin.utils.BookUtils.categories;
 
-public class AuditController extends SubPane {
+public class CalibreAuditController extends SubPane implements CalibreInterface {
 
     @FXML
-    public TextField scannerName;
-    public TextArea auditLog;
-    public Button filesOwnButton;
-    public Button scannerLinksButton;
     public GridPane gridPane;
-    public Label siteCountLabel;
+
     public Label calibreCountLabel;
+
+    public TextField scannerName;
+    public Button scannerLinksButton;
+    public Button filesOwnButton;
+
+    public TextArea auditLog;
 
     @FXML
     private void initialize() {
@@ -469,8 +471,5 @@ public class AuditController extends SubPane {
                 System.out.println(id);
             }
         });
-    }
-
-    public void reloadSiteBooks() {
     }
 }

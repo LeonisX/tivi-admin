@@ -6,8 +6,6 @@ import javafx.util.Pair;
 import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.model.calibre.Sql;
 import md.leonis.tivi.admin.model.media.Book;
-import md.leonis.tivi.admin.model.mysql.Field;
-import md.leonis.tivi.admin.model.mysql.TableStatus;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Rule;
@@ -17,24 +15,16 @@ import org.junit.rules.TemporaryFolder;
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.lang.reflect.Type;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
-import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 import static junit.framework.TestCase.assertTrue;
-import static md.leonis.tivi.admin.utils.BookUtils.queryRequest;
-import static md.leonis.tivi.admin.utils.BookUtils.rawQueryRequest;
 import static org.junit.Assert.assertEquals;
 
 public class QueryIntegrationTest {
