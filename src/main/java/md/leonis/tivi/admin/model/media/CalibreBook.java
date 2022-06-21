@@ -48,4 +48,9 @@ public class CalibreBook extends Book {
 
     private Long tiviId;
     private String cpu;
+
+    // вычисляемые значения
+    private transient String siteCpu;
+    private transient String siteUri;
+    private transient String siteThumbUri;
 }

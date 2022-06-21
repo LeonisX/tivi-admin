@@ -5,7 +5,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
-import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import md.leonis.tivi.admin.model.ComparisionResult;
 import md.leonis.tivi.admin.model.media.CalibreBook;
 import md.leonis.tivi.admin.utils.CalibreUtils;
@@ -13,6 +13,7 @@ import md.leonis.tivi.admin.utils.Config;
 import md.leonis.tivi.admin.utils.SubPane;
 
 import java.io.File;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
@@ -20,8 +21,8 @@ public class CalibreCompareController extends SubPane {
 
     @FXML
     public GridPane gridPane;
-    public TextField newDir;
-    public TextField oldDir;
+    public TextField newFile;
+    public TextField oldFile;
     public TreeView<String> treeView;
 
     @FXML
@@ -36,23 +37,27 @@ public class CalibreCompareController extends SubPane {
 
 
     public void selectOldDir() {
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setInitialDirectory(new File(Config.workPath));
-        directoryChooser.setTitle("dassdasd"); //TODO
-        File selectedDirectory = directoryChooser.showDialog(null);
-        oldDir.setText(selectedDirectory.getAbsolutePath());
+        oldFile.setText(selectDir("dassdasd")); //TODO
     }
 
     public void selectNewDir() {
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setInitialDirectory(new File(Config.workPath));
-        directoryChooser.setTitle("dassdasd");//TODO
-        File selectedDirectory = directoryChooser.showDialog(null);
-        newDir.setText(selectedDirectory.getAbsolutePath());
+        newFile.setText(selectDir("dassdasd")); //TODO
+    }
+
+    public String selectDir(String title) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File(Config.calibreDbPath));
+        fileChooser.setInitialFileName("metadata.db");
+        fileChooser.setTitle(title);
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("*.db", "*.db"));
+        File selectedFile = fileChooser.showOpenDialog(null);
+        return selectedFile.getAbsolutePath();
     }
 
     public void compareDbs() {
-        ComparisionResult<CalibreBook> comparisionResult = CalibreUtils.compare(getJdbcString(oldDir.getText()), getJdbcString(newDir.getText()));
+        List<CalibreBook> oldBooks = new CalibreUtils(oldFile.getText()).readBooks();
+        List<CalibreBook> newBooks = new CalibreUtils(newFile.getText()).readBooks();
+        ComparisionResult<CalibreBook> comparisionResult = CalibreUtils.compare(oldBooks, newBooks);
 
         TreeItem<String> addedItem = new TreeItem<>("Added");
         TreeItem<String> deletedItem = new TreeItem<>("Deleted");
@@ -90,10 +95,5 @@ public class CalibreCompareController extends SubPane {
         treeView.setRoot(rootItem);
         treeView.setShowRoot(false);
         rootItem.setExpanded(true);
-    }
-
-    private String getJdbcString(String path) {
-        //return String.format("jdbc:sqlite:E:\\metadata.db");
-        return String.format("jdbc:sqlite:%s%smetadata.db", path, File.separatorChar);
     }
 }

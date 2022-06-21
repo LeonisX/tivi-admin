@@ -47,22 +47,25 @@ public class QueryIntegrationTest {
     public void testBook() throws IOException {
         Config.loadProperties();
         Config.loadProtectedProperties();
-        BookUtils.calibreBooks = CalibreUtils.readBooks();
+        CalibreUtils calibreUtils = new CalibreUtils();
+        BookUtils.calibreBooks = calibreUtils.readBooks();
         Book book = BookUtils.calibreBooks.get(0);
 
         String json = JsonUtils.gson.toJson(book, Book.class);
         System.out.println(json);
 
-        CalibreUtils.executeQuery("DROP TABLE IF EXISTS `books2`");
 
-        String query = CalibreUtils.getCreateTableQuery("books");
-        Sql sql = CalibreUtils.readObject(query, Sql.class);
-        CalibreUtils.executeQuery(sql.getSql().replace("books", "books2"));
 
-        query = CalibreUtils.getInsertQuery("books2", book, Book.class);
-        CalibreUtils.executeInsertQuery(query);
+        calibreUtils.executeQuery("DROP TABLE IF EXISTS `books2`");
 
-        Book book2 = CalibreUtils.readObject("SELECT * FROM `books2` WHERE id = 1", Book.class);
+        String query = calibreUtils.getCreateTableQuery("books");
+        Sql sql = calibreUtils.readObject(query, Sql.class);
+        calibreUtils.executeQuery(sql.getSql().replace("books", "books2"));
+
+        query = calibreUtils.getInsertQuery("books2", book, Book.class);
+        calibreUtils.executeInsertQuery(query);
+
+        Book book2 = calibreUtils.readObject("SELECT * FROM `books2` WHERE id = 1", Book.class);
 
         assertEquals(json, JsonUtils.gson.toJson(book2, Book.class));
 
@@ -84,17 +87,17 @@ public class QueryIntegrationTest {
         Book book5 = new Book(256L, "uTitle22~`!@#$%^&*()_+-={}[]:\";'<>?,./<><", "uSort", LocalDateTime.now(), LocalDateTime.now(), 256.0, "uAuthorSort",
                 "unusedIsbn", "unusedLccn", "uPath", 257, "uUuid", 256, LocalDateTime.now());
 
-        query = CalibreUtils.getInsertQuery("books2", book5, Book.class);
-        Integer id = CalibreUtils.executeInsertQuery(query);
+        query = calibreUtils.getInsertQuery("books2", book5, Book.class);
+        Integer id = calibreUtils.executeInsertQuery(query);
         assertEquals(id.intValue(), 256);
 
-        List<Book> books = CalibreUtils.readObjectList("SELECT * FROM `books2`", Book.class);
+        List<Book> books = calibreUtils.readObjectList("SELECT * FROM `books2`", Book.class);
         System.out.println(books);
 
-        String updateQuery = CalibreUtils.getUpdateQuery("books2", book4, book5);
-        CalibreUtils.executeUpdateQuery(updateQuery + "id = 256");
+        String updateQuery = calibreUtils.getUpdateQuery("books2", book4, book5);
+        calibreUtils.executeUpdateQuery(updateQuery + "id = 256");
 
-        Book book6 = CalibreUtils.readObject("SELECT * FROM `books2` WHERE id = 256", Book.class);
+        Book book6 = calibreUtils.readObject("SELECT * FROM `books2` WHERE id = 256", Book.class);
         assertTrue(CalibreUtils.isEquals(book5, book6));
 
         try (Writer writer = new FileWriter("file.txt")) {
@@ -108,7 +111,7 @@ public class QueryIntegrationTest {
         }
 
 
-        CalibreUtils.executeQuery("DROP TABLE `books2`");
+        calibreUtils.executeQuery("DROP TABLE `books2`");
 
         //BookUtils.selectBooks();
         //BookUtils.dumpDB();

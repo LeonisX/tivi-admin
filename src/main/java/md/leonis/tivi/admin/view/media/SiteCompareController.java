@@ -73,7 +73,7 @@ public class SiteCompareController extends SubPane {
     }
 
     public void reloadCalibreData() {
-        calibreBooks = CalibreUtils.readBooks();
+        calibreBooks = new CalibreUtils().readBooks();
         calibreTotals.setText("" + calibreBooks.size());
     }
 
@@ -107,11 +107,11 @@ public class SiteCompareController extends SubPane {
     }
 
     public void dumpImages() throws IOException {
-        CalibreUtils.dumpImages();
+        new CalibreUtils().dumpImages();
     }
 
     public void dumpBooks() throws IOException, RarException {
-        CalibreUtils.dumpBooks();
+        new CalibreUtils().dumpBooks();
     }
 
     public void reloadCategories() {

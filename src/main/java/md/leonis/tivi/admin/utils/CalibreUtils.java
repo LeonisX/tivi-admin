@@ -36,17 +36,32 @@ import static java.util.stream.Collectors.*;
 
 public class CalibreUtils {
 
+    private final String sqliteUrl;
+
+    public CalibreUtils() {
+        sqliteUrl = Config.sqliteUrl;
+    }
+
+    public CalibreUtils(String dbFileName) {
+        this.sqliteUrl = getJdbcString(dbFileName);
+    }
+
     /*PRAGMA index_list(books);
     PRAGMA index_xinfo(books_idx);
     PRAGMA stats;
     PRAGMA table_info(books);
     SELECT sql FROM sqlite_master WHERE name='books'*/
 
-    public static String getCreateTableQuery(String tableName) {
+    public String getCreateTableQuery(String tableName) {
         return String.format("SELECT sql FROM sqlite_master WHERE name='%s'", tableName);
     }
 
-    public static List<CalibreBook> readBooks() {
+    private static String getJdbcString(String dbFileName) {
+        //return String.format("jdbc:sqlite:E:\\metadata.db");
+        return String.format("jdbc:sqlite:%s", dbFileName);
+    }
+
+    public List<CalibreBook> readBooks() {
         List<CalibreBook> calibreBooks = selectAllFrom("books", CalibreBook.class);
 
         List<Comment> comments = selectAllFrom("comments", Comment.class);
@@ -236,22 +251,19 @@ public class CalibreUtils {
                 }
             });
         });*/
+
+        BookUtils.preprocessBooks(calibreBooks);
+
         return calibreBooks;
     }
 
-    public static ComparisionResult<CalibreBook> compare(String oldBasePath, String newBasePath) {
-        String configUrl = Config.sqliteUrl;
-        Config.sqliteUrl = oldBasePath;
-        List<CalibreBook> oldBooks = readBooks();
-        Config.sqliteUrl = newBasePath;
-        List<CalibreBook> newBooks = readBooks();
-        Config.sqliteUrl = configUrl;
+    public static ComparisionResult<CalibreBook> compare(List<CalibreBook> oldBooks, List<CalibreBook> newBooks) {
 
         Map<Long, CalibreBook> oldIds = oldBooks.stream().collect(Collectors.toMap(CalibreBook::getId, Function.identity()));
         Map<Long, CalibreBook> newIds = newBooks.stream().collect(Collectors.toMap(CalibreBook::getId, Function.identity()));
 
-        Collection<CalibreBook> addedBooks = mapDifference(newIds, oldIds);
-        Collection<CalibreBook> deletedBooks = mapDifference(oldIds, newIds);
+        Collection<CalibreBook> deletedBooks = mapDifference(newIds, oldIds);
+        Collection<CalibreBook> addedBooks = mapDifference(oldIds, newIds);
 
         List<CalibreBook> allBooks = new ArrayList<>(oldBooks);
         allBooks.addAll(newBooks);
@@ -288,11 +300,11 @@ public class CalibreUtils {
         return difference.values();
     }
 
-    private static <T> List<T> selectAllFrom(String tableName, Class<T> clazz) {
+    private <T> List<T> selectAllFrom(String tableName, Class<T> clazz) {
         return readObjectList(String.format("SELECT * FROM %s", tableName), clazz);
     }
 
-    public static <T> List<T> readObjectList(String sql, Class<T> clazz) {
+    public <T> List<T> readObjectList(String sql, Class<T> clazz) {
         List<T> results = new ArrayList<>();
         try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -344,7 +356,7 @@ public class CalibreUtils {
         return results;
     }
 
-    public static <T> T readObject(String sql, Class<T> clazz) {
+    public <T> T readObject(String sql, Class<T> clazz) {
         List<T> results = new ArrayList<>();
         try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
@@ -400,7 +412,7 @@ public class CalibreUtils {
         }
     }
 
-    static void executeQuery(String sql) {
+    void executeQuery(String sql) {
         System.out.println(sql);
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
@@ -410,7 +422,7 @@ public class CalibreUtils {
         }
     }
 
-    public static Integer executeInsertQuery(String sql) {
+    public Integer executeInsertQuery(String sql) {
         System.out.println(sql);
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             int affectedRows = stmt.executeUpdate(sql);
@@ -429,7 +441,7 @@ public class CalibreUtils {
         }
     }
 
-    public static int executeUpdateQuery(String sql) {
+    public int executeUpdateQuery(String sql) {
         System.out.println(sql);
         try (Connection conn = connect(); Statement stmt = conn.createStatement()) {
             return stmt.executeUpdate(sql);
@@ -439,7 +451,7 @@ public class CalibreUtils {
         }
     }
 
-    /*public static String getInsertQuery(String tableName, Object object) {
+    /*public String getInsertQuery(String tableName, Object object) {
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
                 .registerTypeAdapter(LocalDate.class, new BookUtils.LocalDateAdapter())
@@ -467,7 +479,7 @@ public class CalibreUtils {
         return "INSERT INTO `" + tableName + "` (" + campos + ") values (" + valores + ")";
     }*/
 
-    public static String getInsertQuery(String tableName, Object object, Class<?> clazz) {
+    public String getInsertQuery(String tableName, Object object, Class<?> clazz) {
         //TODO - common gson
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
@@ -493,7 +505,7 @@ public class CalibreUtils {
         return value.replace("'", "''");
     }
 
-    public static String getUpdateQuery(String tableName, Object o1, Object o2) {
+    public String getUpdateQuery(String tableName, Object o1, Object o2) {
         Map<String, Pair<JsonPrimitive, JsonPrimitive>> diff = getDiff(o1, o2);
         String expression = diff.entrySet().stream().map(v -> {
             String k = v.getKey() + "=";
@@ -536,10 +548,10 @@ public class CalibreUtils {
         return getDiff(o1, o2).isEmpty();
     }
 
-    private static Connection connect() {
+    private Connection connect() {
         Connection conn;
         try {
-            conn = DriverManager.getConnection(Config.sqliteUrl);
+            conn = DriverManager.getConnection(sqliteUrl);
             conn.setAutoCommit(true);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -578,6 +590,21 @@ public class CalibreUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String getOldestDbDumpPath() {
+        try {
+            // metadata-2022-02-11T15-03-14.778.db
+            return Files.walk(Paths.get(Config.calibreDbPath), 1).map(p -> p.toAbsolutePath().toString()).filter(p -> p.matches(".*metadata-.*\\.db")).sorted().findFirst().get();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getDateFromFile(String path) {
+        // metadata-2022-02-11T15-03-14.778.db
+        String[] chunks = Paths.get(path).getFileName().toString().split("-");
+        return String.format("%s.%s.%s", chunks[3].split("T")[0], chunks[2], chunks[1]);
     }
 
     public static String getFullText(String textShort, String textFull) {
@@ -708,12 +735,12 @@ public class CalibreUtils {
         return node;
     }
 
-    public static void dumpImages() throws IOException {
+    public void dumpImages() throws IOException {
 /*
         Config.loadProperties();
         Config.loadProtectedProperties();
 */
-        BookUtils.calibreBooks = CalibreUtils.readBooks();
+        BookUtils.calibreBooks = readBooks();
 
         File coversDir = new File(Config.workPath + "cover");
         File thumbsDir = new File(Config.workPath + "thumb");
@@ -741,11 +768,11 @@ public class CalibreUtils {
         });
     }
 
-    public static void dumpBooks() throws IOException, RarException {
+    public void dumpBooks() throws IOException, RarException {
         //Config.loadProperties();
         //Config.loadProtectedProperties();
 
-        BookUtils.calibreBooks = CalibreUtils.readBooks();
+        BookUtils.calibreBooks = readBooks();
 
         File booksDir = new File(Config.workPath + "books");
         File magazinesDir = new File(Config.workPath + "magazines");

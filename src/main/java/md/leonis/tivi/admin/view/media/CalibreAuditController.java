@@ -35,8 +35,11 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
 
     public TextArea auditLog;
 
+    private CalibreUtils calibreUtils;
+
     @FXML
     private void initialize() {
+        calibreUtils = new CalibreUtils();
         if (calibreBooks.isEmpty()) {
             reloadCalibreBooks();
         }
@@ -97,7 +100,7 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
         getFileNames().forEach(b -> {
             String query = String.format("SELECT * FROM `custom_column_6` WHERE value='%s'", b.getFileName().replace("'", "''"));
             System.out.println(query);
-            CustomColumn source = CalibreUtils.readObject(query, CustomColumn.class);
+            CustomColumn source = calibreUtils.readObject(query, CustomColumn.class);
             Long id = source.getId();
             System.out.println(id);
             query = String.format("UPDATE `custom_column_6` SET value='%s' WHERE id=%d", b.getFileName().replace("/", "-")
@@ -105,7 +108,7 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
                     .replace("\r", " ").replace("\n", " ").replace("\"", "")
                     .replace("  ", " ").replace("  ", " ").replace("'", "''"), id);
             System.out.println(query);
-            id = (long) CalibreUtils.executeUpdateQuery(query);
+            id = (long) calibreUtils.executeUpdateQuery(query);
             System.out.println(id);
         });
     }
@@ -115,12 +118,12 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
             if (calibreBook.getOwn() == null) {
                 String query = String.format("INSERT INTO `custom_column_9` VALUES (null, %d, 1)", calibreBook.getId());
                 System.out.println(query);
-                Integer id = CalibreUtils.executeInsertQuery(query);
+                Integer id = calibreUtils.executeInsertQuery(query);
                 System.out.println(id);
             } else {
                 String query = String.format("UPDATE `custom_column_9` SET value=1 WHERE book=%d", calibreBook.getId());
                 System.out.println(query);
-                Integer id = CalibreUtils.executeUpdateQuery(query);
+                Integer id = calibreUtils.executeUpdateQuery(query);
                 System.out.println(id);
             }
         });
@@ -151,7 +154,7 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
             //find in custom_column_12
             String query = String.format("SELECT * FROM `custom_column_12` WHERE value='%s'", response.get());
             System.out.println(query);
-            CustomColumn source = CalibreUtils.readObject(query, CustomColumn.class);
+            CustomColumn source = calibreUtils.readObject(query, CustomColumn.class);
             Long sourceId;
             if (source != null) {
                 sourceId = source.getId();
@@ -159,14 +162,14 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
                 //if no - add
                 query = String.format("INSERT INTO `custom_column_12` VALUES (null, '%s')", response.get());
                 System.out.println(query);
-                Integer id = CalibreUtils.executeInsertQuery(query);
+                Integer id = calibreUtils.executeInsertQuery(query);
                 sourceId = id.longValue();
             }
             getScannerLinks().forEach(calibreBook -> {
                 //TODO check, probably update
                 String q = String.format("INSERT INTO `books_custom_column_12_link` VALUES (null, %d, %d)", calibreBook.getId(), sourceId);
                 System.out.println(q);
-                Integer id = CalibreUtils.executeInsertQuery(q);
+                Integer id = calibreUtils.executeInsertQuery(q);
                 System.out.println(id);
             });
         }
@@ -197,12 +200,12 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
         if (response.isPresent()) {
             String query = String.format("SELECT * FROM `languages` WHERE lang_code='%s'", response.get());
             System.out.println(query);
-            Language language = CalibreUtils.readObject(query, Language.class);
+            Language language = calibreUtils.readObject(query, Language.class);
             Long langId = language.getId();
             getLanguages().forEach(calibreBook -> {
                 String q = String.format("INSERT INTO `books_languages_link` VALUES (null, %d, %d, 0)", calibreBook.getId(), langId);
                 System.out.println(q);
-                Integer id = CalibreUtils.executeInsertQuery(q);
+                Integer id = calibreUtils.executeInsertQuery(q);
                 System.out.println(id);
             });
         }
@@ -228,17 +231,17 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
         getTitleFileNames().forEach(book -> {
             String query = String.format("SELECT * FROM `custom_column_6` WHERE value='%s'", book.getTitle().replace("'", "''"));
             System.out.println(query);
-            CustomColumn source = CalibreUtils.readObject(query, CustomColumn.class);
+            CustomColumn source = calibreUtils.readObject(query, CustomColumn.class);
             Integer id;
             if (source == null) {
                 query = String.format("INSERT INTO `custom_column_6` VALUES (null, '%s')", book.getTitle().replace("'", "''"));
                 System.out.println(query);
-                id = CalibreUtils.executeInsertQuery(query);
+                id = calibreUtils.executeInsertQuery(query);
             } else {
                 id = Math.toIntExact(source.getId());
                 query = String.format("INSERT INTO `books_custom_column_6_link` VALUES (null, %d, %d)", book.getId(), id);
                 System.out.println(query);
-                id = CalibreUtils.executeInsertQuery(query);
+                id = calibreUtils.executeInsertQuery(query);
                 System.out.println(id);
             }
         });
@@ -266,6 +269,9 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
                 .forEach(calibreBook -> System.out.println(calibreBook.getSeries().getName() + " [" + calibreBook.getSerieIndex() + "] : " + calibreBook.getTitle()));
     }
 
+    //TODO if true - show all books
+    // clearTextArea();
+    //        calibreBooks.forEach(calibreBook -> addLine(calibreBook.getTitle()));
     public void updateStatus(boolean status) {
         gridPane.setDisable(!status);
         calibreCountLabel.setText("" + BookUtils.calibreBooks.size());
@@ -338,21 +344,21 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
         getCpuValid().forEach(calibreBook -> {
             String query = String.format("SELECT * FROM `custom_column_16` WHERE value='%s'", calibreBook.getCpu());
             System.out.println(query);
-            CustomColumn source = CalibreUtils.readObject(query, CustomColumn.class);
+            CustomColumn source = calibreUtils.readObject(query, CustomColumn.class);
             Long cpuId = source.getId();
 
             query = String.format("DELETE FROM `books_custom_column_16_link` WHERE book=%d AND value=%d", calibreBook.getId(), cpuId);
             System.out.println(query);
-            int id = CalibreUtils.executeUpdateQuery(query);
+            int id = calibreUtils.executeUpdateQuery(query);
             System.out.println(id);
 
             query = String.format("SELECT * FROM `books_custom_column_16_link` WHERE value=%d", cpuId);
             System.out.println(query);
-            List<CustomColumn> fileNames = CalibreUtils.readObjectList(query, CustomColumn.class);
+            List<CustomColumn> fileNames = calibreUtils.readObjectList(query, CustomColumn.class);
             if (fileNames.isEmpty()) {
                 query = String.format("DELETE FROM `custom_column_16` WHERE id=%d", cpuId);
                 System.out.println(query);
-                id = CalibreUtils.executeUpdateQuery(query);
+                id = calibreUtils.executeUpdateQuery(query);
                 System.out.println(id);
             }
         });
@@ -367,7 +373,7 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
             //find in custom_column_16
             String query = String.format("SELECT * FROM `custom_column_16` WHERE value='%s'", cpu);
             System.out.println(query);
-            CustomColumn source = CalibreUtils.readObject(query, CustomColumn.class);
+            CustomColumn source = calibreUtils.readObject(query, CustomColumn.class);
             Long sourceId;
             if (source != null) {
                 sourceId = source.getId();
@@ -375,12 +381,12 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
                 //if no - add
                 query = String.format("INSERT INTO `custom_column_16` VALUES (null, '%s')", cpu);
                 System.out.println(query);
-                Integer id = CalibreUtils.executeInsertQuery(query);
+                Integer id = calibreUtils.executeInsertQuery(query);
                 sourceId = id.longValue();
             }
             String q = String.format("INSERT INTO `books_custom_column_16_link` VALUES (null, %d, %d)", calibreBook.getId(), sourceId);
             System.out.println(q);
-            Integer id = CalibreUtils.executeInsertQuery(q);
+            Integer id = calibreUtils.executeInsertQuery(q);
             System.out.println(id);
         });
     }
@@ -405,11 +411,9 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
     }
 
     public void reloadCalibreBooks() {
-        BookUtils.readBooks(this);
+        BookUtils.readBooks(this, calibreBooks);
         auditLog.clear();
-        calibreBooks.forEach(calibreBook -> addLog(calibreBook.getTitle()));
     }
-
 
     public void checkDirtyHtml() {
         auditLog.clear();
@@ -460,14 +464,14 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
                 String text = CalibreUtils.sanitize(CalibreUtils.getFullText(b.getTextShort(), b.getTextMore()));
                 text = CalibreUtils.fixSomeChars(text);
                 String q = String.format("UPDATE `comments` SET text='%s' WHERE book=%d", text.replace("'", "''"), b.getId());
-                Integer id = CalibreUtils.executeInsertQuery(q);
+                Integer id = calibreUtils.executeInsertQuery(q);
                 System.out.println(id);
             }
             if (b.getReleaseNote() != null && !b.getReleaseNote().isEmpty()) {
                 //TODO get ID first
-                Long rid = CalibreUtils.readObjectList("SELECT * FROM books_custom_column_20_link WHERE book=" + b.getId(), CustomColumn.class).get(0).getId();
+                Long rid = calibreUtils.readObjectList("SELECT * FROM books_custom_column_20_link WHERE book=" + b.getId(), CustomColumn.class).get(0).getId();
                 String q = String.format("UPDATE `custom_column_20` SET value='%s' WHERE id=%d", CalibreUtils.sanitize(b.getReleaseNote()).replace("'","''"), rid);
-                Integer id = CalibreUtils.executeInsertQuery(q);
+                Integer id = calibreUtils.executeInsertQuery(q);
                 System.out.println(id);
             }
         });

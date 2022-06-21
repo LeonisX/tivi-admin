@@ -3,24 +3,27 @@ package md.leonis.tivi.admin.view.media;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import md.leonis.tivi.admin.model.BookCategory;
+import md.leonis.tivi.admin.model.media.Book;
 import md.leonis.tivi.admin.model.media.CalibreBook;
-import md.leonis.tivi.admin.utils.BookUtils;
-import md.leonis.tivi.admin.utils.SubPane;
+import md.leonis.tivi.admin.model.media.Data;
+import md.leonis.tivi.admin.model.template.ChangelogItem;
+import md.leonis.tivi.admin.model.template.PlatformItem;
+import md.leonis.tivi.admin.model.template.SourceItem;
+import md.leonis.tivi.admin.utils.*;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
+import static md.leonis.tivi.admin.model.template.SourceItem.getDomain;
 import static md.leonis.tivi.admin.utils.BookUtils.calibreBooks;
 import static md.leonis.tivi.admin.utils.BookUtils.categories;
+import static md.leonis.tivi.admin.utils.StringUtils.plural;
 
 public class CalibreReportsController extends SubPane implements CalibreInterface {
 
@@ -28,19 +31,29 @@ public class CalibreReportsController extends SubPane implements CalibreInterfac
     public GridPane gridPane;
 
     public Label calibreCountLabel;
+    public Label prevCalibreCountLabel;
 
-    public TextField fromDate;
+    public Label fromDate;
 
     public TextArea textArea;
-    public TextField fromId;
+
+    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
+    String oldestDbDumpPath;
+    List<CalibreBook> oldCalibreBooks = new ArrayList<>();
+
+    long lastBookId;
+    long lastFileId;
 
     @FXML
     private void initialize() {
-        if (calibreBooks.isEmpty()) {
-            reloadCalibreBooks();
-        }
         if (categories.isEmpty()) {
             BookUtils.readCategories();
+        }
+
+        loadOldestCalibreBooks();
+        if (calibreBooks.isEmpty()) {
+            reloadCalibreBooks();
         }
         System.out.println("initialize()");
     }
@@ -51,150 +64,103 @@ public class CalibreReportsController extends SubPane implements CalibreInterfac
     }
 
     public void reloadCalibreBooks() {
-        BookUtils.readBooks(this);
-        clearTextArea();
-        calibreBooks.forEach(calibreBook -> addLine(calibreBook.getTitle()));
+        BookUtils.readBooks(this, calibreBooks);
     }
 
-    public void generateListReport() {
-        clearTextArea();
-        getFilesMap().entrySet().stream()
-                .sorted((e1, e2) -> e2.getKey().compareTo(e1.getKey()))
-                .forEach(file -> addLine(file.getKey() + ": " + file.getValue().getTitle() + ": " + file.getValue().getLastModified()));
+    public void loadOldestCalibreBooks() {
+        oldestDbDumpPath = CalibreUtils.getOldestDbDumpPath();
+        BookUtils.readBooks(this, oldCalibreBooks, oldestDbDumpPath);
     }
 
     // сделать страницу с отчётом по всем добавкам - группировать по месту издательства, сортировать по платформам, показывать кто сканил
     public void generateHtmlReport() {
+
         clearTextArea();
-        addLine();
-        addLine("### Источники");
-        addLine();
-        getFilesMap().values().stream()
+
+        List<CalibreBook> modifiedBooks = getModifiedBooks();
+
+        Map<Long, CalibreBook> filesMap = getFilesMap(calibreBooks);
+
+        Map<String, Object> root = new HashMap<>();
+        root.put("fromDate", fromDate.getText());
+        root.put("toDate", LocalDate.now().format(DTF));
+        root.put("editedCount", modifiedBooks.size());
+        root.put("editedRecordsString", plural("запись", modifiedBooks.size()));
+
+        root.put("totalRecords", calibreBooks.size());
+        root.put("totalRecordsString", plural("запись", calibreBooks.size()));
+
+        List<ChangelogItem> changelog = new ArrayList<>();
+        changelog.add(new ChangelogItem("Книг игровой тематики", calibreBooks, oldCalibreBooks, "book"));
+        changelog.add(new ChangelogItem("Игровых журналов", calibreBooks, oldCalibreBooks, "magazine"));
+        changelog.add(new ChangelogItem("Руководств пользователя", calibreBooks, oldCalibreBooks, "guide"));
+        changelog.add(new ChangelogItem("Комиксов", calibreBooks, oldCalibreBooks, "comics"));
+        changelog.add(new ChangelogItem("Различных документов", calibreBooks, oldCalibreBooks, "doc"));
+        changelog.add(new ChangelogItem("Сервисных мануалов", calibreBooks, oldCalibreBooks, "manual"));
+        changelog.add(new ChangelogItem("Описаний эмуляторов", calibreBooks, oldCalibreBooks, "emulator"));
+        root.put("changelog", changelog.stream().sorted(Comparator.comparing(ChangelogItem::getCount).reversed()).collect(Collectors.toList()));
+
+        List<SourceItem> sources = filesMap.values().stream()
                 .peek(book -> book.setSource(book.getSource() == null ? "" : book.getSource()))
                 .collect(Collectors.groupingBy(book -> getDomain(book.getSource())))
                 .entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .sorted((e1, e2) -> Integer.compare(e2.getValue().size(), e1.getValue().size()))
-                .forEach(e -> {
-                    List<String> names = new ArrayList<>();
-                    e.getValue().forEach(book -> {
-                        names.addAll(book.getAuthors().stream().flatMap(a -> Stream.of(a.getName().split("\\| "))).distinct().collect(Collectors.toList()));
-                        names.add(book.getScannedBy());
-                        names.add(book.getPostprocessing());
-                    });
-                    String name = names.stream().filter(Objects::nonNull).filter(n -> !n.equals("Неизвестный")).distinct().collect(Collectors.joining(", "));
+                .map(SourceItem::new).collect(Collectors.toList());
 
-                    String link = formatDomain(e.getKey(), e.getValue().get(0).getSource(), name);
-
-                    name = name.isEmpty() || link.contains(name) ? "" : " (" + name + ")";
-
-                    addLine();
-                    addLine("**" + link + "**" + name);
-                    e.getValue().stream().sorted(Comparator.comparing(CalibreBook::getSort)).forEach(b -> addLine("- " + b.getTitle()));
-                });
-
+        root.put("sources", sources);
 
         Map<String, BookCategory> categoryMap = categories.stream().collect(Collectors.toMap(BookCategory::getCatcpu, Function.identity()));
 
-        addLine();
-        addLine("### Статистика по платформам");
-        addLine();
-        Map<String, List<CalibreBook>> maps = getFilesMap().values().stream().collect(Collectors.groupingBy(CalibreBook::getType));
+        Map<String, List<CalibreBook>> maps = filesMap.values().stream().collect(Collectors.groupingBy(CalibreBook::getType));
 
-        maps.get("book").stream().flatMap(b -> b.getTags().stream().map(t -> categoryMap.get(t.getName())))
-                .collect(Collectors.groupingBy(BookCategory::getParentid)).entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey))
-                .forEach(e -> e.getValue().stream().collect(Collectors.groupingBy(BookCategory::getCatid)).entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey)).forEach(en -> {
-                    addLine(String.format("- +%s %s %s", en.getValue().size(), pluralj("книга", en.getValue().size()), bookCatLink(en.getValue().get(0).getCatname(), en.getValue().get(0).getCatcpu())));
-                }));
+        List<PlatformItem> byPlatform = new ArrayList<>();
 
-        if (!maps.get("magazine").isEmpty()) {
-            addLine(String.format("- +%s %s", maps.get("magazine").size(), bookCatLink(pluralm("журнал", maps.get("magazine").size()), "magazines")));
+        if (maps.get("book") != null) {
+            maps.get("book").stream().flatMap(b -> b.getTags().stream().map(t -> categoryMap.get(t.getName())))
+                    .collect(Collectors.groupingBy(BookCategory::getParentid)).entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey))
+                    .forEach(e -> e.getValue().stream().collect(Collectors.groupingBy(BookCategory::getCatid)).entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey)).forEach(en -> {
+                        byPlatform.add(new PlatformItem(en.getValue().size(), plural("книга", en.getValue().size()), en.getValue().get(0).getCatname(), SiteRenderer.generateSiteCategoryUri(en.getValue().get(0).getCatcpu())));
+                    }));
         }
-        if (!maps.get("comics").isEmpty()) {
-            addLine(String.format("- +%s %s", maps.get("comics").size(), bookCatLink(pluralm("комикс", maps.get("comics").size()), "comics")));
+
+        if (maps.get("magazine") != null && !maps.get("magazine").isEmpty()) {
+            byPlatform.add(new PlatformItem(maps.get("magazine").size(), "", plural("журнал", maps.get("magazine").size()), SiteRenderer.generateSiteCategoryUri("magazines")));
         }
-        int other = getFilesMap().size() - maps.get("magazine").size() - maps.get("comics").size() - maps.get("book").size();
-        if (other > 0) {
-            addLine(String.format("- +%s к руководствам, мануалам и другим документам", other));
+        if (maps.get("comics") != null && !maps.get("comics").isEmpty()) {
+            byPlatform.add(new PlatformItem(maps.get("comics").size(), "", plural("комикс", maps.get("comics").size()), SiteRenderer.generateSiteCategoryUri("comics")));
         }
+        if (maps.get("magazine") != null && maps.get("comics") != null) {
+            int other = filesMap.size() - maps.get("magazine").size() - maps.get("comics").size() - maps.get("book").size();
+            if (other > 0) {
+                byPlatform.add(new PlatformItem(other, "всего остального", "", ""));
+            }
+        }
+        root.put("byPlatform", byPlatform);
+
+        List<CalibreBook> addedBooks = filesMap.values().stream().sorted(Comparator.comparing(CalibreBook::getTitle)).collect(Collectors.toList());
+        root.put("byPictures", addedBooks);
+
+
+        //TODO return, fix
+        //TemplateUtils.test(root, textArea);
+        TemplateUtils.test2(root);
     }
 
-    private String bookCatLink(String title, String cpu) {
-        return String.format("[%s](http://tv-games.ru/media/view/%s.html)", title, cpu);
-    }
-
-    //TODO plural function https://www.irlc.msu.ru/irlc_projects/speak-russian/time_new/rus/grammar/
-
-    private String pluralj(String word, int count) {
-        return plural(word.substring(0, word.length() - 1), RULE_J, count);
-    }
-
-    private String pluralm(String word, int count) {
-        return plural(word, RULE_M, count);
-    }
-
-
-    private String plural(String word, String[] rule, int count) {
-        if (count == 11) {
-            return word + rule[2];
-        }
-        switch (count % 10) {
-            case 1:
-                return word + rule[0];
-            case 2:
-            case 3:
-            case 4:
-                return word + rule[1];
-            default:
-                return word + rule[2];
-        }
-    }
-
-    //                                       1   2-4  6...11,...
-    private static final String[] RULE_J = {"a", "и", ""};
-    private static final String[] RULE_M = {"", "а", "ов"};
-
-    private String getDomain(String source) {
-        if (source == null || source.isEmpty()) {
-            return "Другие источники";
-        }
-        String domain = URI.create(source).getHost();
-        if (domain.contains("vk.com")) {
-            domain = source;
-        }
-        return domain;
-    }
-
-    private String formatDomain(String domain, String source, String name) {
-        if (source == null || source.isEmpty()) {
-            return domain;
-        }
-        if (domain.contains("vk.com")) {
-            return String.format("[%s](%s)", name, domain);
-        } else {
-            String scheme = URI.create(source).getScheme();
-            return String.format("[%s](%s://%s)", domain, scheme, domain);
-        }
-    }
-
-    private Map<Long, CalibreBook> getFilesMap() {
-        long id = 0L;
-        try {
-            id = Long.parseLong(fromId.getText());
-        } catch (Exception ignored) {
-        }
-        long finalId = id;
-        LocalDateTime date = LocalDate.parse(fromDate.getText(), DateTimeFormatter.ofPattern("dd.MM.yyyy")).atStartOfDay();
-
+    private Map<Long, CalibreBook> getFilesMap(List<CalibreBook> modifiedBooks) {
         Map<Long, CalibreBook> files = new HashMap<>();
-        calibreBooks.stream()
-                .filter(book -> book.getLastModified().isAfter(date))
+        modifiedBooks
                 .forEach(book -> book.getDataList().stream()
-                        .filter(file -> file.getId() >= finalId)
+                        .filter(file -> file.getId() >= lastFileId)
                         .filter(file -> !"JPG".equals(file.getFormat()))
                         .min((f1, f2) -> f2.getId().compareTo(f1.getId())).ifPresent(file -> files.put(file.getId(), book))
                 );
         return files;
+    }
+
+    private List<CalibreBook> getModifiedBooks() {
+        LocalDateTime date = LocalDate.parse(fromDate.getText(), DTF).atStartOfDay();
+        return calibreBooks.stream().filter(book -> book.getLastModified().isAfter(date)).collect(Collectors.toList());
     }
 
     private void addLine() {
@@ -209,10 +175,17 @@ public class CalibreReportsController extends SubPane implements CalibreInterfac
         textArea.clear();
     }
 
+    @SuppressWarnings("all")
     public void updateStatus(boolean status) {
         gridPane.setDisable(!status);
-        calibreCountLabel.setText("" + BookUtils.calibreBooks.size());
-        textArea.clear();
-        calibreBooks.forEach(calibreBook -> addLine(calibreBook.getTitle()));
+        if (status) {
+            lastBookId = oldCalibreBooks.stream().mapToLong(Book::getId).max().getAsLong();
+            lastFileId = oldCalibreBooks.stream().flatMap(b -> b.getDataList().stream()).mapToLong(Data::getId).max().getAsLong();
+            calibreCountLabel.setText("" + BookUtils.calibreBooks.size());
+            prevCalibreCountLabel.setText("" + oldCalibreBooks.size());
+            fromDate.setText(CalibreUtils.getDateFromFile(oldestDbDumpPath));
+            textArea.clear();
+            calibreBooks.forEach(calibreBook -> addLine(calibreBook.getTitle()));
+        }
     }
 }

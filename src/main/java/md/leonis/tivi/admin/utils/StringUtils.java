@@ -9,10 +9,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Класс переводит русский текст в транслит. Например, строка "Текст" будет
- * преобразована в "Tekst".
+ * Класс переводит русский текст в транслит. Например, строка "Текст" будет преобразована в "Tekst".
+ *
+ * Так же учится склонять и возвращать множественное число
  */
-class StringUtils {
+public class StringUtils {
 
     private static final Map<Integer, String> CHAR_MAP;
 
@@ -153,5 +154,51 @@ class StringUtils {
         platformsTranslationMap.put("doc", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
         platformsTranslationMap.put("emulator", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
         platformsTranslationMap.put("comics", new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
+    }
+
+
+    //TODO plural function https://www.irlc.msu.ru/irlc_projects/speak-russian/time_new/rus/grammar/
+
+    public static String plural(String word, int count) {
+        if (word.endsWith("сь") || word.endsWith("бь") || word.endsWith("дь") || word.endsWith("рь")) {
+            return pluraljm(word, count);
+        } else if (word.endsWith("а")) {
+            return pluralj(word, count);
+        } else {
+            return pluralm(word, count);
+        }
+    }
+
+    //                                       1   2-4  6...11,...
+    private static final String[] RULE_J = {"a", "и", ""};
+    private static final String[] RULE_JM = {"ь", "и", "ей"};
+    private static final String[] RULE_M = {"", "а", "ов"};
+
+    private static String pluralj(String word, int count) { // книга
+        return plural(word.substring(0, word.length() - 1), RULE_J, count);
+    }
+
+    private static String pluraljm(String word, int count) { // запись
+        return plural(word.substring(0, word.length() - 1), RULE_JM, count);
+    }
+
+    private static String pluralm(String word, int count) { // журнал
+        return plural(word, RULE_M, count);
+    }
+
+    private static String plural(String word, String[] rule, int count) {
+        if (count == 11) {
+            return word + rule[2];
+        }
+        switch (count % 10) {
+            case 1:
+                return word + rule[0];
+            case 2:
+            case 3:
+            case 4:
+                return word + rule[1];
+            default:
+                return word + rule[2];
+        }
     }
 }

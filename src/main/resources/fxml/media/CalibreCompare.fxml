@@ -27,16 +27,16 @@
                   <children>
                       <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="1">
                           <children>
-                              <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Путь к исходной базе  Calibre" />
-                        <TextField fx:id="oldDir" prefHeight="26.0" prefWidth="281.0" text="/home/leonidstavila/Calibre Library" />
+                              <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Путь к прежней Calibre" />
+                        <TextField fx:id="oldFile" prefHeight="26.0" prefWidth="281.0" />
                           </children>
                       </HBox>
                         <Button mnemonicParsing="false" onAction="#selectOldDir" prefHeight="25.0" prefWidth="97.0" text="Select" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                         <Button mnemonicParsing="false" onAction="#selectNewDir" prefHeight="25.0" prefWidth="97.0" text="Select" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                   <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="2">
                      <children>
-                        <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Путь к изменённой базе  Calibre" />
-                        <TextField fx:id="newDir" prefHeight="26.0" prefWidth="281.0" text="/home/leonidstavila/Calibre Library 2" />
+                        <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Путь к актуальной базе Calibre" />
+                        <TextField fx:id="newFile" prefHeight="26.0" prefWidth="281.0" text="D:\Calibre\metadata.db" />
                      </children>
                   </HBox>
                   <Button mnemonicParsing="false" onAction="#compareDbs" prefHeight="25.0" prefWidth="97.0" text="Compare" GridPane.columnIndex="2" GridPane.rowIndex="3" />

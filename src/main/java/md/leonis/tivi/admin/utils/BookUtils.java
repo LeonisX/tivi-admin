@@ -737,6 +737,28 @@ public class BookUtils {
         }
     }
 
+    public static void preprocessBooks(List<CalibreBook> calibreBooks) {
+        calibreBooks.forEach(BookUtils::setSiteCpu);
+        calibreBooks.forEach(BookUtils::setSiteUri);
+        calibreBooks.forEach(BookUtils::setSiteThumbUri);
+    }
+
+    public static void setSiteCpu(CalibreBook book) {
+        if (book.getType().equals("magazine") || book.getType().equals("comics")) {
+            book.setSiteCpu(BookUtils.getMagazineCpu(book));
+        } else {
+            book.setSiteCpu(BookUtils.getSiteCpu(book, book.getTags().get(0).getName()));
+        }
+    }
+
+    //TODO test magazines
+    public static void setSiteUri(CalibreBook book) {
+        book.setSiteUri(SiteRenderer.generateSiteUri(book));
+    }
+
+    public static void setSiteThumbUri(CalibreBook book) {
+        book.setSiteThumbUri(SiteRenderer.generateSiteThumbUri(book.getTags().get(0).getName(), book.getCpu()));
+    }
 
     public static String generateCpu(String title) {
         return Normalizer.normalize(StringUtils.toTranslit(title.toLowerCase()), Normalizer.Form.NFD)
@@ -762,11 +784,7 @@ public class BookUtils {
                 video.setDate(calibreBook.getSignedInPrint().toEpochSecond(ZoneOffset.ofHours(-2)));
             }
         }
-        if (calibreBook.getTags().size() > 1 && calibreBook.getTags().stream().map(Tag::getName).collect(toList()).contains(category)) {
-            video.setCpu(category + "_" + calibreBook.getCpu());
-        } else {
-            video.setCpu(calibreBook.getCpu());
-        }
+        video.setCpu(calibreBook.getSiteCpu());
         video.setStartDate(0L);
         video.setEndDatedate(0L);
 
@@ -811,6 +829,22 @@ public class BookUtils {
         video.setListid(0);
         // TODO tags = "";
         return video;
+    }
+
+    public static String getSiteCpu(CalibreBook calibreBook, String category) {
+        if (calibreBook.getTags().size() > 1 && calibreBook.getTags().stream().map(Tag::getName).collect(toList()).contains(category)) {
+            return category + "_" + calibreBook.getCpu();
+        } else {
+            return calibreBook.getCpu();
+        }
+    }
+
+    public static String getMagazineCpu(CalibreBook calibreBook) {
+        if (calibreBook.getType().equalsIgnoreCase("comics")) {
+            return calibreBook.getCpu();
+        } else {
+            return generateCpu(calibreBook.getSeries().getName());
+        }
     }
 
     private static List<Data> getDatasWithFileName(CalibreBook calibreBook) {
@@ -861,11 +895,7 @@ public class BookUtils {
         if (calibreBook.getSignedInPrint() != null) {
             video.setDate(calibreBook.getSignedInPrint().toEpochSecond(ZoneOffset.ofHours(-2)));
         }
-        if (category.equalsIgnoreCase("comics")) {
-            video.setCpu(calibreBook.getCpu());
-        } else {
-            video.setCpu(generateCpu(calibreBook.getSeries().getName()));
-        }
+        video.setCpu(calibreBook.getSiteCpu());
         video.setStartDate(0L);
         video.setEndDatedate(0L);
 
@@ -984,6 +1014,7 @@ public class BookUtils {
         //TODO "IN" QUERY ??
         String configUrl = Config.sqliteUrl;
         Config.sqliteUrl = getJdbcString(calibreDbDirectory);
+        CalibreUtils calibreUtils = new CalibreUtils();
         //!!!
         if (!category.equals("magazines")) {
             comparisionResult.getAddedBooks().forEach(b -> {
@@ -997,14 +1028,14 @@ public class BookUtils {
                     System.out.println(b.getCpu());
                     Long bookId = calibreBooks.stream().filter(cb -> cb.getCpu() != null && cb.getCpu().equals(b.getCpu())).findFirst().get().getId();
 
-                    CustomColumn cb = CalibreUtils.readObject("SELECT * FROM `custom_column_17` WHERE book=" + bookId, CustomColumn.class);
+                    CustomColumn cb = calibreUtils.readObject("SELECT * FROM `custom_column_17` WHERE book=" + bookId, CustomColumn.class);
                     if (cb == null) {
                         String q = String.format("INSERT INTO `custom_column_17` VALUES (null, %d, %d)", bookId, tiviId);
-                        Integer newId = CalibreUtils.executeInsertQuery(q);
+                        Integer newId = calibreUtils.executeInsertQuery(q);
                         System.out.println(newId);
                     } else {
                         String q = String.format("UPDATE `custom_column_17` SET value=%d WHERE book=%d", tiviId, bookId);
-                        Integer newId = CalibreUtils.executeUpdateQuery(q);
+                        Integer newId = calibreUtils.executeUpdateQuery(q);
                         System.out.println(newId);
                     }
                 }
@@ -1020,14 +1051,14 @@ public class BookUtils {
                     Integer tiviId = videoList.get(0).getId();
                     System.out.println(tiviId);
 
-                    CustomColumn cb = CalibreUtils.readObject("SELECT * FROM `custom_column_17` WHERE book=" + bookId, CustomColumn.class);
+                    CustomColumn cb = calibreUtils.readObject("SELECT * FROM `custom_column_17` WHERE book=" + bookId, CustomColumn.class);
                     if (cb == null) {
                         String q = String.format("INSERT INTO `custom_column_17` VALUES (null, %d, %d)", bookId, tiviId);
-                        Integer newId = CalibreUtils.executeInsertQuery(q);
+                        Integer newId = calibreUtils.executeInsertQuery(q);
                         System.out.println(newId);
                     } else {
                         String q = String.format("UPDATE `custom_column_17` SET value=%d WHERE book=%d", tiviId, bookId);
-                        Integer newId = CalibreUtils.executeUpdateQuery(q);
+                        Integer newId = calibreUtils.executeUpdateQuery(q);
                         System.out.println(newId);
                     }
                 }
@@ -1042,17 +1073,17 @@ public class BookUtils {
         if (!addedBooks.isEmpty()) {
             sb.append("<h4>Добавленные книги:</h4>\n");
             sb.append("<ul>\n");
-            addedBooks.forEach(b -> sb.append(String.format("<li><a href=\"http://tv-games.ru/media/open/%s.html\">%s</a></li>\n", b.getCpu(), b.getTitle())));
+            addedBooks.forEach(b -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>\n", SiteRenderer.generateSimpleSiteUri(b.getCpu()), b.getTitle())));
             sb.append("</ul>\n");
         }
         if (!changedBooks.isEmpty()) {
             sb.append("<h4>Изменённые книги:</h4>\n");
             sb.append("<ul>\n");
-            changedBooks.forEach((b, l) -> sb.append(String.format("<li><a href=\"http://tv-games.ru/media/open/%s.html\">%s</a></li>\n", b.getCpu(), b.getTitle())));
+            changedBooks.forEach((b, l) -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>\n", SiteRenderer.generateSimpleSiteUri(b.getCpu()), b.getTitle())));
             sb.append("</ul>\n");
         }
         Collection<Video> allBooks = new ArrayList<>(addedBooks);
-        allBooks.addAll(changedBooks.entrySet().stream().map(Map.Entry::getKey).collect(toList()));
+        allBooks.addAll(new ArrayList<>(changedBooks.keySet()));
         sb.append("<br />\n");
         int counter = 1;
         sb.append("<p><table style=\"width:600px;\">\n");
@@ -1061,8 +1092,8 @@ public class BookUtils {
                 sb.append("<tr>\n");
             }
             sb.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\">\n");
-            String imageLink = String.format("http://tv-games.ru/media/open/%s.html", book.getCpu());
-            String imageThumb = String.format("images/books/thumb/%s/%s.jpg", BookUtils.getCategoryById(book.getCategoryId()), book.getCpu());
+            String imageLink = SiteRenderer.generateSimpleSiteUri(book.getCpu());
+            String imageThumb = SiteRenderer.generateSiteThumbUri(BookUtils.getCategoryById(book.getCategoryId()).getCatcpu(), book.getCpu());
             sb.append(String.format("<a href=\"%s\"><img style=\"border: 1px solid #aaaaaa;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a>\n", imageLink, book.getTitle(), imageThumb, book.getTitle()));
             sb.append("</td>\n");
             counter++;
@@ -1094,15 +1125,23 @@ public class BookUtils {
         return String.format("jdbc:sqlite:%s%smetadata.db", path, File.separatorChar);
     }
 
-    public static void readBooks(CalibreInterface controller) {
+    public static void readBooks(CalibreInterface controller, List<CalibreBook> calibreBooks) {
+        readBooks(controller, calibreBooks, null);
+    }
+
+    public static void readBooks(CalibreInterface controller, List<CalibreBook> calibreBooks, String dbFileName) {
         ProgressForm pForm = new ProgressForm();
 
-        // In real life this task would do something useful and return
-        // some meaningful result:
+        // In real life this task would do something useful and return some meaningful result:
         Task<Void> task = new Task<Void>() {
             @Override
             public Void call() {
-                calibreBooks = CalibreUtils.readBooks();
+                calibreBooks.clear();
+                if (dbFileName == null) {
+                    calibreBooks.addAll(new CalibreUtils().readBooks());
+                } else {
+                    calibreBooks.addAll(new CalibreUtils(dbFileName).readBooks());
+                }
                 updateProgress(1, 1);
                 return null;
             }
