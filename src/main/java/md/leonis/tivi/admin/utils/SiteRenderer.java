@@ -17,17 +17,22 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 import static md.leonis.tivi.admin.utils.StringUtils.*;
+import static md.leonis.tivi.admin.utils.Config.*;
 
 public class SiteRenderer {
 
     public static String cloudStorageLink;
 
-    public static String getSystemIconLink(String catCpu) {
+    public static String generateSystemIconLink(String catCpu) {
         return String.format("images/systems/%s.png", catCpu);
     }
 
-    public static String getDownloadLink(CalibreBook calibreBook, String category, Data data) {
-        return String.format("up/media/%ss/%s/%s", calibreBook.getType(), category, data.getFileName());
+    public static String generateDownloadLink(String type, String category, String fileName) {
+        return String.format("%s/up/media/%ss/%s/%s", sitePath, type, category, fileName);
+    }
+
+    public static String generateDownloadLink(String type, String category, String fileName, String ext) {
+        return String.format("%s/up/media/%ss/%s/%s.%s", sitePath, type, category, fileName, ext);
     }
 
     public static String generateSiteUri(CalibreBook book) {
@@ -35,40 +40,43 @@ public class SiteRenderer {
             case "book":
             case "magazine":
             case "comics":
-                return generateSimpleSiteUri(book.getSiteCpu());
+                return generateBookViewUri(book.getSiteCpu());
             case "guide":
             case "doc":
             case "manual":
             case "emulator":
-                return String.format("http://tv-games.ru/media/open/%s_%ss.html", book.getTags().get(0).getName(), book.getType());
+                return generateBookGroupViewUri(BookUtils.getCategoryByTags(book), book.getType());
             default:
                 throw new RuntimeException("Wrong book type: " + book.getType());
         }
     }
 
-    public static String generateSimpleSiteUri(String cpu) {
-        return String.format("http://tv-games.ru/media/open/%s.html", cpu);
-    }
-    public static String generateSiteThumbUri(String category, String cpu) {
-        return String.format("http://tv-games.ru/images/books/thumb/%s/%s.jpg", category, cpu);
+    public static String generateBookViewUri(String cpu) {
+        return String.format("%s/media/open/%s.html", sitePath, cpu);
     }
 
-    public static String generateSiteCoverUri(String category, String cpu) {
-        return String.format("http://tv-games.ru/images/books/cover/%s/%s.jpg", category, cpu);
+    public static String generateBookGroupViewUri(String category, String type) {
+        return String.format("%s/media/open/%s_%ss.html", sitePath, category, type);
     }
 
-    public static String generateSiteCategoryUri(String cpu) {
-        return String.format("http://tv-games.ru/media/view/%s.html", cpu);
+    public static String generateBookCategoryUri(String cpu) {
+        return String.format("%s/media/view/%s.html", sitePath, cpu);
     }
 
-    public static String getManualsCpu(String category, String type) {
-        TypeTranslation translation = listTypeTranslationMap.get(type);
-        return category + "_" + translation.getPlural();
+    public static String generateBookThumbUri(String category, String cpu) {
+        return String.format("%s/images/books/thumb/%s/%s.jpg", sitePath, category, cpu);
     }
 
-    public static String getMagazinesCpu(String category, String type) {
-        TypeTranslation translation = viewTypeTranslationMap.get(type);
-        return category + "_" + translation.getPlural();
+    public static String generateBookCoverUri(String category, String cpu) {
+        return String.format("%s/images/books/cover/%s/%s.jpg", sitePath, category, cpu);
+    }
+
+    public static String generateManualsCpu(String category, String type) {
+        return category + "_" + listTypeTranslationMap.get(type).getPlural();
+    }
+
+    public static String generateMagazinesCpu(String category, String type) {
+        return category + "_" + viewTypeTranslationMap.get(type).getPlural();
     }
 
     public static void generateManualsPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, String type) {
@@ -79,7 +87,7 @@ public class SiteRenderer {
         if (calibreBooks.isEmpty()) {
             return;
         }
-        String cpu = getManualsCpu(category, type);
+        String cpu = generateManualsCpu(category, type);
         Optional<Video> manual = filteredSiteBooks.stream().filter(b -> b.getCpu().equals(cpu)).findFirst();
         if (!manual.isPresent()) {
             //add
@@ -88,7 +96,7 @@ public class SiteRenderer {
             newManual.setCategoryId(BookUtils.getCategoryByCpu(category).getCatid());
             setManualText(calibreBooks, newManual, category, translation);
             newManual.setUrl("");
-            newManual.setMirror("http://tv-games.ru");
+            newManual.setMirror(sitePath);
             addedBooks.add(newManual);
         } else {
             // change
@@ -115,11 +123,11 @@ public class SiteRenderer {
             newManual.setText(String.format("<p>В этих книгах так же можно найти информацию об играх для %s.</p>", BookUtils.getCategoryName(category)));
             StringBuilder sb = new StringBuilder();
             sb.append("<ul class=\"file-info\">\n");
-            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", b.getCpu(), b.getTitle())));
+            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>", generateBookViewUri(b.getCpu()), b.getTitle())));
             sb.append("</ul>\n");
             newManual.setFullText(sb.toString());
             newManual.setUrl("");
-            newManual.setMirror("http://tv-games.ru");
+            newManual.setMirror(sitePath);
             addedBooks.add(newManual);
         } else if (!calibreBooks.isEmpty()) {
             // change
@@ -127,7 +135,7 @@ public class SiteRenderer {
             newManual.setText(String.format("<p>В этих книгах так же можно найти информацию об играх для %s.</p>", BookUtils.getCategoryName(category)));
             StringBuilder sb = new StringBuilder();
             sb.append("<ul class=\"file-info\">\n");
-            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", b.getCpu(), b.getTitle())));
+            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>", generateBookViewUri(b.getCpu()), b.getTitle())));
             sb.append("</ul>\n");
             newManual.setFullText(sb.toString());
             oldBooks.add(newManual);
@@ -151,7 +159,7 @@ public class SiteRenderer {
             newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже книг.</p>");
             newManual.setFullText(generateTableView(calibreBooks));
             newManual.setUrl("");
-            newManual.setMirror("http://tv-games.ru");
+            newManual.setMirror(sitePath);
             addedBooks.add(newManual);
         } else if (!calibreBooks.isEmpty()) {
             // change
@@ -175,7 +183,7 @@ public class SiteRenderer {
                     }
                 })
                 .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()));
-        String cpu = getMagazinesCpu(category, type);
+        String cpu = generateMagazinesCpu(category, type);
         Optional<Video> manual = filteredSiteBooks.stream().filter(b -> b.getCpu().equals(cpu)).findFirst();
         if (!books.isEmpty() && !manual.isPresent()) {
             //add
@@ -184,7 +192,7 @@ public class SiteRenderer {
             newManual.setCategoryId(BookUtils.getCategoryByCpu(category).getCatid());
             setMagazineText(books, newManual, category, translation);
             newManual.setUrl("");
-            newManual.setMirror("http://tv-games.ru");
+            newManual.setMirror(sitePath);
             addedBooks.add(newManual);
         } else if (!books.isEmpty()) {
             // change
@@ -226,7 +234,7 @@ public class SiteRenderer {
             });
             newManual.setFullText(sb.toString());
             newManual.setUrl("");
-            newManual.setMirror("http://tv-games.ru");
+            newManual.setMirror(sitePath);
             addedBooks.add(newManual);
         } else if (!groupedMagazines.isEmpty()) {
             // change
@@ -256,9 +264,9 @@ public class SiteRenderer {
         // new TreeMap<>(books).forEach((key, value) -> sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", value.get(0).getCpu(), key)));
         new TreeMap<>(books).forEach((key, value) -> {
             if (value.get(0).getType().equals("comics")) {
-                sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", value.get(0).getCpu(), key));
+                sb.append(String.format("<li><a href=\"%s\">%s</a></li>", generateBookViewUri(value.get(0).getCpu()), key));
             } else {
-                sb.append(String.format("<li><a href=\"media/open/%s.html\">%s</a></li>", BookUtils.generateCpu(value.get(0).getSeries().getName()), key));
+                sb.append(String.format("<li><a href=\"%s\">%s</a></li>", generateBookViewUri(BookUtils.generateCpu(value.get(0).getSeries().getName())), key));
             }
         });
         sb.append("</ul>\n");
@@ -278,8 +286,8 @@ public class SiteRenderer {
             sbi.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\">");
             sbt.append("<td style=\"text-align:center; padding-top: 5px; padding-bottom: 10px;\">");
             if (book.getHasCover() != 0) {
-                String imageLink = generateSiteCoverUri(BookUtils.getCategoryByTags(book), book.getCpu());
-                String imageThumb = generateSiteThumbUri(BookUtils.getCategoryByTags(book), book.getCpu());
+                String imageLink = generateBookCoverUri(BookUtils.getCategoryByTags(book), book.getCpu());
+                String imageThumb = generateBookThumbUri(BookUtils.getCategoryByTags(book), book.getCpu());
                 String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
                 String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
                 sbi.append(String.format("<a href=\"%s\"><img style=\"border: 1px solid #aaaaaa;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a>", imageLink, imageTitle, imageThumb, imageAlt));
@@ -329,7 +337,7 @@ public class SiteRenderer {
         manual.setTitle(translation.getShortText() + " " + declension.getRod());
 
         CalibreBook book = calibreBooks.stream().filter(cb -> cb.getHasCover() != 0).findFirst().get();
-        String imageLink = generateSiteThumbUri(BookUtils.getCategoryByTags(book), book.getCpu());
+        String imageLink = generateBookThumbUri(BookUtils.getCategoryByTags(book), book.getCpu());
 
         manual.setText(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"%s\" alt=\"%s\" />%s %s</p>",
                 translation.getImageTitle() + " " + catName, imageLink, translation.getImageAlt() + " " + declension.getRod(), translation.getShortText(), declension.getRod()));
@@ -337,13 +345,13 @@ public class SiteRenderer {
         manual.setFullText(calibreBooks.stream().map(b -> {
             String authors = b.getAuthors().stream().map(Author::getName).collect(joining(", ")).replace("|", ",");
             if (authors.equalsIgnoreCase("неизвестный")) {
-                authors = b.getPublisher() != null ? b.getPublisher().getName() : "";
+                authors = b.getPublisher() == null ? "" : b.getPublisher().getName();
             }
             String downloadLink = b.getDataList().isEmpty() ? "" :
                     String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" target=\"_blank\" /></a>", cloudStorageLink);
             /*String downloadLink = b.getDataList().isEmpty() ? "" :
-                    String.format("<a href=\"up/media/%s/%s/%s.%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" /></a>", translation.getPlural(), category,
-                            b.getFileName() != null ? b.getFileName() : b.getTitle(), b.getDataList().get(0).getFormat().toLowerCase());*/
+                    String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" /></a>",
+                            generateDownloadLink(translation.getPlural(), category, b.getFileName() != null ? b.getFileName() : b.getTitle()), b.getDataList().get(0).getFormat().toLowerCase());*/
             String externalLink = b.getExternalLink() == null || b.getExternalLink().isEmpty() ? ""
                     : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page.png\" alt=\"download\" /></a> ", b.getExternalLink());
             String text = b.getTextShort().isEmpty() ? b.getTextMore() : b.getTextShort();
@@ -367,7 +375,7 @@ public class SiteRenderer {
 
         CalibreBook book = calibreBooks.stream().filter(cb -> cb.getHasCover() != 0).findFirst().get();
         //TODO need???
-        String imageLink = generateSiteThumbUri(BookUtils.getCategoryByTags(book), book.getCpu());
+        String imageLink = generateBookThumbUri(BookUtils.getCategoryByTags(book), book.getCpu());
 
         manual.setText(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"%s\" alt=\"%s\" />%s %s</p>",
                 translation.getImageTitle() + " " + catName, imageLink, translation.getImageAlt() + " " + declension.getRod(), translation.getShortText(), declension.getRod()));
@@ -390,8 +398,8 @@ public class SiteRenderer {
             String downloadLink = b.getDataList().isEmpty() ? "" :
                     b.getDataList().stream().map(d -> {
                         String fileName = findFreeFileName(fileNames, b.getFileName() != null ? b.getFileName() : b.getTitle(), d.getFormat().toLowerCase(), 0);
-                        return String.format("<a href=\"up/media/%s/%s/%s\"><img style=\"float: left; margin-right: 5px;\" src=\"%s\" alt=\"download\" target=\"_blank\"/></a>",
-                                translation.getPlural(), CalibreUtils.selectSystem(b), fileName, getTypeLink(d.getFormat()));
+                        return String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"%s\" alt=\"download\" target=\"_blank\"/></a>",
+                                generateDownloadLink(translation.getPlural(), BookUtils.getCategoryByTags(b), fileName), getTypeLink(d.getFormat()));
                     }).collect(Collectors.joining(" "));
             String externalLink = b.getExternalLink() == null || b.getExternalLink().isEmpty() ? ""
                     : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page-16.png\" alt=\"download\" target=\"_blank\" /></a> ", b.getExternalLink());
@@ -451,7 +459,7 @@ public class SiteRenderer {
                 b.getDataList().forEach(d -> {
                     sources.add(d.getFormat());
                     String fileName = findFreeFileName(fileNames, b.getFileName() != null ? b.getFileName() : b.getTitle(), d.getFormat().toLowerCase(), 0);
-                    links.add(String.format("http://tv-games.ru/up/media/guides/%s/%s", CalibreUtils.selectSystem(b), fileName));
+                    links.add(generateDownloadLink("guide", BookUtils.getCategoryByTags(b), fileName));
                 });
 
                 String text = b.getTextShort().isEmpty() ? b.getTextMore() : b.getTextShort();
@@ -633,8 +641,8 @@ public class SiteRenderer {
     public static String getTextShort(CalibreBook book, String cpu) {
         StringBuilder sb = new StringBuilder();
         if (cpu != null) {
-            String imageLink = generateSiteCoverUri(BookUtils.getCategoryByTags(book), cpu);
-            String imageThumb = generateSiteThumbUri(BookUtils.getCategoryByTags(book), cpu);
+            String imageLink = generateBookCoverUri(BookUtils.getCategoryByTags(book), cpu);
+            String imageThumb = generateBookThumbUri(BookUtils.getCategoryByTags(book), cpu);
             String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
             String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
             sb.append(String.format("<p><a href=\"%s\">", imageLink));
@@ -720,5 +728,4 @@ public class SiteRenderer {
         }
         return sb.toString();
     }
-
 }

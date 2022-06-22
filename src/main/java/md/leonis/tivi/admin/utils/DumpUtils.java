@@ -12,9 +12,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static md.leonis.tivi.admin.utils.BookUtils.queryRequest;
-import static md.leonis.tivi.admin.utils.BookUtils.rawQueryRequest;
 
+// TODO unused - need to delete???
 public class DumpUtils {
 
     // Fixed charset
@@ -24,10 +23,10 @@ public class DumpUtils {
             //queryRequest("SHOW TABLE STATUS");
             doDump0(out);
             //out.println(rawQueryRequest("SHOW CREATE TABLE `danny_media`"));
-            queryRequest("SHOW TABLES");
-            queryRequest("SHOW TABLE STATUS");
-            queryRequest("SHOW CREATE TABLE `danny_media`");
-            queryRequest("SHOW COLUMNS FROM `danny_media`");
+            SiteDbUtils.queryRequest("SHOW TABLES");
+            SiteDbUtils.queryRequest("SHOW TABLE STATUS");
+            SiteDbUtils.queryRequest("SHOW CREATE TABLE `danny_media`");
+            SiteDbUtils.queryRequest("SHOW COLUMNS FROM `danny_media`");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -41,10 +40,10 @@ public class DumpUtils {
             //queryRequest("SHOW TABLE STATUS");
             doDump(fos);
             //out.println(rawQueryRequest("SHOW CREATE TABLE `danny_media`"));
-            queryRequest("SHOW TABLES");
-            queryRequest("SHOW TABLE STATUS");
-            queryRequest("SHOW CREATE TABLE `danny_media`");
-            queryRequest("SHOW COLUMNS FROM `danny_media`");
+            SiteDbUtils.queryRequest("SHOW TABLES");
+            SiteDbUtils.queryRequest("SHOW TABLE STATUS");
+            SiteDbUtils.queryRequest("SHOW CREATE TABLE `danny_media`");
+            SiteDbUtils.queryRequest("SHOW COLUMNS FROM `danny_media`");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
@@ -58,7 +57,7 @@ public class DumpUtils {
     private static void doDump(FileOutputStream fos) throws IOException {
         Type type = new TypeToken<List<TableStatus>>() {
         }.getType();
-        List<TableStatus> tableStatuses = JsonUtils.gson.fromJson(queryRequest("SHOW TABLE STATUS"), type);
+        List<TableStatus> tableStatuses = JsonUtils.gson.fromJson(SiteDbUtils.queryRequest("SHOW TABLE STATUS"), type);
 
 
         for (TableStatus table : tableStatuses) {
@@ -77,13 +76,13 @@ public class DumpUtils {
             if (table.getName().startsWith("danny_")) {
                 charset = "cp1251";
             }
-            String result = rawQueryRequest(String.format("SHOW CREATE TABLE `%s`", table.getName()));
+            String result = SiteDbUtils.rawQueryRequest(String.format("SHOW CREATE TABLE `%s`", table.getName()));
             result = result.replaceAll("(?i)(DEFAULT CHARSET=\\w+|COLLATE=\\w+)", "/*!40101 $1 */;");
             result = result.replaceAll("(?i)(default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP|collate \\w+|character set \\w+)", "/*!40101 $1 */");
             fos.write(String.format("DROP TABLE IF EXISTS `%s`;\n", table.getName()).getBytes(charset));
             fos.write((result + "\n\n").getBytes(charset));
             // Опредеделяем типы столбцов
-            result = queryRequest(String.format("SHOW COLUMNS FROM `%s`", table.getName()));
+            result = SiteDbUtils.queryRequest(String.format("SHOW COLUMNS FROM `%s`", table.getName()));
             Type fieldType = new TypeToken<List<Field>>() {
             }.getType();
             List<Field> fields = JsonUtils.gson.fromJson(result, fieldType);
@@ -104,7 +103,7 @@ public class DumpUtils {
             boolean isFirst = true;
             do {
                 String query = String.format("SELECT * FROM `%s` LIMIT %d, %d", table.getName(), from, limit);
-                result = queryRequest(query);
+                result = SiteDbUtils.queryRequest(query);
                 //System.out.println(result);
                 type = new TypeToken<List<Map<String, Object>>>() {
                 }.getType();
@@ -163,7 +162,7 @@ public class DumpUtils {
     private static void doDump0(PrintWriter out) {
         Type type = new TypeToken<List<TableStatus>>() {
         }.getType();
-        List<TableStatus> tableStatuses = JsonUtils.gson.fromJson(queryRequest("SHOW TABLE STATUS"), type);
+        List<TableStatus> tableStatuses = JsonUtils.gson.fromJson(SiteDbUtils.queryRequest("SHOW TABLE STATUS"), type);
 
         //TODO filter
         for (TableStatus table : tableStatuses) {
@@ -172,14 +171,14 @@ public class DumpUtils {
             }
             // TODO Выставляем кодировку соединения соответствующую кодировке таблицы
             // Создание таблицы
-            String result = rawQueryRequest(String.format("SHOW CREATE TABLE `%s`", table.getName()));
+            String result = SiteDbUtils.rawQueryRequest(String.format("SHOW CREATE TABLE `%s`", table.getName()));
             result = result.replaceAll("(?i)(DEFAULT CHARSET=\\w+|COLLATE=\\w+)", "/*!40101 $1 */;");
             result = result.replaceAll("(?i)(default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP|collate \\w+|character set \\w+)", "/*!40101 $1 */");
             out.println(String.format("DROP TABLE IF EXISTS `%s`;", table.getName()));
             out.println(result);
             out.println();
             // Опредеделяем типы столбцов
-            result = queryRequest(String.format("SHOW COLUMNS FROM `%s`", table.getName()));
+            result = SiteDbUtils.queryRequest(String.format("SHOW COLUMNS FROM `%s`", table.getName()));
             Type fieldType = new TypeToken<List<Field>>() {
             }.getType();
             List<Field> fields = JsonUtils.gson.fromJson(result, fieldType);
@@ -199,7 +198,7 @@ public class DumpUtils {
             boolean isFirst = true;
             do {
                 String query = String.format("SELECT * FROM `%s` LIMIT %d, %d", table.getName(), from, limit);
-                result = queryRequest(query);
+                result = SiteDbUtils.queryRequest(query);
                 //System.out.println(result);
                 type = new TypeToken<List<Map<String, Object>>>() {
                 }.getType();

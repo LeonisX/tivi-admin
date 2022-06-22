@@ -103,7 +103,7 @@ public class SiteCompareController extends SubPane {
     }
 
     public void dumpSiteDB() throws FileNotFoundException {
-        BookUtils.dumpDB();
+        SiteDbUtils.dumpDB();
     }
 
     public void dumpImages() throws IOException {
@@ -116,8 +116,8 @@ public class SiteCompareController extends SubPane {
 
     public void reloadCategories() {
         //reloadSiteData();
-        BookUtils.readCategories();
-        categoriesTotals.setText(BookUtils.categories.size() + "");
+        BookUtils.loadCategories();
+        categoriesTotals.setText(BookUtils.getCategories().size() + "");
         System.out.println("Reloaded");
     }
 
@@ -129,7 +129,7 @@ public class SiteCompareController extends SubPane {
     }
 
     public void updateCategories() {
-        BookUtils.compareCategories().forEach(b -> BookUtils.updateCategoryTotals(b.getValue()));
+        BookUtils.compareCategories().forEach(b -> SiteDbUtils.updateCategoryTotals(b.getValue()));
         reloadCategories();
     }
 
@@ -147,7 +147,7 @@ public class SiteCompareController extends SubPane {
 
 
     private void setupCategoryComboBox() {
-        List<BookCategory> observableCategories = new ArrayList<>(categories);
+        List<BookCategory> observableCategories = new ArrayList<>(BookUtils.getCategories());
         observableCategories.add(0, new BookCategory());
         ObservableList<BookCategory> options = FXCollections.observableArrayList(observableCategories);
         categoryComboBox.setItems(options);

@@ -19,8 +19,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import static md.leonis.tivi.admin.utils.BookUtils.calibreBooks;
-import static md.leonis.tivi.admin.utils.BookUtils.categories;
+import static md.leonis.tivi.admin.utils.BookUtils.*;
 
 public class CalibreAuditController extends SubPane implements CalibreInterface {
 
@@ -286,9 +285,9 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
         BookUtils.listBooks();
         //BookUtils.siteBooks.forEach(b -> addLog(b.mixedTitleProperty().toString()));
         addLog("Books on site: " + BookUtils.siteBooks.size());
-        BookUtils.readCategories();
+
         //System.out.println(categories);
-        List<String> siteCatNames = categories.stream().map(BookCategory::getCatcpu).collect(toList());
+        List<String> siteCatNames = BookUtils.getCategories().stream().map(BookCategory::getCatcpu).collect(toList());
         List<String> catNames = calibreBooks.stream().map(this::catName).filter(Objects::nonNull).distinct().collect(toList());
         catNames = catNames.stream().filter(cat -> !siteCatNames.contains(cat)).collect(toList());
         catNames.forEach(this::addLog);
@@ -396,18 +395,17 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
     }
 
     // solutions, manuals???, docs, programming, ???
-    // journals -> separate category, gd -> gd
+    // magazines -> separate category, gd -> gd
     private String catName(CalibreBook calibreBook) {
         if (calibreBook.getTags() == null || calibreBook.getTags().isEmpty()) {
             return null;
         }
-        String catName = calibreBook.getTags().size() > 1 ? "consoles" : calibreBook.getTags().get(0).getName();
+        String catName = BookUtils.getCategoryByTags(calibreBook);
         // TODO
         if ("calibreBook".equals(calibreBook.getType())) {
             return catName;
         }
         return catName;
-
     }
 
     public void reloadCalibreBooks() {

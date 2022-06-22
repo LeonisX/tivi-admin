@@ -21,8 +21,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static md.leonis.tivi.admin.model.template.SourceItem.getDomain;
-import static md.leonis.tivi.admin.utils.BookUtils.calibreBooks;
-import static md.leonis.tivi.admin.utils.BookUtils.categories;
+import static md.leonis.tivi.admin.utils.BookUtils.*;
 import static md.leonis.tivi.admin.utils.StringUtils.plural;
 
 public class CalibreReportsController extends SubPane implements CalibreInterface {
@@ -47,10 +46,6 @@ public class CalibreReportsController extends SubPane implements CalibreInterfac
 
     @FXML
     private void initialize() {
-        if (categories.isEmpty()) {
-            BookUtils.readCategories();
-        }
-
         loadOldestCalibreBooks();
         if (calibreBooks.isEmpty()) {
             reloadCalibreBooks();
@@ -110,7 +105,7 @@ public class CalibreReportsController extends SubPane implements CalibreInterfac
 
         root.put("sources", sources);
 
-        Map<String, BookCategory> categoryMap = categories.stream().collect(Collectors.toMap(BookCategory::getCatcpu, Function.identity()));
+        Map<String, BookCategory> categoryMap = BookUtils.getCategories().stream().collect(Collectors.toMap(BookCategory::getCatcpu, Function.identity()));
 
         Map<String, List<CalibreBook>> maps = filesMap.values().stream().collect(Collectors.groupingBy(CalibreBook::getType));
 
@@ -120,15 +115,15 @@ public class CalibreReportsController extends SubPane implements CalibreInterfac
             maps.get("book").stream().flatMap(b -> b.getTags().stream().map(t -> categoryMap.get(t.getName())))
                     .collect(Collectors.groupingBy(BookCategory::getParentid)).entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey))
                     .forEach(e -> e.getValue().stream().collect(Collectors.groupingBy(BookCategory::getCatid)).entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey)).forEach(en -> {
-                        byPlatform.add(new PlatformItem(en.getValue().size(), plural("книга", en.getValue().size()), en.getValue().get(0).getCatname(), SiteRenderer.generateSiteCategoryUri(en.getValue().get(0).getCatcpu())));
+                        byPlatform.add(new PlatformItem(en.getValue().size(), plural("книга", en.getValue().size()), en.getValue().get(0).getCatname(), SiteRenderer.generateBookCategoryUri(en.getValue().get(0).getCatcpu())));
                     }));
         }
 
         if (maps.get("magazine") != null && !maps.get("magazine").isEmpty()) {
-            byPlatform.add(new PlatformItem(maps.get("magazine").size(), "", plural("журнал", maps.get("magazine").size()), SiteRenderer.generateSiteCategoryUri("magazines")));
+            byPlatform.add(new PlatformItem(maps.get("magazine").size(), "", plural("журнал", maps.get("magazine").size()), SiteRenderer.generateBookCategoryUri("magazines")));
         }
         if (maps.get("comics") != null && !maps.get("comics").isEmpty()) {
-            byPlatform.add(new PlatformItem(maps.get("comics").size(), "", plural("комикс", maps.get("comics").size()), SiteRenderer.generateSiteCategoryUri("comics")));
+            byPlatform.add(new PlatformItem(maps.get("comics").size(), "", plural("комикс", maps.get("comics").size()), SiteRenderer.generateBookCategoryUri("comics")));
         }
         if (maps.get("magazine") != null && maps.get("comics") != null) {
             int other = filesMap.size() - maps.get("magazine").size() - maps.get("comics").size() - maps.get("book").size();

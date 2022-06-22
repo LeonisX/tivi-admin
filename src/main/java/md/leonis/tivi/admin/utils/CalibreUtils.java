@@ -1,10 +1,7 @@
 package md.leonis.tivi.admin.utils;
 
 import com.github.junrar.exception.RarException;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import javafx.util.Pair;
 import md.leonis.tivi.admin.model.ArchiveEntry;
@@ -19,6 +16,7 @@ import org.jsoup.nodes.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.*;
@@ -52,13 +50,13 @@ public class CalibreUtils {
     PRAGMA table_info(books);
     SELECT sql FROM sqlite_master WHERE name='books'*/
 
+    // Tests only
     public String getCreateTableQuery(String tableName) {
         return String.format("SELECT sql FROM sqlite_master WHERE name='%s'", tableName);
     }
 
     private static String getJdbcString(String dbFileName) {
-        //return String.format("jdbc:sqlite:E:\\metadata.db");
-        return String.format("jdbc:sqlite:%s", dbFileName);
+        return String.format("jdbc:sqlite:%s", dbFileName); // "jdbc:sqlite:E:\\metadata.db"
     }
 
     public List<CalibreBook> readBooks() {
@@ -304,6 +302,15 @@ public class CalibreUtils {
         return readObjectList(String.format("SELECT * FROM %s", tableName), clazz);
     }
 
+    public <T> T readObject(String sql, Class<T> clazz) {
+        List<T> results = readObjectList(sql, clazz);
+        if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.get(0);
+        }
+    }
+
     public <T> List<T> readObjectList(String sql, Class<T> clazz) {
         List<T> results = new ArrayList<>();
         try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
@@ -354,62 +361,6 @@ public class CalibreUtils {
             throw new RuntimeException(e);
         }
         return results;
-    }
-
-    public <T> T readObject(String sql, Class<T> clazz) {
-        List<T> results = new ArrayList<>();
-        try (Connection conn = connect(); Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                Map<String, Object> map = new HashMap<>();
-                ResultSetMetaData metaData = rs.getMetaData();
-                for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                    Object value;
-                    switch (metaData.getColumnType(i)) {
-                        case -7:
-                        case 5:
-                        case 4:
-                        case -5:
-                            value = rs.getLong(i);
-                            break;
-                        case 6:
-                        case 7:
-                        case 8:
-                        case 2:
-                        case 3:
-                            value = rs.getDouble(i);
-                            break;
-                        case 1:
-                        case -1:
-                            value = rs.getString(i);
-                            break;
-                        case 12:
-                            if (metaData.getColumnTypeName(i).equalsIgnoreCase("TIMESTAMP")) {
-                                value = parseDate(rs.getString(i));
-                            } else {
-                                value = rs.getString(i);
-                            }
-                            break;
-                        case 93:
-                            value = parseDate(rs.getString(i));
-                            break;
-                        default:
-                            //TODO java.sql.Types
-                            throw new RuntimeException("Unknown type:" + metaData.getColumnTypeName(i) + " (" + metaData.getColumnType(i) + ")");
-                    }
-                    map.put(metaData.getColumnName(i), value);
-                }
-                String json = JsonUtils.gson.toJson(map);
-                results.add(JsonUtils.gson.fromJson(json, TypeToken.get(clazz).getType()));
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException(e);
-        }
-        if (results.isEmpty()) {
-            return null;
-        } else {
-            return results.get(0);
-        }
     }
 
     void executeQuery(String sql) {
@@ -483,8 +434,8 @@ public class CalibreUtils {
         //TODO - common gson
         Gson gson = new GsonBuilder()
                 .setPrettyPrinting()
-                .registerTypeAdapter(LocalDate.class, new BookUtils.LocalDateAdapter())
-                .registerTypeAdapter(LocalDateTime.class, new BookUtils.LocalDateTimeAdapter())
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                 .create();
         JsonObject jsonObject = gson.toJsonTree(object, clazz).getAsJsonObject();
 
@@ -527,6 +478,19 @@ public class CalibreUtils {
         }*/
 
         return "UPDATE `" + tableName + "` SET " + expression + " WHERE " /*+ where*/;
+    }
+
+    void upsertTiviId(long bookId, int tiviId) {
+        CustomColumn cb = readObject("SELECT * FROM `custom_column_17` WHERE book=" + bookId, CustomColumn.class);
+        if (cb == null) {
+            String q = String.format("INSERT INTO `custom_column_17` VALUES (null, %d, %d)", bookId, tiviId);
+            Integer newId = executeInsertQuery(q);
+            System.out.println(newId);
+        } else {
+            String q = String.format("UPDATE `custom_column_17` SET value=%d WHERE book=%d", tiviId, bookId);
+            Integer newId = executeUpdateQuery(q);
+            System.out.println(newId);
+        }
     }
 
     static Map<String, Pair<JsonPrimitive, JsonPrimitive>> getDiff(Object o1, Object o2) {
@@ -792,7 +756,7 @@ public class CalibreUtils {
 
         int i = 1;
         for (CalibreBook book : shallowCopy) {
-            String system = selectSystem(book);
+            String category = BookUtils.getCategoryByTags(book);
             Path destPath;
             System.out.println(book);
             switch (book.getType()) {
@@ -807,26 +771,26 @@ public class CalibreUtils {
                     break;
                 case "manual":
                     //TODO may be languages in path
-                    destPath = manualsDir.toPath().resolve(system);
+                    destPath = manualsDir.toPath().resolve(category);
                     break;
                 case "comics":
                     //TODO may be languages in path
-                    destPath = comicsDir.toPath().resolve(system);
+                    destPath = comicsDir.toPath().resolve(category);
                     break;
                 case "guide":
                     //TODO may be languages in path
-                    destPath = guidesDir.toPath().resolve(system);
+                    destPath = guidesDir.toPath().resolve(category);
                     break;
                 case "doc":
                     //TODO may be languages in path
-                    destPath = docsDir.toPath().resolve(system);
+                    destPath = docsDir.toPath().resolve(category);
                     break;
                 case "emulator":
                     //TODO may be languages in path
-                    destPath = emulatorsDir.toPath().resolve(system);
+                    destPath = emulatorsDir.toPath().resolve(category);
                     break;
                 default:
-                    destPath = booksDir.toPath().resolve(system);
+                    destPath = booksDir.toPath().resolve(category);
                     break;
             }
             mkdirs(destPath);
@@ -907,14 +871,6 @@ public class CalibreUtils {
                 .forEach(File::delete);
     }
 
-    public static String selectSystem(CalibreBook book) {
-        if (book.getTags().size() > 1) {
-            return "consoles"; //TODO computers
-        } else {
-            return book.getTags().get(0).getName();
-        }
-    }
-
     //TODO separate utils
     private static void mkdirs(Path path) {
         mkdirs(path.toFile());
@@ -981,5 +937,17 @@ public class CalibreUtils {
         text = text.replace('—', '-');
         text = text.replace((char) 0x0A + "", "");
         return text;
+    }
+
+    static class LocalDateAdapter implements JsonSerializer<LocalDate> {
+        public JsonElement serialize(LocalDate date, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(date.format(DateTimeFormatter.ISO_LOCAL_DATE)); // "yyyy-mm-dd"
+        }
+    }
+
+    static class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime> {
+        public JsonElement serialize(LocalDateTime date, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        }
     }
 }

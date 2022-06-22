@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
-import static md.leonis.tivi.admin.utils.BookUtils.queryRequest;
 
 public class ColumnsResolver {
 
@@ -17,7 +16,7 @@ public class ColumnsResolver {
     private final List<String> blobColumns;
 
     public ColumnsResolver(String tableName) {
-        String result = queryRequest(String.format("SHOW COLUMNS FROM `%s`", tableName));
+        String result = SiteDbUtils.queryRequest(String.format("SHOW COLUMNS FROM `%s`", tableName));
         Type fieldType = new TypeToken<List<Field>>() {}.getType();
         List<Field> fields = JsonUtils.gson.fromJson(result, fieldType);
         numericColumns = fields.stream().filter(t -> t.getType().matches("^(\\w*int.*)")).map(Field::getField).collect(toList());

@@ -144,7 +144,7 @@ public class QueryIntegrationTest {
     public void testComparator() throws IOException {
         Config.loadProperties();
         Config.loadProtectedProperties();
-        BookUtils.queryRequest("ASD");
+        SiteDbUtils.queryRequest("ASD");
         //TODO
         //CalibreComparisionResult comparisionResult = CalibreUtils.compare();
         //System.out.println(comparisionResult);
@@ -225,23 +225,23 @@ public class QueryIntegrationTest {
         video.setDescription("Комментъ comment \" ' ~`!@#$%^&*()_+-={}[]:;<>?,./\\| <>< \n\r\t <p>asd</p>");
         video.setPreviousImage("previousImage");
         //BookUtils.queryOperation("DELETE FROM danny_media WHERE cpu='cpu'");
-        String insertQuery = BookUtils.objectToSqlInsertQuery(video, Video.class, "danny_media");
+        String insertQuery = SiteDbUtils.objectToSqlInsertQuery(video, Video.class, "danny_media");
         System.out.println(insertQuery);
         //TODO compress
         String result = WebUtils.readFromUrl("http://tv-games.ru/api2d/upload2.php?to=clean_backups");
         System.out.println(result);
         String fileName = UUID.randomUUID().toString() + ".sql";
-        result = BookUtils.upload("api2d/backup", fileName, new ByteArrayInputStream(insertQuery.getBytes(StandardCharsets.UTF_8)));
+        result = SiteDbUtils.upload("api2d/backup", fileName, new ByteArrayInputStream(insertQuery.getBytes(StandardCharsets.UTF_8)));
         System.out.println(result);
         result = WebUtils.readFromUrl("http://tv-games.ru/api2d/dumper.php?to=restore&file=" + fileName);
         System.out.println(result);
         Integer id = getIdByCpu("cpu");
         System.out.println(id);
-        BookUtils.queryOperation("DELETE FROM danny_media WHERE cpu='cpu'");
+        SiteDbUtils.queryRequest("DELETE FROM danny_media WHERE cpu='cpu'");
     }
 
     public Integer getIdByCpu(String cpu) {
-        String result = BookUtils.queryRequest(String.format("SELECT * FROM `danny_media` WHERE cpu='%s'", cpu));
+        String result = SiteDbUtils.queryRequest(String.format("SELECT * FROM `danny_media` WHERE cpu='%s'", cpu));
         Type fieldType = new TypeToken<List<Video>>() {}.getType();
         List<Video> ids = JsonUtils.gson.fromJson(result, fieldType);
         if (ids.isEmpty()) {

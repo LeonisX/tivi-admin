@@ -6,6 +6,7 @@ import javafx.scene.control.Hyperlink;
 import md.leonis.tivi.admin.model.Actions;
 import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.CalibreUtils;
+import md.leonis.tivi.admin.utils.SiteDbUtils;
 import md.leonis.tivi.admin.utils.VideoUtils;
 
 import java.io.FileNotFoundException;
@@ -68,7 +69,7 @@ public class MainStageController {
     }
 
     public void dumpSiteDB() throws FileNotFoundException {
-        BookUtils.dumpDB();
+        SiteDbUtils.dumpDB();
     }
 
     public void auditBooks() {
