@@ -7,9 +7,11 @@ import java.util.zip.GZIPInputStream;
 
 public class GZipUtils {
 
+    private static final int BUFFER_SIZE = 1024;
+
     public static void gunzipItToFile(String fileName, File newFile) {
 
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
         try {
             GZIPInputStream gzis = new GZIPInputStream(new URL(fileName).openStream());
             FileOutputStream out = new FileOutputStream(newFile);
@@ -26,8 +28,7 @@ public class GZipUtils {
 
     public static String gunzipItToString(String fileName) throws IOException {
 
-        final int bufferSize = 1024;
-        final char[] buffer = new char[bufferSize];
+        final char[] buffer = new char[BUFFER_SIZE];
         final StringBuilder out = new StringBuilder();
         try (Reader in = new InputStreamReader(new GZIPInputStream(new URL(fileName).openStream()), StandardCharsets.UTF_8)) {
             for (; ; ) {

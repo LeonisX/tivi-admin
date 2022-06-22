@@ -4,7 +4,6 @@ import javafx.util.Pair;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import md.leonis.tivi.admin.model.media.CalibreBook;
 
 import java.util.Collection;
 import java.util.List;

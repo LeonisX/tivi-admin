@@ -4,9 +4,9 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.web.HTMLEditor;
-import md.leonis.tivi.admin.model.Access;
-import md.leonis.tivi.admin.model.Video;
-import md.leonis.tivi.admin.model.YesNo;
+import md.leonis.tivi.admin.model.danneo.Access;
+import md.leonis.tivi.admin.model.danneo.Video;
+import md.leonis.tivi.admin.model.danneo.YesNo;
 import md.leonis.tivi.admin.utils.*;
 
 import java.time.Instant;

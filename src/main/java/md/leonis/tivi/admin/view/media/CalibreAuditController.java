@@ -3,13 +3,14 @@ package md.leonis.tivi.admin.view.media;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import md.leonis.tivi.admin.model.BookCategory;
-import md.leonis.tivi.admin.model.media.Book;
-import md.leonis.tivi.admin.model.media.CalibreBook;
-import md.leonis.tivi.admin.model.media.CustomColumn;
-import md.leonis.tivi.admin.model.media.Language;
+import md.leonis.tivi.admin.model.danneo.BookCategory;
+import md.leonis.tivi.admin.model.calibre.Book;
+import md.leonis.tivi.admin.model.calibre.CalibreBook;
+import md.leonis.tivi.admin.model.calibre.CustomColumn;
+import md.leonis.tivi.admin.model.calibre.Language;
 import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.CalibreUtils;
+import md.leonis.tivi.admin.utils.SiteDbUtils;
 import md.leonis.tivi.admin.utils.SubPane;
 
 import java.util.*;
@@ -280,7 +281,7 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
         //BookUtils.addCategory(0, "test");
         /*BookUtils.countVideos();
         addLog(BookUtils.booksCount + "");*/
-        BookUtils.listBooks();
+        BookUtils.siteBooks = SiteDbUtils.listBooks();
         //BookUtils.siteBooks.forEach(b -> addLog(b.mixedTitleProperty().toString()));
         addLog("Books on site: " + BookUtils.siteBooks.size());
 

@@ -3,7 +3,7 @@ package md.leonis.tivi.admin.utils;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import md.leonis.tivi.admin.model.Category;
+import md.leonis.tivi.admin.model.danneo.Category;
 
 import java.util.ArrayList;
 import java.util.Comparator;

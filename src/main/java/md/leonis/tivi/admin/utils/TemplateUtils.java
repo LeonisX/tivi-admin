@@ -6,10 +6,9 @@ import freemarker.template.Template;
 import javafx.scene.control.TextArea;
 import md.leonis.tivi.admin.model.template.ChangelogItem;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,42 +35,42 @@ public class TemplateUtils {
         //changelog.add(new ChangelogItem("Комиксов", 15, 0));
         root.put("changelog", changelog);
 
-
-
-        TemplateUtils.test2(root);
+        TemplateUtils.processTemplateToFile(root, "changelogReport", "changelog.html");
     }
 
-    public static void test(Map<String, Object> root, TextArea textArea) {
+    public static void processTemplateToTextArea(Map<String, Object> root, String templateName, TextArea textArea) {
         try {
-            Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
-            cfg.setTemplateLoader(new FileTemplateLoader(new File(TemplateUtils.class.getResource("/").getFile())));
-            // шаблон
-            Template temp = cfg.getTemplate("templates/changelogReport.ftl");
+            Template template = loadTemplate(templateName);
             // обработка шаблона и модели данных
-            Writer out = new TextAreaWriter(textArea);
+            Writer writer = new TextAreaWriter(textArea);
             textArea.clear();
-            // вывод в консоль
-            temp.process(root, out);
+            // вывод в TextArea
+            template.process(root, writer);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void test2(Map<String, Object> root) {
+    public static void processTemplateToFile(Map<String, Object> root, String templateName, String fileName) {
         try {
-            Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
-            cfg.setTemplateLoader(new FileTemplateLoader(new File(TemplateUtils.class.getResource("/").getFile())));
-            // шаблон
-            Template temp = cfg.getTemplate("templates/changelogReport.ftl");
+            Template template = loadTemplate(templateName);
             // обработка шаблона и модели данных
-            Writer out = new OutputStreamWriter(System.out);
-            Writer out2 = new FileWriter(new File(TemplateUtils.class.getResource("/").getFile()).toPath().resolve("changelog.html").toString());
+            Writer writer = new OutputStreamWriter(System.out);
+            Path path = Paths.get(Config.calibreDbPath).resolve(fileName);
+            FileUtils.backupFile(path);
+            Writer writer2 = new FileWriter(path.toString());
             // вывод в консоль
-            temp.process(root, out);
-            temp.process(root, out2);
+            template.process(root, writer);
+            template.process(root, writer2);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static Template loadTemplate(String templateName) throws IOException {
+        Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
+        cfg.setTemplateLoader(new FileTemplateLoader(new File(TemplateUtils.class.getResource("/").getFile())));
+        return cfg.getTemplate(String.format("templates/%s.ftl", templateName));
     }
 
     public static class TextAreaWriter extends Writer {

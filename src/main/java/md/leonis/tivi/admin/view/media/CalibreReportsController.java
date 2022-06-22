@@ -4,10 +4,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
-import md.leonis.tivi.admin.model.BookCategory;
-import md.leonis.tivi.admin.model.media.Book;
-import md.leonis.tivi.admin.model.media.CalibreBook;
-import md.leonis.tivi.admin.model.media.Data;
+import md.leonis.tivi.admin.model.danneo.BookCategory;
+import md.leonis.tivi.admin.model.calibre.Book;
+import md.leonis.tivi.admin.model.calibre.CalibreBook;
+import md.leonis.tivi.admin.model.calibre.Data;
 import md.leonis.tivi.admin.model.template.ChangelogItem;
 import md.leonis.tivi.admin.model.template.PlatformItem;
 import md.leonis.tivi.admin.model.template.SourceItem;
@@ -137,7 +137,7 @@ public class CalibreReportsController extends SubPane implements CalibreInterfac
 
         //TODO return, fix
         //TemplateUtils.test(root, textArea);
-        TemplateUtils.test2(root);
+        TemplateUtils.processTemplateToFile(root, "changelogReport", "changelog.html");
     }
 
     private Map<Long, CalibreBook> getFilesMap(List<CalibreBook> modifiedBooks) {

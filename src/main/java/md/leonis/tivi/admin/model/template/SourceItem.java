@@ -1,6 +1,6 @@
 package md.leonis.tivi.admin.model.template;
 
-import md.leonis.tivi.admin.model.media.CalibreBook;
+import md.leonis.tivi.admin.model.calibre.CalibreBook;
 
 import java.net.URI;
 import java.util.*;

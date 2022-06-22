@@ -2,6 +2,10 @@ package md.leonis.tivi.admin.utils;
 
 import com.google.gson.reflect.TypeToken;
 import md.leonis.tivi.admin.model.*;
+import md.leonis.tivi.admin.model.danneo.Category;
+import md.leonis.tivi.admin.model.danneo.Count;
+import md.leonis.tivi.admin.model.danneo.Video;
+import md.leonis.tivi.admin.model.gui.VideoView;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,11 +27,11 @@ public class VideoUtils {
 
     public static Video video;
 
-    public static List<VideoView> videous;
+    public static List<VideoView> videos;
 
-    public static ListVideousSettings listVideousSettings = new ListVideousSettings();
+    public static ListVideosSettings listVideosSettings = new ListVideosSettings();
 
-    public static int videousCount;
+    public static int videosCount;
 
     public static void showAddVideo() {
         JavaFxUtils.showPane("video/AddVideo.fxml");
@@ -125,24 +129,24 @@ public class VideoUtils {
         //$count,$page,$cat,$sort,$order;
         List<Video> videos = new ArrayList<>();
         String cat = "";
-        if (listVideousSettings.catId != -1) cat = "&cat=" + listVideousSettings.catId;
-        String requestURL = Config.apiPath + "video.php?to=list&count=" + listVideousSettings.count +"&page=" + listVideousSettings.page + cat + "&sort=" + listVideousSettings.sort + "&order=" + listVideousSettings.order;
+        if (listVideosSettings.catId != -1) cat = "&cat=" + listVideosSettings.catId;
+        String requestURL = Config.apiPath + "video.php?to=list&count=" + listVideosSettings.count +"&page=" + listVideosSettings.page + cat + "&sort=" + listVideosSettings.sort + "&order=" + listVideosSettings.order;
         try {
             String jsonString = WebUtils.readFromUrl(requestURL);
             videos = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<Video>>(){}.getType());
         } catch (IOException e) {
             System.out.println("Error in listVideos");
         }
-        videous = videos.stream().map(VideoView::new).collect(Collectors.toList());
+        VideoUtils.videos = videos.stream().map(VideoView::new).collect(Collectors.toList());
     }
 
     public static void countVideos() {
         String cat = "";
-        if (listVideousSettings.catId != -1) cat = "&cat=" + listVideousSettings.catId;
+        if (listVideosSettings.catId != -1) cat = "&cat=" + listVideosSettings.catId;
         String requestURL = Config.apiPath + "video.php?to=count" + cat;
         try {
             String jsonString = WebUtils.readFromUrl(requestURL);
-            videousCount = JsonUtils.gson.fromJson(jsonString, Count.class).getCount();
+            videosCount = JsonUtils.gson.fromJson(jsonString, Count.class).getCount();
         } catch (IOException e) {
             System.out.println("Error in countVideos");
         }

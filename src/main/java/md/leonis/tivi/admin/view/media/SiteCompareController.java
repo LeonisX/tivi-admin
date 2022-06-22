@@ -15,11 +15,11 @@ import javafx.stage.DirectoryChooser;
 import javafx.util.Callback;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
-import md.leonis.tivi.admin.model.BookCategory;
+import md.leonis.tivi.admin.model.danneo.BookCategory;
 import md.leonis.tivi.admin.model.ComparisionResult;
-import md.leonis.tivi.admin.model.Video;
-import md.leonis.tivi.admin.model.View;
-import md.leonis.tivi.admin.model.media.CalibreBook;
+import md.leonis.tivi.admin.model.danneo.Video;
+import md.leonis.tivi.admin.model.gui.View;
+import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.utils.*;
 
 import java.io.File;
@@ -64,8 +64,8 @@ public class SiteCompareController extends SubPane {
     public void selectCalibreDir() {
         DirectoryChooser directoryChooser = getDirectoryChooser();
         File selectedDirectory = directoryChooser.showDialog(null);
-        Config.workPath = selectedDirectory.getAbsolutePath();
-        calibreDir.setText(Config.workPath);
+        Config.outputPath = selectedDirectory.getAbsolutePath();
+        calibreDir.setText(Config.outputPath);
         reloadCalibreData();
     }
 
@@ -187,7 +187,7 @@ public class SiteCompareController extends SubPane {
 
     private DirectoryChooser getDirectoryChooser() {
         DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setInitialDirectory(new File(Config.workPath));
+        directoryChooser.setInitialDirectory(new File(Config.outputPath));
         directoryChooser.setTitle("Select directory with Calibre DB");
         return directoryChooser;
     }

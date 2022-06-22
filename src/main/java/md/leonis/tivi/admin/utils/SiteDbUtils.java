@@ -3,6 +3,7 @@ package md.leonis.tivi.admin.utils;
 import com.google.gson.reflect.TypeToken;
 import javafx.util.Pair;
 import md.leonis.tivi.admin.model.*;
+import md.leonis.tivi.admin.model.danneo.*;
 import md.leonis.tivi.admin.model.mysql.TableStatus;
 import md.leonis.tivi.admin.utils.archive.GZipUtils;
 
@@ -25,7 +26,7 @@ public class SiteDbUtils {
 
     private static final ColumnsResolver mediaResolver = new ColumnsResolver(TABLE_NAME);
 
-    public static ListVideousSettings listBooksSettings = new ListVideousSettings();
+    public static ListVideosSettings listBooksSettings = new ListVideosSettings();
 
     public static List<TableStatus> tableStatuses;
 
@@ -203,7 +204,7 @@ public class SiteDbUtils {
 
         System.out.println(res);
 
-        String path = Config.workPath + TABLE_NAME + "-" + LocalDateTime.now().toString().replace(":", "-") + ".txt";
+        String path = Config.outputPath + TABLE_NAME + "-" + LocalDateTime.now().toString().replace(":", "-") + ".txt";
         try (PrintWriter out = new PrintWriter(path)) {
             out.println(json);
         }
@@ -214,7 +215,7 @@ public class SiteDbUtils {
 
 
     public static void dumpDBAsNativeSql(String tableName) {
-        new File(Config.workPath + "nat").mkdirs();
+        FileUtils.mkdirs(Config.outputPath + "nat");
         int count = 0;
         int maxTries = 15;
         while (true) {
@@ -223,7 +224,7 @@ public class SiteDbUtils {
                 String queryId = WebUtils.readFromUrl(requestURL);
                 System.out.println(queryId);
                 String fileName = Config.apiPath + "backup/" + queryId + ".sql.gz";
-                File newFile = new File(Config.workPath + "nat" + File.separatorChar + tableName + ".txt");
+                File newFile = new File(Config.outputPath + "nat" + File.separatorChar + tableName + ".txt");
                 GZipUtils.gunzipItToFile(fileName, newFile);
                 break;
             } catch (Exception e) {
@@ -239,8 +240,9 @@ public class SiteDbUtils {
     }
 
     public static String dumpBaseAsJson(String tableName) {
-        TableStatus table = tableStatuses.stream().filter(t -> t.getName().equals(tableName)).findFirst().get();
-        new File(Config.workPath + "gen").mkdirs();
+        TableStatus table = tableStatuses.stream().filter(t -> t.getName().equals(tableName)).findFirst()
+                .orElseThrow(() -> new RuntimeException("TableStatus is null"));
+        FileUtils.mkdirs(Config.outputPath + "gen");
         List<String> jsons = new ArrayList<>();
         long offset = 0;
         long limit = 1 + Math.round(1048576 / (table.getAvgRowLength() * 1.7 + 1));
@@ -283,7 +285,8 @@ public class SiteDbUtils {
         if (bookCategory.getParentid() == 0) {
             return;
         }
-        BookCategory parent = result.stream().filter(c -> c.getValue().getCatid().equals(bookCategory.getParentid())).map(Pair::getValue).findFirst().get();
+        BookCategory parent = result.stream().filter(c -> c.getValue().getCatid().equals(bookCategory.getParentid()))
+                .map(Pair::getValue).findFirst().orElseThrow(() -> new RuntimeException("BookCategory is null"));
         parent.setTotal(parent.getTotal() + bookCategory.getTotal());
         updateParentTotals(parent, result);
     }
@@ -327,6 +330,7 @@ public class SiteDbUtils {
         String jsonString = SiteDbUtils.queryRequest(String.format("SELECT * FROM %s_cat", TABLE_NAME));
         List<BookCategory> bookCategories = JsonUtils.gson.fromJson(jsonString, new TypeToken<List<BookCategory>>() {
         }.getType());
+        assert bookCategories != null;
         return bookCategories.stream().sorted(Comparator.comparing(BookCategory::getCatcpu)).collect(toList());
 
         /*List<BookCategory> bookCategories;

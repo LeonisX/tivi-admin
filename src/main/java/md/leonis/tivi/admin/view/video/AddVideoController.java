@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import md.leonis.tivi.admin.model.Actions;
-import md.leonis.tivi.admin.model.Video;
+import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.utils.SubPane;
 import md.leonis.tivi.admin.utils.VideoUtils;
 

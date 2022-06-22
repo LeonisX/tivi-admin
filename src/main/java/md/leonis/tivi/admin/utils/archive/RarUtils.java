@@ -5,6 +5,7 @@ import com.github.junrar.exception.RarException;
 import com.github.junrar.rarfile.FileHeader;
 import lombok.SneakyThrows;
 import md.leonis.tivi.admin.model.ArchiveEntry;
+import md.leonis.tivi.admin.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -73,77 +74,63 @@ public class RarUtils {
         }
     }*/
 
-
-    public static void extractArchive(Path sourcePath, Path destPath, String fileName) throws RarException {
+    @SneakyThrows
+    public static void extractArchive(Path sourcePath, Path destPath, String fileName) {
         System.out.println(sourcePath);
-        Archive arch = null;
-        try {
-            arch = new Archive(sourcePath.toFile());
-        } catch (RarException | IOException e) {
-            e.printStackTrace();
+        Archive arch = new Archive(sourcePath.toFile());
+
+        if (arch.isEncrypted()) {
+            throw new RuntimeException("archive is encrypted - cannot be extracted");
         }
-        if (arch != null) {
-            if (arch.isEncrypted()) {
-                throw new RuntimeException("archive is encrypted cannot extreact");
+        FileHeader fh;
+        while (true) {
+            fh = arch.nextFileHeader();
+            if (fh == null) {
+                break;
             }
-            FileHeader fh;
-            while (true) {
-                fh = arch.nextFileHeader();
-                if (fh == null) {
-                    break;
+            if (fh.isEncrypted()) {
+                throw new RuntimeException("file is encrypted - cannot be extracted: " + fh.getFileName());
+            }
+            try {
+                if (fh.isDirectory()) {
+                    createDirectory(fh, destPath.toFile());
+                } else {
+                    System.out.println("Extracting: " + fh.getFileName());
+                    File f = createFile(destPath.toFile(), fileName + "." + FileUtils.getExtension(fh.getFileName()));
+                    OutputStream os = new FileOutputStream(f);
+                    arch.extractFile(fh, os);
+                    os.close();
                 }
-                if (fh.isEncrypted()) {
-                    throw new RuntimeException("file is encrypted cannot extract: "
-                            + fh.getFileName());
-                }
-                try {
-                    if (fh.isDirectory()) {
-                        createDirectory(fh, destPath.toFile());
-                    } else {
-                        System.out.println("Extracting: " + fh.getFileName());
-                        File f = createFile(destPath.toFile(), fileName + "." + SevenZipUtils.getExtension(fh.getFileName()));
-                        OutputStream os = new FileOutputStream(f);
-                        arch.extractFile(fh, os);
-                        os.close();
-                    }
-                } catch (IOException | RarException e) {
-                    e.printStackTrace();
-                }
+            } catch (IOException | RarException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    public static List<ArchiveEntry> getRarFileList(File file) throws RarException {
+    @SneakyThrows
+    public static List<ArchiveEntry> getRarFileList(File file) {
         List<ArchiveEntry> files = new ArrayList<>();
-        Archive arch = null;
-        try {
-            arch = new Archive(file);
-        } catch (RarException | IOException e) {
-            e.printStackTrace();
+        Archive arch = new Archive(file);
+        if (arch.isEncrypted()) {
+            throw new RuntimeException("archive is encrypted - cannot be extracted");
         }
-        if (arch != null) {
-            if (arch.isEncrypted()) {
-                throw new RuntimeException("archive is encrypted cannot extreact");
+        FileHeader fh;
+        while (true) {
+            fh = arch.nextFileHeader();
+            if (fh == null) {
+                break;
             }
-            FileHeader fh;
-            while (true) {
-                fh = arch.nextFileHeader();
-                if (fh == null) {
-                    break;
-                }
-                if (fh.isEncrypted()) {
-                    throw new RuntimeException("file is encrypted cannot extract: "
-                            + fh.getFileName());
-                }
-                files.add(new ArchiveEntry(fh.getFileName(), fh.getFileCRC(), fh.getUnpSize()));
+            if (fh.isEncrypted()) {
+                throw new RuntimeException("file is encrypted - cannot be extracted: " + fh.getFileName());
             }
+            files.add(new ArchiveEntry(fh.getFileName(), fh.getFileCRC(), fh.getUnpSize()));
         }
         return files;
     }
 
     @SneakyThrows
     private static File createFile(File destination, String fileName) {
-        String name = SevenZipUtils.findFreeFileName(destination.toPath(), fileName, 0).getFileName().toString();
+        String name = FileUtils.findFreeFileName(destination.toPath(), fileName, 0).getFileName().toString();
         return makeFile(destination, name);
     }
 
@@ -153,6 +140,7 @@ public class RarUtils {
         return makeFile(destination, name);
     }*/
 
+    @SuppressWarnings("all")
     private static File makeFile(File destination, String name) throws IOException {
         if (name == null) {
             return null;
@@ -165,7 +153,7 @@ public class RarUtils {
         } else if (size > 1) {
             for (int i = 0; i < dirs.length - 1; i++) {
                 path = path + File.separator + dirs[i];
-                mkdirs(new File(destination, path));
+                FileUtils.mkdirs(new File(destination, path));
             }
             path = path + File.separator + dirs[dirs.length - 1];
             File f = new File(destination, path);
@@ -177,35 +165,11 @@ public class RarUtils {
     }
 
     private static void createDirectory(FileHeader fh, File destination) {
-
         if (fh.isDirectory()) {
             File f = new File(destination, fh.getFileName());
             if (!f.exists()) {
-                makeDirectory(destination, fh.getFileName());
+                FileUtils.mkdirs(destination, fh.getFileName());
             }
         }
-    }
-
-    private static void makeDirectory(File destination, String fileName) {
-        if (fileName == null) {
-            return;
-        }
-        String[] dirs = fileName.split("\\\\");
-        String path = "";
-        for (String dir : dirs) {
-            path = path + File.separator + dir;
-            mkdirs(new File(destination, path));
-        }
-
-    }
-
-    //TODO separate utils
-    private static void mkdirs(Path path) {
-        mkdirs(path.toFile());
-    }
-
-    @SuppressWarnings("all")
-    private static void mkdirs(File file) {
-        file.mkdirs();
     }
 }

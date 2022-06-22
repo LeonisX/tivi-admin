@@ -10,7 +10,6 @@ public class CheckUtils {
     private final List<String> notes = new ArrayList<>();
 
     public CheckUtils() {
-        notes.clear();
     }
 
     public void checkLength(String text, int length) {

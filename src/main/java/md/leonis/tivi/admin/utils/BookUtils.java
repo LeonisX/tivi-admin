@@ -16,10 +16,13 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Pair;
 import md.leonis.tivi.admin.model.*;
-import md.leonis.tivi.admin.model.media.*;
+import md.leonis.tivi.admin.model.calibre.*;
+import md.leonis.tivi.admin.model.danneo.Access;
+import md.leonis.tivi.admin.model.danneo.BookCategory;
+import md.leonis.tivi.admin.model.danneo.Video;
+import md.leonis.tivi.admin.model.danneo.YesNo;
 import md.leonis.tivi.admin.view.media.CalibreInterface;
 
-import java.io.File;
 import java.text.Normalizer;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -66,10 +69,6 @@ public class BookUtils {
 
     public static void compareWithSite() {
         JavaFxUtils.showPane("media/SiteCompare.fxml");
-    }
-
-    public static void listBooks() {
-        siteBooks = SiteDbUtils.listBooks();
     }
 
     public static List<Pair<BookCategory, BookCategory>> compareCategories() {
@@ -264,8 +263,7 @@ public class BookUtils {
                     }
                 })
                 .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()))
-                .entrySet().stream().sorted(Comparator.comparing(Map.Entry::getKey))
-                .collect(Collectors.toMap(entry -> entry.getValue().get(0), Map.Entry::getValue));
+                .entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().get(0), Map.Entry::getValue));
 
         List<Video> siteMagazines = siteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryByCpu(category).getCatid())).collect(toList());
 
@@ -534,10 +532,10 @@ public class BookUtils {
         }
         String cpu = calibreBook.getHasCover().equals(0) ? groupedMagazines.getValue().stream()
                 .filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0)
-                .sorted(Comparator.comparing(Book::getSort)).map(CalibreBook::getCpu).findFirst().orElse(null) : calibreBook.getCpu();
+                .sorted(Comparator.comparing(Book::getSort)).map(CalibreBook::getCpu).findFirst().orElseThrow(() ->new RuntimeException("cpu is null")) : calibreBook.getCpu();
         video.setText(SiteRenderer.getTextShort(calibreBook, cpu));
         /*if (calibreBook.getHasCover().equals(0)) {
-            CalibreBook bookWithCover = groupedMagazines.getValue().stream().filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0).sorted(Comparator.comparing(Book::getSort)).findFirst().orElse(null);
+            CalibreBook bookWithCover = groupedMagazines.getValue().stream().filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0).sorted(Comparator.comparing(Book::getSort)).findFirst().orElseThrow(() ->new RuntimeException("CalibreBook is null"));
             if (bookWithCover != null) {
                 bookWithCover.setHasCover(0);
                 video.setText(video.getText().replace(calibreBook.getCpu(), bookWithCover.getCpu()));
@@ -570,11 +568,11 @@ public class BookUtils {
     }
 
     public static BookCategory getCategoryByCpu(String cpu) {
-        return getCategories().stream().filter(c -> c.getCatcpu().equals(cpu)).findFirst().get();
+        return getCategories().stream().filter(c -> c.getCatcpu().equals(cpu)).findFirst().orElseThrow(() ->new RuntimeException("BookCategory is null"));
     }
 
     public static BookCategory getCategoryById(Integer id) {
-        return getCategories().stream().filter(c -> c.getCatid().equals(id)).findFirst().get();
+        return getCategories().stream().filter(c -> c.getCatid().equals(id)).findFirst().orElseThrow(() ->new RuntimeException("BookCategory is null"));
     }
 
     private static String getDescription(CalibreBook book, String category) {
@@ -600,7 +598,7 @@ public class BookUtils {
         }
         chunks.addAll(Arrays.asList(book.getAuthors().stream().map(Author::getName).filter(n -> !n.equalsIgnoreCase("неизвестный")).collect(joining(" ")).toLowerCase().replaceAll("[^\\w\\sА-Яа-я]", "").split(" ")));
         chunks.add(category);
-        chunks.addAll(new ArrayList<>(Arrays.asList(getCategories().stream().filter(c -> c.getCatcpu().equals(category)).findFirst().get().getCatname().toLowerCase().replaceAll("[^\\w\\sА-Яа-я]", "").split(" "))));
+        chunks.addAll(new ArrayList<>(Arrays.asList(getCategories().stream().filter(c -> c.getCatcpu().equals(category)).findFirst().orElseThrow(() ->new RuntimeException("BookCategory is null")).getCatname().toLowerCase().replaceAll("[^\\w\\sА-Яа-я]", "").split(" "))));
         chunks.add(category);
         // TODO дополнить
         chunks.add(translation.getName());
@@ -639,7 +637,8 @@ public class BookUtils {
                     Integer tiviId = videoList.get(0).getId();
                     System.out.println(tiviId);
                     System.out.println(b.getCpu());
-                    Long bookId = calibreBooks.stream().filter(cb -> cb.getCpu() != null && cb.getCpu().equals(b.getCpu())).findFirst().get().getId();
+                    Long bookId = calibreBooks.stream().filter(cb -> cb.getCpu() != null && cb.getCpu().equals(b.getCpu()))
+                            .findFirst().map(Book::getId).orElseThrow(() -> new RuntimeException("BookId is null"));
 
                     calibreUtils.upsertTiviId(bookId, tiviId);
                 }
@@ -650,7 +649,9 @@ public class BookUtils {
                 //May be this code don't work
                 //!!!
                 if (!b.getCpu().equals("magazines_in_search")) {
-                    Long bookId = calibreBooks.stream().filter(cb -> cb.getType().equals("magazine")).filter(cb -> cb.getSeries() != null && generateCpu(cb.getSeries().getName()).equals(b.getCpu())).min(Comparator.comparing(Book::getSort)).get().getId();
+                    Long bookId = calibreBooks.stream().filter(cb -> cb.getType().equals("magazine"))
+                            .filter(cb -> cb.getSeries() != null && generateCpu(cb.getSeries().getName()).equals(b.getCpu()))
+                            .min(Comparator.comparing(Book::getSort)).map(Book::getId).orElseThrow(() -> new RuntimeException("BookId is null"));
                     List<Video> videoList = SiteDbUtils.listBooks(b.getCpu(), b.getCategoryId());
                     Integer tiviId = videoList.get(0).getId();
                     System.out.println(tiviId);
@@ -659,10 +660,6 @@ public class BookUtils {
                 }
             });
         }
-    }
-
-    public static String getJdbcString(String path) {
-        return String.format("jdbc:sqlite:%s%smetadata.db", path, File.separatorChar);
     }
 
     public static void readBooks(CalibreInterface controller, List<CalibreBook> calibreBooks) {
@@ -769,7 +766,8 @@ public class BookUtils {
     }
 
     private static BookCategory getParentRoot(List<BookCategory> categories, Integer id) {
-        BookCategory cat = categories.stream().filter(c -> c.getCatid().equals(id)).findFirst().get();
+        BookCategory cat = categories.stream().filter(c -> c.getCatid().equals(id)).findFirst()
+                .orElseThrow(() ->new RuntimeException("BookCategory is null"));
         if (cat.getParentid().equals(0)) {
             return cat;
         } else {

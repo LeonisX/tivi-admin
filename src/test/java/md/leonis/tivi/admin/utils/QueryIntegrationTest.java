@@ -3,10 +3,10 @@ package md.leonis.tivi.admin.utils;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
 import javafx.util.Pair;
-import md.leonis.tivi.admin.model.Video;
-import md.leonis.tivi.admin.model.calibre.Sql;
-import md.leonis.tivi.admin.model.media.Book;
-import md.leonis.tivi.admin.model.media.CalibreBook;
+import md.leonis.tivi.admin.model.danneo.Video;
+import unneeded.model.calibre.Sql;
+import md.leonis.tivi.admin.model.calibre.Book;
+import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Rule;
@@ -168,7 +168,7 @@ public class QueryIntegrationTest {
 //    }
 
     private boolean queryExist(String tableName) throws IOException, NoSuchAlgorithmException {
-        File f = new File(Config.workPath + "nat" + File.separatorChar + tableName + ".txt");
+        File f = new File(Config.outputPath + "nat" + File.separatorChar + tableName + ".txt");
         if (!f.exists()) {
             return false;
         }
@@ -177,7 +177,7 @@ public class QueryIntegrationTest {
         String expected = DatatypeConverter.printHexBinary(hash);
 
 
-        f = new File(Config.workPath + "gen" + File.separatorChar + tableName + ".txt");
+        f = new File(Config.outputPath + "gen" + File.separatorChar + tableName + ".txt");
         if (!f.exists()) {
             return false;
         }

@@ -1,14 +1,13 @@
 package md.leonis.tivi.admin.utils;
 
-import com.github.junrar.exception.RarException;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import javafx.util.Pair;
 import md.leonis.tivi.admin.model.ArchiveEntry;
 import md.leonis.tivi.admin.model.ComparisionResult;
-import md.leonis.tivi.admin.model.media.Comment;
-import md.leonis.tivi.admin.model.media.*;
-import md.leonis.tivi.admin.model.media.links.*;
+import md.leonis.tivi.admin.model.calibre.Comment;
+import md.leonis.tivi.admin.model.calibre.*;
+import md.leonis.tivi.admin.model.calibre.links.*;
 import md.leonis.tivi.admin.utils.archive.RarUtils;
 import md.leonis.tivi.admin.utils.archive.SevenZipUtils;
 import org.jsoup.Jsoup;
@@ -17,8 +16,9 @@ import org.jsoup.nodes.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,8 +27,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static java.nio.file.FileVisitResult.CONTINUE;
-import static java.nio.file.FileVisitResult.TERMINATE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.stream.Collectors.*;
 
@@ -706,23 +704,23 @@ public class CalibreUtils {
 */
         List<CalibreBook> calibreBooks = readBooks();
 
-        File coversDir = new File(Config.workPath + "cover");
-        File thumbsDir = new File(Config.workPath + "thumb");
+        File coversDir = new File(Config.outputPath + "cover");
+        File thumbsDir = new File(Config.outputPath + "thumb");
 
-        deleteFileOrFolder(coversDir.toPath());
-        deleteFileOrFolder(thumbsDir.toPath());
+        FileUtils.deleteFileOrFolder(coversDir.toPath());
+        FileUtils.deleteFileOrFolder(thumbsDir.toPath());
 
         calibreBooks/*.stream().filter(b -> b.getOwn() != null && b.getOwn())*/.forEach(b -> {
             try {
                 File coversSubDir = new File(coversDir, BookUtils.getCategoryByTags(b));
                 Path srcCover = Paths.get(Config.calibreDbPath).resolve(b.getPath()).resolve("cover.jpg");
                 if (Files.exists(srcCover)) {
-                    mkdirs(coversSubDir);
+                    FileUtils.mkdirs(coversSubDir);
                     Path destCover = coversSubDir.toPath().resolve(b.getCpu() + ".jpg");
                     Files.copy(srcCover, destCover, REPLACE_EXISTING);
 
                     File thumbsSubDir = new File(thumbsDir, BookUtils.getCategoryByTags(b));
-                    mkdirs(thumbsSubDir);
+                    FileUtils.mkdirs(thumbsSubDir);
                     Path destThumb = thumbsSubDir.toPath().resolve(b.getCpu() + ".jpg");
                     ImageUtils.saveThumbnail(destCover.toFile(), destThumb.toString());
                 }
@@ -732,24 +730,24 @@ public class CalibreUtils {
         });
     }
 
-    public void dumpBooks() throws IOException, RarException {
+    public void dumpBooks() throws IOException {
         //Config.loadProperties();
         //Config.loadProtectedProperties();
 
         List<CalibreBook> calibreBooks = readBooks();
 
-        File booksDir = new File(Config.workPath + "books");
-        File magazinesDir = new File(Config.workPath + "magazines");
-        File manualsDir = new File(Config.workPath + "manuals");
-        File comicsDir = new File(Config.workPath + "comics");
-        File guidesDir = new File(Config.workPath + "guides");
-        File docsDir = new File(Config.workPath + "docs");
-        File emulatorsDir = new File(Config.workPath + "emulators");
+        File booksDir = new File(Config.outputPath + "books");
+        File magazinesDir = new File(Config.outputPath + "magazines");
+        File manualsDir = new File(Config.outputPath + "manuals");
+        File comicsDir = new File(Config.outputPath + "comics");
+        File guidesDir = new File(Config.outputPath + "guides");
+        File docsDir = new File(Config.outputPath + "docs");
+        File emulatorsDir = new File(Config.outputPath + "emulators");
 
-        deleteFileOrFolder(booksDir.toPath());
-        deleteFileOrFolder(magazinesDir.toPath());
-        deleteFileOrFolder(manualsDir.toPath());
-        deleteFileOrFolder(comicsDir.toPath());
+        FileUtils.deleteFileOrFolder(booksDir.toPath());
+        FileUtils.deleteFileOrFolder(magazinesDir.toPath());
+        FileUtils.deleteFileOrFolder(manualsDir.toPath());
+        FileUtils.deleteFileOrFolder(comicsDir.toPath());
 
         List<CalibreBook> shallowCopy = calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
         Collections.reverse(shallowCopy);
@@ -793,7 +791,7 @@ public class CalibreUtils {
                     destPath = booksDir.toPath().resolve(category);
                     break;
             }
-            mkdirs(destPath);
+            FileUtils.mkdirs(destPath);
             final String fileName = book.getFileName() == null ? book.getTitle() : book.getFileName();
             //сначала надо копировать, а архивы обрабатывать в конце
             for (Data data : book.getDataList()) {
@@ -864,29 +862,19 @@ public class CalibreUtils {
         }
 
         //delete empty dirs
-        Files.walk(Paths.get(Config.workPath))
+        Files.walk(Paths.get(Config.outputPath))
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)
                 .filter(File::isDirectory)
                 .forEach(File::delete);
     }
 
-    //TODO separate utils
-    private static void mkdirs(Path path) {
-        mkdirs(path.toFile());
-    }
-
-    @SuppressWarnings("all")
-    private static void mkdirs(File file) {
-        file.mkdirs();
-    }
-
-    private static void copyFile(Path srcBook, Path destPath, String fileName, String ext, int i, int size) {
-        System.out.println(String.format("%d of %d: Copy: %s", i, size, srcBook));
-        Path destBook = SevenZipUtils.findFreeFileName(destPath, fileName, ext.toLowerCase(), 0);
+    private static void copyFile(Path srcPath, Path destPath, String fileName, String ext, int index, int count) {
+        System.out.println(String.format("%d of %d: Copy: %s", index, count, srcPath));
+        Path destBook = FileUtils.findFreeFileName(destPath, fileName, ext.toLowerCase(), 0);
         try {
-            Files.createDirectories(destBook.getParent());
-            Files.copy(srcBook, destBook, REPLACE_EXISTING);
+            FileUtils.mkdirs(destBook.getParent());
+            Files.copy(srcPath, destBook, REPLACE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -895,37 +883,9 @@ public class CalibreUtils {
     private static final Set<String> IMGS = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "gif", "exe", "py", "html", "gs0", "diz"));
 
     private static boolean needToExtract(List<ArchiveEntry> fileNames) {
-        Set<String> exts = fileNames.stream().map(ArchiveEntry::getName).map(SevenZipUtils::getExtension).map(String::toLowerCase).collect(toSet());
+        Set<String> exts = fileNames.stream().map(ArchiveEntry::getName).map(FileUtils::getExtension).map(String::toLowerCase).collect(toSet());
         String joined = fileNames.stream().map(ArchiveEntry::getName).collect(joining());
         return Collections.disjoint(exts, IMGS) && !joined.contains("\\") && !joined.contains("/");
-    }
-
-    private static void deleteFileOrFolder(final Path path) throws IOException {
-        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                Files.deleteIfExists(file);
-                return CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFileFailed(final Path file, final IOException e) {
-                return handleException(e);
-            }
-
-            private FileVisitResult handleException(final IOException e) {
-                e.printStackTrace(); // replace with more robust error handling
-                return TERMINATE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(final Path dir, final IOException e)
-                    throws IOException {
-                if (e != null) return handleException(e);
-                Files.deleteIfExists(dir);
-                return CONTINUE;
-            }
-        });
     }
 
     public static String fixSomeChars(String text) {

@@ -1,8 +1,8 @@
 package md.leonis.tivi.admin.utils;
 
 import md.leonis.tivi.admin.model.Declension;
-import md.leonis.tivi.admin.model.media.PlatformsTranslation;
-import md.leonis.tivi.admin.model.media.TypeTranslation;
+import md.leonis.tivi.admin.model.calibre.PlatformsTranslation;
+import md.leonis.tivi.admin.model.calibre.TypeTranslation;
 
 import java.util.*;
 import java.util.stream.Collectors;

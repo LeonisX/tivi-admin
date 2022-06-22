@@ -7,7 +7,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import md.leonis.tivi.admin.model.ComparisionResult;
-import md.leonis.tivi.admin.model.media.CalibreBook;
+import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.utils.CalibreUtils;
 import md.leonis.tivi.admin.utils.Config;
 import md.leonis.tivi.admin.utils.SubPane;
@@ -47,7 +47,7 @@ public class CalibreCompareController extends SubPane {
     public String selectDir(String title) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setInitialDirectory(new File(Config.calibreDbPath));
-        fileChooser.setInitialFileName("metadata.db");
+        fileChooser.setInitialFileName(Config.calibreDbName);
         fileChooser.setTitle(title);
         fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("*.db", "*.db"));
         File selectedFile = fileChooser.showOpenDialog(null);

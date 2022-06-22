@@ -19,6 +19,7 @@ public class ColumnsResolver {
         String result = SiteDbUtils.queryRequest(String.format("SHOW COLUMNS FROM `%s`", tableName));
         Type fieldType = new TypeToken<List<Field>>() {}.getType();
         List<Field> fields = JsonUtils.gson.fromJson(result, fieldType);
+        assert fields != null;
         numericColumns = fields.stream().filter(t -> t.getType().matches("^(\\w*int.*)")).map(Field::getField).collect(toList());
         floatColumns = fields.stream().filter(t -> t.getType().matches("^(float.*|real.*|double.*|dec.*|fixed.*|decimal.*|numeric.*)")).map(Field::getField).collect(toList());
         blobColumns = fields.stream().filter(t -> t.getType().matches("^(\\w*blob.*)")).map(Field::getField).collect(toList());

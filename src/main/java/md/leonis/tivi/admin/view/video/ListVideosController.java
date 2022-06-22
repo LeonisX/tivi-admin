@@ -13,8 +13,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import md.leonis.tivi.admin.model.Actions;
-import md.leonis.tivi.admin.model.MixedTitle;
-import md.leonis.tivi.admin.model.VideoView;
+import md.leonis.tivi.admin.model.gui.MixedTitle;
+import md.leonis.tivi.admin.model.gui.VideoView;
 import md.leonis.tivi.admin.utils.*;
 
 import java.util.Arrays;
@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static md.leonis.tivi.admin.utils.VideoUtils.listVideousSettings;
+import static md.leonis.tivi.admin.utils.VideoUtils.listVideosSettings;
 import static md.leonis.tivi.admin.utils.VideoUtils.video;
 
 public class ListVideosController extends SubPane {
@@ -79,10 +79,10 @@ public class ListVideosController extends SubPane {
     private void selectCategory() {
         int index = category.getSelectionModel().getSelectedIndex();
         if (index == 0) index = -1;
-        listVideousSettings.catId = index;
+        listVideosSettings.catId = index;
         VideoUtils.countVideos();
         if (index != -1) {
-            listVideousSettings.catId = cat.getCatIds().get(index);
+            listVideosSettings.catId = cat.getCatIds().get(index);
         }
         fillFields();
     }
@@ -100,14 +100,14 @@ public class ListVideosController extends SubPane {
     @FXML
     private void selectSortOrder() {
         int index = sort.getSelectionModel().getSelectedIndex();
-        listVideousSettings.sort = sortFields.get(index);
+        listVideosSettings.sort = sortFields.get(index);
         fillFields();
     }
 
     @FXML
     private void selectOrder() {
-        if (order.isSelected()) listVideousSettings.order = "desc";
-        else listVideousSettings.order = "asc";
+        if (order.isSelected()) listVideosSettings.order = "desc";
+        else listVideosSettings.order = "asc";
         fillFields();
     }
 
@@ -115,7 +115,7 @@ public class ListVideosController extends SubPane {
     private void selectPageCount() {
         Toggle toggle = countToggleGroup.getSelectedToggle();
         if (toggle != null) {
-            listVideousSettings.count = Integer.parseInt(((ToggleButton) toggle).getText());
+            listVideosSettings.count = Integer.parseInt(((ToggleButton) toggle).getText());
             fillFields();
         }
     }
@@ -156,7 +156,7 @@ public class ListVideosController extends SubPane {
 
         pagesChangeListener = (ov, old_toggle, new_toggle) -> {
             if (old_toggle != null && !old_toggle.getUserData().equals(new_toggle.getUserData())) {
-                listVideousSettings.page = Integer.parseInt(new_toggle.getUserData().toString());
+                listVideosSettings.page = Integer.parseInt(new_toggle.getUserData().toString());
                 fillFields();
             }
         };
@@ -219,7 +219,7 @@ public class ListVideosController extends SubPane {
         private void action(TableView table, Reaction reaction) {
             table.getSelectionModel().select(getTableRow().getIndex());
             int index = getTableRow().getIndex();
-            int id = VideoUtils.videous.get(index).id.get();
+            int id = VideoUtils.videos.get(index).id.get();
             switch (reaction) {
                 case VIEW:
                     VideoView item = (VideoView) table.getItems().get(index);
@@ -301,7 +301,7 @@ public class ListVideosController extends SubPane {
         System.out.println("init()");
         cat = new CatUtils(VideoUtils.categories);
         category.setItems(FXCollections.observableList(cat.getCatList()));
-        cat.setCategoryTextValue(category, listVideousSettings.catId);
+        cat.setCategoryTextValue(category, listVideosSettings.catId);
         fillFields();
     }
 
@@ -310,35 +310,35 @@ public class ListVideosController extends SubPane {
         pagesHBox.getChildren().removeAll(pagesHBox.getChildren());
         int begin = 1;
         int end = 1;
-        if (VideoUtils.videousCount > 1) {
-            end = VideoUtils.videousCount / listVideousSettings.count + 1;
+        if (VideoUtils.videosCount > 1) {
+            end = VideoUtils.videosCount / listVideosSettings.count + 1;
         }
         final int pages = end;
-        if (listVideousSettings.page > end) listVideousSettings.page = end;
-        if (begin + 4 < listVideousSettings.page) begin = listVideousSettings.page - 4;
-        if (end - 4 > listVideousSettings.page) end = listVideousSettings.page + 4;
+        if (listVideosSettings.page > end) listVideosSettings.page = end;
+        if (begin + 4 < listVideosSettings.page) begin = listVideosSettings.page - 4;
+        if (end - 4 > listVideosSettings.page) end = listVideosSettings.page + 4;
 
         VideoUtils.listVideos();
-        videousTableView.setItems(FXCollections.observableList(VideoUtils.videous));
+        videousTableView.setItems(FXCollections.observableList(VideoUtils.videos));
 
         Button firstPageButton = new Button("#");
         firstPageButton.setOnAction((ActionEvent e) -> {
-            listVideousSettings.page = 1;
+            listVideosSettings.page = 1;
             fillFields();
         });
         Button lastPageButton = new Button("#");
         lastPageButton.setOnAction((ActionEvent e) -> {
-            listVideousSettings.page = pages;
+            listVideosSettings.page = pages;
             fillFields();
         });
         Button prevPageButton = new Button("<");
         prevPageButton.setOnAction((ActionEvent e) -> {
-            if (listVideousSettings.page != 1) listVideousSettings.page--;
+            if (listVideosSettings.page != 1) listVideosSettings.page--;
             fillFields();
         });
         Button nextPageButton = new Button(">");
         nextPageButton.setOnAction((ActionEvent e) -> {
-            if (listVideousSettings.page < pages) listVideousSettings.page++;
+            if (listVideosSettings.page < pages) listVideosSettings.page++;
             fillFields();
         });
 
@@ -349,7 +349,7 @@ public class ListVideosController extends SubPane {
             ToggleButton pageButton = new ToggleButton(Integer.toString(i));
             pageButton.setUserData(pageButton.getText());
             pageButton.setToggleGroup(pagesToggleGroup);
-            if (listVideousSettings.page == i) pageButton.setSelected(true);
+            if (listVideosSettings.page == i) pageButton.setSelected(true);
             pagesHBox.getChildren().add(pageButton);
         }
 

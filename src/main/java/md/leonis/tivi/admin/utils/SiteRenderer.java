@@ -1,14 +1,19 @@
 package md.leonis.tivi.admin.utils;
 
+import javafx.util.Pair;
 import md.leonis.tivi.admin.model.Declension;
-import md.leonis.tivi.admin.model.Video;
-import md.leonis.tivi.admin.model.media.*;
+import md.leonis.tivi.admin.model.danneo.Video;
+import md.leonis.tivi.admin.model.calibre.*;
 import md.leonis.tivi.admin.utils.archive.SevenZipUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -531,7 +536,7 @@ public class SiteRenderer {
     }
 
     public static String findFreeFileName(Set<String> fileNames, String fileName, String ext, int incr) {
-        String result = SevenZipUtils.prepareFileName(fileName, ext, incr);
+        String result = FileUtils.prepareFileName(fileName, ext, incr);
         if (fileNames.contains(result)) {
             return findFreeFileName(fileNames, fileName, ext, ++incr);
         }
@@ -727,5 +732,59 @@ public class SiteRenderer {
             }
         }
         return sb.toString();
+    }
+
+    private static final String NEWS_FILE = "news.html";
+
+    //TODO remove if not need more
+    private static void generateNewsPage(Collection<Video> addedBooks, Map<Video, List<Pair<String, Pair<String, String>>>> changedBooks) {
+        StringBuilder sb = new StringBuilder();
+        if (!addedBooks.isEmpty()) {
+            sb.append("<h4>Добавленные книги:</h4>\n");
+            sb.append("<ul>\n");
+            addedBooks.forEach(b -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>\n", generateBookViewUri(b.getCpu()), b.getTitle())));
+            sb.append("</ul>\n");
+        }
+        if (!changedBooks.isEmpty()) {
+            sb.append("<h4>Изменённые книги:</h4>\n");
+            sb.append("<ul>\n");
+            changedBooks.forEach((b, l) -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>\n", generateBookViewUri(b.getCpu()), b.getTitle())));
+            sb.append("</ul>\n");
+        }
+        Collection<Video> allBooks = new ArrayList<>(addedBooks);
+        allBooks.addAll(new ArrayList<>(changedBooks.keySet()));
+        sb.append("<br />\n");
+        int counter = 1;
+        sb.append("<p><table style=\"width:600px;\">\n");
+        for (Video book : allBooks) {
+            if (counter == 1) {
+                sb.append("<tr>\n");
+            }
+            sb.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\">\n");
+            String imageLink = generateBookViewUri(book.getCpu());
+            String imageThumb = generateBookThumbUri(BookUtils.getCategoryById(book.getCategoryId()).getCatcpu(), book.getCpu());
+            sb.append(String.format("<a href=\"%s\"><img style=\"border: 1px solid #aaaaaa;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a>\n", imageLink, book.getTitle(), imageThumb, book.getTitle()));
+            sb.append("</td>\n");
+            counter++;
+            if (counter > 3) {
+                sb.append("</tr><tr>\n");
+                counter = 1;
+            }
+        }
+        if (counter != 1) {
+            for (int i = counter - 1; i <= 3; i++) {
+                sb.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\"></td>\n");
+            }
+        }
+        sb.append("</tr>\n");
+        sb.append("</table></p>\n");
+        // save
+        File file = new File(Config.calibreDbPath + NEWS_FILE);
+        FileUtils.backupFile(file);
+        try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
+            out.println(sb);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
