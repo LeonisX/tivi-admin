@@ -20,9 +20,6 @@ import md.leonis.tivi.admin.model.media.*;
 import md.leonis.tivi.admin.view.media.CalibreInterface;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.Normalizer;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -35,11 +32,7 @@ import static md.leonis.tivi.admin.utils.StringUtils.*;
 
 public class BookUtils {
 
-    private static final String NEWS_FILE = "news_page.html";
-
-    public static List<CalibreBook> calibreBooks = new ArrayList<>();
-
-    private static final List<BookCategory> categories = new ArrayList<>();
+    private static List<BookCategory> categories = new ArrayList<>();
 
     public static List<BookCategory> getCategories() {
         if (categories.isEmpty()) {
@@ -49,7 +42,7 @@ public class BookUtils {
     }
 
     public static void loadCategories() {
-        SiteDbUtils.readCategories();
+        categories = SiteDbUtils.readCategories();
     }
 
     public static List<Video> siteBooks = new ArrayList<>();
@@ -101,14 +94,14 @@ public class BookUtils {
         siteBooks = SiteDbUtils.getSiteBooks();
     }
 
-    public static ComparisionResult<Video> compare(String category) { //category == cpu
+    public static ComparisionResult<Video> compare(List<CalibreBook> calibreBooks, String category) { //category == cpu
         ComparisionResult<Video> comparisionResult = null;
         if (category == null) {
             for (int i = 0; i < getCategories().size(); i++) {
                 System.out.println(i);
                 System.out.println(getCategories().get(i));
                 System.out.println(getCategories().get(i).getCatcpu());
-                ComparisionResult<Video> result = doCompare(getCategories().get(i).getCatcpu());
+                ComparisionResult<Video> result = doCompare(calibreBooks, getCategories().get(i).getCatcpu());
                 if (comparisionResult == null) {
                     comparisionResult = result;
                 } else {
@@ -118,16 +111,16 @@ public class BookUtils {
                 }
             }
         } else {
-            comparisionResult = doCompare(category);
+            comparisionResult = doCompare(calibreBooks, category);
         }
         return comparisionResult;
     }
 
-    public static ComparisionResult<Video> doCompare(String category) {
+    public static ComparisionResult<Video> doCompare(List<CalibreBook> calibreBooks, String category) {
 
         System.out.println("============================= doCompare: " + category);
         if (getParentRoot(getCategories(), category).getCatcpu().equals("magazines") && !category.equals("gd")) {
-            return compareMagazines(category);
+            return compareMagazines(calibreBooks, category);
         }
         //List<CalibreBook> filteredCalibreBooks = calibreBooks.stream().filter(b -> !b.getType().equals("magazines"))
         List<CalibreBook> filteredCalibreBooks = calibreBooks.stream().filter(b -> b.getType() != null && b.getType().equals("book"))
@@ -256,7 +249,7 @@ public class BookUtils {
                 .replace("<p></p><p>", "<p>").replace("</p><p></p>", "</p>");
     }
 
-    public static ComparisionResult<Video> compareMagazines(String category) {
+    public static ComparisionResult<Video> compareMagazines(List<CalibreBook> calibreBooks, String category) {
         List<CalibreBook> calibreMagazines = calibreBooks.stream().filter(b -> b.getType().equals(category.equals("magazines") ? "magazine" : category) && !category.equals("gd"))
                 //.filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category))
                 .sorted(Comparator.comparing(Book::getSort))
@@ -618,15 +611,13 @@ public class BookUtils {
         return chunks.stream().filter(s -> !s.isEmpty()).distinct().map(String::toLowerCase).collect(joining(", "));
     }
 
-    public static void syncDataWithSite(ComparisionResult<Video> comparisionResult, String calibreDbDirectory, String cat) {
+    public static void syncDataWithSite(List<CalibreBook> calibreBooks, ComparisionResult<Video> comparisionResult, String calibreDbDirectory, String cat) {
         //TODO in this situation we will process books as magazines :(
         //We don't need to use category at all
         String category = cat == null ? "" : cat;
         List<String> insertQueries = comparisionResult.getAddedBooks().stream().map(b -> SiteDbUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(toList());
         List<String> deleteQueries = comparisionResult.getDeletedBooks().stream().map(b -> "DELETE FROM `danny_media` WHERE downid=" + b.getId() + ";").collect(toList());
         List<String> updateQueries = comparisionResult.getChangedBooks().entrySet().stream().filter(b -> !b.getValue().isEmpty()).map(b -> SiteDbUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(toList());
-
-        generateNewsPage(comparisionResult.getAddedBooks(), comparisionResult.getChangedBooks());
 
         List<String> results = deleteQueries.stream().map(SiteDbUtils::queryRequest).collect(toList());
         results.forEach(System.out::println);
@@ -667,60 +658,6 @@ public class BookUtils {
                     calibreUtils.upsertTiviId(bookId, tiviId);
                 }
             });
-        }
-    }
-
-    //TODO in renderer
-    private static void generateNewsPage(Collection<Video> addedBooks, Map<Video, List<Pair<String, Pair<String, String>>>> changedBooks) {
-        StringBuilder sb = new StringBuilder();
-        if (!addedBooks.isEmpty()) {
-            sb.append("<h4>Добавленные книги:</h4>\n");
-            sb.append("<ul>\n");
-            addedBooks.forEach(b -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>\n", SiteRenderer.generateBookViewUri(b.getCpu()), b.getTitle())));
-            sb.append("</ul>\n");
-        }
-        if (!changedBooks.isEmpty()) {
-            sb.append("<h4>Изменённые книги:</h4>\n");
-            sb.append("<ul>\n");
-            changedBooks.forEach((b, l) -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>\n", SiteRenderer.generateBookViewUri(b.getCpu()), b.getTitle())));
-            sb.append("</ul>\n");
-        }
-        Collection<Video> allBooks = new ArrayList<>(addedBooks);
-        allBooks.addAll(new ArrayList<>(changedBooks.keySet()));
-        sb.append("<br />\n");
-        int counter = 1;
-        sb.append("<p><table style=\"width:600px;\">\n");
-        for (Video book : allBooks) {
-            if (counter == 1) {
-                sb.append("<tr>\n");
-            }
-            sb.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\">\n");
-            String imageLink = SiteRenderer.generateBookViewUri(book.getCpu());
-            String imageThumb = SiteRenderer.generateBookThumbUri(BookUtils.getCategoryById(book.getCategoryId()).getCatcpu(), book.getCpu());
-            sb.append(String.format("<a href=\"%s\"><img style=\"border: 1px solid #aaaaaa;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a>\n", imageLink, book.getTitle(), imageThumb, book.getTitle()));
-            sb.append("</td>\n");
-            counter++;
-            if (counter > 3) {
-                sb.append("</tr><tr>\n");
-                counter = 1;
-            }
-        }
-        if (counter != 1) {
-            for (int i = counter - 1; i <= 3; i++) {
-                sb.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\"></td>\n");
-            }
-        }
-        sb.append("</tr>\n");
-        sb.append("</table></p>\n");
-        // save
-        File file = new File(Config.calibreDbPath + NEWS_FILE);
-        if (file.exists()) {
-            file.renameTo(new File(Config.calibreDbPath + NEWS_FILE + ".bak"));
-        }
-        try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
-            out.println(sb);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

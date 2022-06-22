@@ -21,7 +21,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static md.leonis.tivi.admin.model.template.SourceItem.getDomain;
-import static md.leonis.tivi.admin.utils.BookUtils.*;
 import static md.leonis.tivi.admin.utils.StringUtils.plural;
 
 public class CalibreReportsController extends SubPane implements CalibreInterface {
@@ -39,6 +38,7 @@ public class CalibreReportsController extends SubPane implements CalibreInterfac
     private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     String oldestDbDumpPath;
+    List<CalibreBook> calibreBooks = new ArrayList<>();
     List<CalibreBook> oldCalibreBooks = new ArrayList<>();
 
     long lastBookId;
@@ -47,9 +47,7 @@ public class CalibreReportsController extends SubPane implements CalibreInterfac
     @FXML
     private void initialize() {
         loadOldestCalibreBooks();
-        if (calibreBooks.isEmpty()) {
             reloadCalibreBooks();
-        }
         System.out.println("initialize()");
     }
 
@@ -176,7 +174,7 @@ public class CalibreReportsController extends SubPane implements CalibreInterfac
         if (status) {
             lastBookId = oldCalibreBooks.stream().mapToLong(Book::getId).max().getAsLong();
             lastFileId = oldCalibreBooks.stream().flatMap(b -> b.getDataList().stream()).mapToLong(Data::getId).max().getAsLong();
-            calibreCountLabel.setText("" + BookUtils.calibreBooks.size());
+            calibreCountLabel.setText("" + calibreBooks.size());
             prevCalibreCountLabel.setText("" + oldCalibreBooks.size());
             fromDate.setText(CalibreUtils.getDateFromFile(oldestDbDumpPath));
             textArea.clear();

@@ -704,7 +704,7 @@ public class CalibreUtils {
         Config.loadProperties();
         Config.loadProtectedProperties();
 */
-        BookUtils.calibreBooks = readBooks();
+        List<CalibreBook> calibreBooks = readBooks();
 
         File coversDir = new File(Config.workPath + "cover");
         File thumbsDir = new File(Config.workPath + "thumb");
@@ -712,7 +712,7 @@ public class CalibreUtils {
         deleteFileOrFolder(coversDir.toPath());
         deleteFileOrFolder(thumbsDir.toPath());
 
-        BookUtils.calibreBooks/*.stream().filter(b -> b.getOwn() != null && b.getOwn())*/.forEach(b -> {
+        calibreBooks/*.stream().filter(b -> b.getOwn() != null && b.getOwn())*/.forEach(b -> {
             try {
                 File coversSubDir = new File(coversDir, BookUtils.getCategoryByTags(b));
                 Path srcCover = Paths.get(Config.calibreDbPath).resolve(b.getPath()).resolve("cover.jpg");
@@ -736,7 +736,7 @@ public class CalibreUtils {
         //Config.loadProperties();
         //Config.loadProtectedProperties();
 
-        BookUtils.calibreBooks = readBooks();
+        List<CalibreBook> calibreBooks = readBooks();
 
         File booksDir = new File(Config.workPath + "books");
         File magazinesDir = new File(Config.workPath + "magazines");
@@ -751,7 +751,7 @@ public class CalibreUtils {
         deleteFileOrFolder(manualsDir.toPath());
         deleteFileOrFolder(comicsDir.toPath());
 
-        List<CalibreBook> shallowCopy = BookUtils.calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
+        List<CalibreBook> shallowCopy = calibreBooks.stream().filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
         Collections.reverse(shallowCopy);
 
         int i = 1;

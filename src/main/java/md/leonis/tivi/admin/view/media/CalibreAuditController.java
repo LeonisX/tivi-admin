@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
-import static md.leonis.tivi.admin.utils.BookUtils.*;
 
 public class CalibreAuditController extends SubPane implements CalibreInterface {
 
@@ -34,14 +33,14 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
 
     public TextArea auditLog;
 
+    List<CalibreBook> calibreBooks = new ArrayList<>();
+
     private CalibreUtils calibreUtils;
 
     @FXML
     private void initialize() {
         calibreUtils = new CalibreUtils();
-        if (calibreBooks.isEmpty()) {
-            reloadCalibreBooks();
-        }
+        reloadCalibreBooks();
         System.out.println("initialize()");
     }
 
@@ -73,7 +72,6 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
                 .filter(calibreBook -> !calibreBook.getDataList().isEmpty()
                         && ((calibreBook.getOwn() == null) || !calibreBook.getOwn())).collect(toList());
     }
-
 
 
     public void checkFileNames() {
@@ -273,7 +271,7 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
     //        calibreBooks.forEach(calibreBook -> addLine(calibreBook.getTitle()));
     public void updateStatus(boolean status) {
         gridPane.setDisable(!status);
-        calibreCountLabel.setText("" + BookUtils.calibreBooks.size());
+        calibreCountLabel.setText("" + calibreBooks.size());
         auditLog.clear();
         calibreBooks.forEach(calibreBook -> addLog(calibreBook.getTitle()));
     }
@@ -415,7 +413,7 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
 
     public void checkDirtyHtml() {
         auditLog.clear();
-        for (CalibreBook calibreBook: getDirtyHtml()) {
+        for (CalibreBook calibreBook : getDirtyHtml()) {
             addLog(calibreBook.getTitle());
             if (calibreBook.getTextShort() != null && !calibreBook.getTextShort().isEmpty()) {
                 outText(calibreBook.getTextShort());
@@ -457,7 +455,8 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
 
     public void fixDirtyHtml() {
         //TODO
-        /*getDirtyHtml()*/calibreBooks.forEach(b -> {
+        /*getDirtyHtml()*/
+        calibreBooks.forEach(b -> {
             if (b.getComment() != null && !b.getComment().isEmpty()) {
                 String text = CalibreUtils.sanitize(CalibreUtils.getFullText(b.getTextShort(), b.getTextMore()));
                 text = CalibreUtils.fixSomeChars(text);
@@ -468,7 +467,7 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
             if (b.getReleaseNote() != null && !b.getReleaseNote().isEmpty()) {
                 //TODO get ID first
                 Long rid = calibreUtils.readObjectList("SELECT * FROM books_custom_column_20_link WHERE book=" + b.getId(), CustomColumn.class).get(0).getId();
-                String q = String.format("UPDATE `custom_column_20` SET value='%s' WHERE id=%d", CalibreUtils.sanitize(b.getReleaseNote()).replace("'","''"), rid);
+                String q = String.format("UPDATE `custom_column_20` SET value='%s' WHERE id=%d", CalibreUtils.sanitize(b.getReleaseNote()).replace("'", "''"), rid);
                 Integer id = calibreUtils.executeInsertQuery(q);
                 System.out.println(id);
             }

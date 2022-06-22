@@ -6,6 +6,7 @@ import javafx.util.Pair;
 import md.leonis.tivi.admin.model.Video;
 import md.leonis.tivi.admin.model.calibre.Sql;
 import md.leonis.tivi.admin.model.media.Book;
+import md.leonis.tivi.admin.model.media.CalibreBook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.Rule;
@@ -48,8 +49,8 @@ public class QueryIntegrationTest {
         Config.loadProperties();
         Config.loadProtectedProperties();
         CalibreUtils calibreUtils = new CalibreUtils();
-        BookUtils.calibreBooks = calibreUtils.readBooks();
-        Book book = BookUtils.calibreBooks.get(0);
+        List<CalibreBook> calibreBooks = calibreUtils.readBooks();
+        Book book = calibreBooks.get(0);
 
         String json = JsonUtils.gson.toJson(book, Book.class);
         System.out.println(json);

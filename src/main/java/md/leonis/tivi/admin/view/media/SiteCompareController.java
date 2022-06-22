@@ -43,6 +43,8 @@ public class SiteCompareController extends SubPane {
     public TextField cloudStorageLink;
     public Label categoriesTotals;
 
+    private List<CalibreBook> calibreBooks = new ArrayList<>();
+
     @FXML
     private void initialize() {
         reloadCalibreData();
@@ -81,14 +83,14 @@ public class SiteCompareController extends SubPane {
         setupTreeTableView();
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
         SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
-        fillTreeTableView(BookUtils.compare(categoryComboBox.getValue().getCatcpu()));
+        fillTreeTableView(BookUtils.compare(calibreBooks, categoryComboBox.getValue().getCatcpu()));
     }
 
     public void generate() {
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
         SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
-        ComparisionResult<Video> comparisionResult = BookUtils.compare(categoryComboBox.getValue().getCatcpu());
-        BookUtils.syncDataWithSite(comparisionResult, calibreDir.getText(), categoryComboBox.getValue().getCatcpu());
+        ComparisionResult<Video> comparisionResult = BookUtils.compare(calibreBooks, categoryComboBox.getValue().getCatcpu());
+        BookUtils.syncDataWithSite(calibreBooks, comparisionResult, calibreDir.getText(), categoryComboBox.getValue().getCatcpu());
         reloadSiteData();
         reloadCalibreData();
     }
