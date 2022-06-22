@@ -3,6 +3,7 @@ package md.leonis.tivi.admin.utils;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import javafx.util.Pair;
+import lombok.SneakyThrows;
 import md.leonis.tivi.admin.model.ArchiveEntry;
 import md.leonis.tivi.admin.model.ComparisionResult;
 import md.leonis.tivi.admin.model.calibre.Comment;
@@ -543,24 +544,19 @@ public class CalibreUtils {
         }
     }
 
+    @SneakyThrows
     public static void dumpDB() {
         String source = Config.calibreDbPath + Config.calibreDbName;
         String destination = source.replace(".db", "-" + LocalDateTime.now().toString().replace(":", "-") + ".db");
-        try {
-            Files.copy(Paths.get(source), Paths.get(destination));
-            System.out.println("Dumped to: " + destination);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Files.copy(Paths.get(source), Paths.get(destination));
+        System.out.println("Dumped to: " + destination);
     }
 
+    @SneakyThrows
     public static String getOldestDbDumpPath() {
-        try {
-            // metadata-2022-02-11T15-03-14.778.db
-            return Files.walk(Paths.get(Config.calibreDbPath), 1).map(p -> p.toAbsolutePath().toString()).filter(p -> p.matches(".*metadata-.*\\.db")).sorted().findFirst().get();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        // metadata-2022-02-11T15-03-14.778.db
+        return Files.walk(Paths.get(Config.calibreDbPath), 1).map(p -> p.toAbsolutePath().toString())
+                .filter(p -> p.matches(".*metadata-.*\\.db")).sorted().findFirst().orElseThrow(() -> new RuntimeException("No metadata dumps :("));
     }
 
     public static String getDateFromFile(String path) {
@@ -666,6 +662,7 @@ public class CalibreUtils {
         }
         //TODO remove \n from text nodes
         if (node.nodeName().equals("#text")) {
+            assert node instanceof TextNode;
             TextNode textNode = (TextNode) node;
             textNode.text(textNode.text().replace("\n", " ").replace("  ", " "));
             node = textNode;
@@ -691,13 +688,14 @@ public class CalibreUtils {
                 node.parentNode().childNode(index).replaceWith(new TextNode(element.text()));
             }*/
             if (node.childNodeSize() == 1) {
+                assert node.parentNode() != null;
                 node.parentNode().childNode(index).replaceWith(node.childNode(0));
             }
         }
         return node;
     }
 
-    public void dumpImages() throws IOException {
+    public void dumpImages() {
 /*
         Config.loadProperties();
         Config.loadProtectedProperties();
