@@ -168,4 +168,30 @@ public class ManualGuideRenderer extends SiteRenderer {
         }).collect(joining()) + "</tr></tbody></table></div>";
         return fixLatinChars(fulltext);
     }
+
+    private String getTypeLink(String type) {
+        switch (type.toLowerCase()) {
+            case "7z":
+            case "djvu":
+            case "doc":
+            case "docx":
+            case "gif":
+            case "jpg":
+            case "pdf":
+            case "png":
+            case "psd":
+            case "rar":
+            case "rtf":
+            case "tif":
+            case "txt":
+            case "xls":
+            case "xlsx":
+            case "zip":
+            case "cbr":
+            case "cbz":
+                return String.format("images/books/type/%s.gif", type.toLowerCase());
+            default:
+                return "images/book-16.png";
+        }
+    }
 }

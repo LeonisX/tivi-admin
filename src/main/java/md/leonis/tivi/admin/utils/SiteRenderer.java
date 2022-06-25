@@ -24,6 +24,8 @@ import static md.leonis.tivi.admin.utils.StringUtils.*;
 
 public class SiteRenderer {
 
+    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
     public static String cloudStorageLink;
 
     public static String generateSystemIconLink(String catCpu) {
@@ -84,32 +86,6 @@ public class SiteRenderer {
         return result;
     }
 
-    protected static String getTypeLink(String type) {
-        switch (type.toLowerCase()) {
-            case "7z":
-            case "djvu":
-            case "doc":
-            case "docx":
-            case "gif":
-            case "jpg":
-            case "pdf":
-            case "png":
-            case "psd":
-            case "rar":
-            case "rtf":
-            case "tif":
-            case "txt":
-            case "xls":
-            case "xlsx":
-            case "zip":
-            case "cbr":
-            case "cbz":
-                return String.format("images/books/type/%s.gif", type.toLowerCase());
-            default:
-                return "images/book-16.png";
-        }
-    }
-
     //TODO
     //TODO probably for books, magazines too
     //TODO probably for vBulletin renderers too, need to check
@@ -154,11 +130,11 @@ public class SiteRenderer {
         } else if (dateTime.plusHours(4).getDayOfMonth() == 1 && dateTime.plusHours(4).getMonthValue() == 1) {
             return Integer.toString(dateTime.plusHours(4).getYear());
         } else {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-            return dateTime.plusHours(4).toLocalDate().format(formatter);
+            return dateTime.plusHours(4).toLocalDate().format(DTF);
         }
     }
 
+    //TODO html
     public static String getMagazineFullText(Map.Entry<CalibreBook, List<CalibreBook>> groupedMagazines, String category, String cpu) {
         int[] k = new int[1];
         k[0] = 1;
@@ -183,6 +159,7 @@ public class SiteRenderer {
                 .collect(joining("\n"));
     }
 
+    //TODO html
     public static String getTextShort(CalibreBook book, String cpu) {
         StringBuilder sb = new StringBuilder();
         if (cpu != null) {
@@ -276,7 +253,7 @@ public class SiteRenderer {
 
     private static final String NEWS_FILE = "news.html";
 
-    //TODO remove if not need more
+    //TODO remove if not need more (table, 3 columns)
     private static void generateNewsPage(Collection<Video> addedBooks, Map<Video, List<Pair<String, Pair<String, String>>>> changedBooks) {
         StringBuilder sb = new StringBuilder();
         if (!addedBooks.isEmpty()) {
