@@ -30,7 +30,6 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static md.leonis.tivi.admin.utils.BookUtils.siteBooks;
-import static md.leonis.tivi.admin.utils.StringUtils.GUIDE;
 
 public class SiteCompareController extends SubPane {
 
@@ -148,7 +147,6 @@ public class SiteCompareController extends SubPane {
         //TODO
     }
 
-
     private void setupCategoryComboBox() {
         List<BookCategory> observableCategories = new ArrayList<>(BookUtils.getCategories());
         observableCategories.add(0, new BookCategory());
@@ -235,7 +233,7 @@ public class SiteCompareController extends SubPane {
             treeCell.addEventFilter(MouseEvent.MOUSE_CLICKED, t -> {
                 final Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
-                content.putString(((TreeTableCell) t.getSource()).getText());
+                content.putString(((TreeTableCell<View, String>) t.getSource()).getText());
                 clipboard.setContent(content);
             });
             treeCell.setEditable(true);
@@ -258,7 +256,7 @@ public class SiteCompareController extends SubPane {
             treeCell.addEventFilter(MouseEvent.MOUSE_CLICKED, t -> {
                 final Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
-                content.putString(((TreeTableCell) t.getSource()).getText());
+                content.putString(((TreeTableCell<View, String>) t.getSource()).getText());
                 clipboard.setContent(content);
             });
             treeCell.setEditable(true);

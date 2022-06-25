@@ -8,10 +8,7 @@ import md.leonis.tivi.admin.model.calibre.Book;
 import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.model.calibre.CustomColumn;
 import md.leonis.tivi.admin.model.calibre.Language;
-import md.leonis.tivi.admin.utils.BookUtils;
-import md.leonis.tivi.admin.utils.CalibreUtils;
-import md.leonis.tivi.admin.utils.SiteDbUtils;
-import md.leonis.tivi.admin.utils.SubPane;
+import md.leonis.tivi.admin.utils.*;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -74,7 +71,6 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
                 .filter(calibreBook -> !calibreBook.getDataList().isEmpty()
                         && ((calibreBook.getOwn() == null) || !calibreBook.getOwn())).collect(toList());
     }
-
 
     public void checkFileNames() {
         auditLog.clear();
@@ -362,10 +358,9 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
             }
         });
 
-
         getCpuOwn().forEach(calibreBook -> {
             String cpu = calibreBook.getFileName() == null ? calibreBook.getTitle() : calibreBook.getFileName();
-            cpu = BookUtils.generateCpu(cpu);
+            cpu = StringUtils.generateCpu(cpu);
             if (isInvalidCpu(cpu)) {
                 System.out.println(cpu);
             }

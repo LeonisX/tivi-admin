@@ -272,7 +272,7 @@ public class CalibreUtils {
         }
     }
 
-    public static String getMagazineCpu(CalibreBook calibreBook) {
+    private String getMagazineCpu(CalibreBook calibreBook) {
         if (calibreBook.getType().equals(COMICS)) {
             return calibreBook.getCpu();
         } else {
@@ -280,7 +280,7 @@ public class CalibreUtils {
         }
     }
 
-    public static String getSiteCpu(CalibreBook calibreBook, String category) {
+    private String getSiteCpu(CalibreBook calibreBook, String category) {
         if (calibreBook.getTags().size() > 1 && calibreBook.belongsToCategory(category)) {
             return category + "_" + calibreBook.getCpu();
         } else {
@@ -739,10 +739,6 @@ public class CalibreUtils {
     }
 
     public void dumpImages() {
-/*
-        Config.loadProperties();
-        Config.loadProtectedProperties();
-*/
         List<CalibreBook> calibreBooks = readBooks();
 
         File coversDir = new File(Config.outputPath + "cover");
@@ -772,9 +768,6 @@ public class CalibreUtils {
     }
 
     public void dumpBooks() throws IOException {
-        //Config.loadProperties();
-        //Config.loadProtectedProperties();
-
         List<CalibreBook> calibreBooks = readBooks();
 
         File booksDir = new File(Config.outputPath + BOOK + "s");
