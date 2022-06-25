@@ -80,35 +80,6 @@ public class SiteRenderer {
         return category + "_" + viewTypeTranslationMap.get(type).getPlural();
     }
 
-    // Книги в розыске
-    public static void generateSearchPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
-        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals(BOOK)).filter(b -> b.getOwn() == null || !b.getOwn()).collect(toList());
-        calibreBooks = calibreBooks.stream().filter(b ->
-                b.belongsToCategory(category) ||
-                        (b.mentionedInCategory(category)) ||
-                        (b.getReleaseNote() != null && !b.getReleaseNote().isEmpty())).sorted(Comparator.comparing(Book::getSort)).collect(toList());
-        Optional<Video> manual = filteredSiteBooks.stream().filter(b -> b.getCpu().equals(category + "_search")).findFirst();
-        if (!calibreBooks.isEmpty() && !manual.isPresent()) {
-            //add
-            Video newManual = new Video();
-            newManual.setCpu(category + "_search");
-            newManual.setCategoryId(BookUtils.getCategoryByCpu(category).getCatid());
-            newManual.setTitle("Книги в розыске");
-            newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже книг.</p>");
-            newManual.setFullText(generateTableView(calibreBooks));
-            newManual.setUrl("");
-            newManual.setMirror(sitePath);
-            addedBooks.add(newManual);
-        } else if (!calibreBooks.isEmpty()) {
-            // change
-            Video newManual = new Video(manual.get());
-            newManual.setTitle("Книги в розыске");
-            newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже книг.</p>");
-            newManual.setFullText(generateTableView(calibreBooks));
-            oldBooks.add(newManual);
-        }
-    }
-
     public static void generateMagazinesPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, String type) {
         TypeTranslation translation = viewTypeTranslationMap.get(type);
         List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals(type)).filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
@@ -207,56 +178,6 @@ public class SiteRenderer {
         });
         sb.append("</ul>\n");
         manual.setFullText(sb.toString());
-    }
-
-    private static String generateTableView(List<CalibreBook> books) {
-        int counter = 1;
-        StringBuilder sb = new StringBuilder();
-        StringBuilder sbi = new StringBuilder();
-        StringBuilder sbt = new StringBuilder();
-        sb.append("<p><table style=\"width:600px;\">");
-        for (CalibreBook book : books) {
-            if (counter == 1) {
-                sb.append("<tr>");
-            }
-            sbi.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\">");
-            sbt.append("<td style=\"text-align:center; padding-top: 5px; padding-bottom: 10px;\">");
-            if (book.getHasCover() != 0) {
-                String imageLink = generateBookCoverUri(BookUtils.getCategoryByTags(book), book.getCpu());
-                String imageThumb = generateBookThumbUri(BookUtils.getCategoryByTags(book), book.getCpu());
-                String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
-                String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
-                sbi.append(String.format("<a href=\"%s\"><img style=\"border: 1px solid #aaaaaa;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a>", imageLink, imageTitle, imageThumb, imageAlt));
-            } else {
-                String imageThumb = "images/books/nocover.png";
-                String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
-                String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
-                sbi.append(String.format("<img style=\"border: 1px solid #aaaaaa;\" title=\"%s\" src=\"%s\" alt=\"%s\" />", imageTitle, imageThumb, imageAlt));
-            }
-            sbt.append(book.getTitle());
-            sbi.append("</td>");
-            sbt.append("</td>");
-            counter++;
-            if (counter > 3) {
-                sbi.append("</tr><tr>");
-                sbt.append("</tr>");
-                sb.append(sbi).append(sbt);
-                sbi = new StringBuilder();
-                sbt = new StringBuilder();
-                counter = 1;
-            }
-        }
-        if (counter != 1) {
-            for (int i = counter - 1; i <= 3; i++) {
-                sbi.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\"></td>");
-                sbt.append("<td style=\"text-align:center;\"></td>");
-            }
-        }
-        if (!sbi.toString().isEmpty()) {
-            sb.append(sbi).append("</tr>").append(sbt).append("</tr>");
-        }
-        sb.append("</table></p>");
-        return sb.toString();
     }
 
     public static void forumGuideRenderer(List<CalibreBook> calibreBooks) {

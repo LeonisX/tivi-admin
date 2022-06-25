@@ -78,12 +78,12 @@ public class ManualGuideRenderer extends SiteRenderer {
         manual.setFullText(generateFullText());
     }
 
-    public String generateTitle() {
+    private String generateTitle() {
         return translation.getShortText() + " " + declension.getRod();
     }
 
     //TODO html
-    public String generateText() {
+    private String generateText() {
         CalibreBook book = calibreBooks.stream().filter(cb -> cb.getHasCover() != 0).findFirst().orElseThrow(() -> new RuntimeException("All books w/o covers!"));
         String imageLink = generateBookThumbUri(BookUtils.getCategoryByTags(book), book.getCpu());
 
@@ -91,7 +91,7 @@ public class ManualGuideRenderer extends SiteRenderer {
                 translation.getImageTitle() + " " + categoryName, imageLink, translation.getImageAlt() + " " + declension.getRod(), translation.getShortText(), declension.getRod());
     }
 
-    public String generateFullText() {
+    private String generateFullText() {
         if (type.equals(MANUAL) || type.equals(DOC)) {
             return renderManualFullText();
         } else if (type.equals(GUIDE) || type.equals(EMULATOR)) {

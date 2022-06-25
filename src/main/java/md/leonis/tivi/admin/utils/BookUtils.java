@@ -23,6 +23,7 @@ import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.model.danneo.YesNo;
 import md.leonis.tivi.admin.renderer.CitationsRenderer;
 import md.leonis.tivi.admin.renderer.ManualGuideRenderer;
+import md.leonis.tivi.admin.renderer.SearchPageRenderer;
 import md.leonis.tivi.admin.view.media.CalibreInterface;
 
 import java.text.Normalizer;
@@ -159,7 +160,7 @@ public class BookUtils {
         new CitationsRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks).generateCitationsPage();
         // - так же страница с поиском книг
         //SiteRenderer.generateSearchPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
-        SiteRenderer.generateSearchPage(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
+        new SearchPageRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks).generateSearchPage();
         // - упоминания в журналах
         for (String type : viewTypeTranslationMap.keySet()) { //magazines, comics
             //SiteRenderer.generateMagazinesPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type);

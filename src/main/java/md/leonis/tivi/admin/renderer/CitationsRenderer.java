@@ -67,11 +67,11 @@ public class CitationsRenderer extends SiteRenderer {
     }
 
 
-    public String generateText() {
+    private String generateText() {
         return String.format("<p>В этих книгах так же можно найти информацию об играх для %s.</p>", BookUtils.getCategoryName(category));
     }
 
-    public String generateFullText() {
+    private String generateFullText() {
         StringBuilder sb = new StringBuilder();
         sb.append("<ul class=\"file-info\">\n");
         calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>", generateBookViewUri(b.getCpu()), b.getTitle())));
