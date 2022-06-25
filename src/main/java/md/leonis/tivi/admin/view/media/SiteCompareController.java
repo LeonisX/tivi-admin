@@ -19,6 +19,7 @@ import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.model.danneo.BookCategory;
 import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.model.gui.View;
+import md.leonis.tivi.admin.renderer.ForumGuidesRenderer;
 import md.leonis.tivi.admin.utils.*;
 
 import java.io.File;
@@ -97,7 +98,7 @@ public class SiteCompareController extends SubPane {
 
     public void generateForumGuides() {
         SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
-        SiteRenderer.forumGuideRenderer(calibreBooks.stream().filter(b -> b.getType().equals(GUIDE)).filter(CalibreBook::getOwn).collect(toList()));
+        new ForumGuidesRenderer(calibreBooks).generateForumGuides();
     }
 
     public void dumpCalibreDB() {
