@@ -39,7 +39,7 @@ public class SiteRenderer {
         return String.format("%s/up/media/%ss/%s/%s.%s", sitePath, type, category, fileName, ext);
     }
 
-    //TODO
+    //TODO enum const or delete this comment
     public static String generateSiteUri(CalibreBook book) {
         switch (book.getType()) {
             case "book":
@@ -78,42 +78,6 @@ public class SiteRenderer {
 
     public static String generateMagazinesCpu(String category, String type) {
         return category + "_" + viewTypeTranslationMap.get(type).getPlural();
-    }
-
-    // Упоминания в других книгах
-    public static void generateCitationsPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
-        List<CalibreBook> calibreBooks = allCalibreBooks.stream().filter(b -> b.getType().equals(BOOK))
-                .filter(b -> b.getOwn() != null && b.getOwn()).collect(toList());
-
-        calibreBooks = calibreBooks.stream().filter(b -> b.mentionedInCategory(category)).sorted(Comparator.comparing(Book::getSort)).collect(toList());
-
-        Optional<Video> manual = filteredSiteBooks.stream().filter(b -> b.getCpu().equals(category + "_citation")).findFirst();
-        if (!calibreBooks.isEmpty() && !manual.isPresent()) {
-            //add
-            Video newManual = new Video();
-            newManual.setCpu(category + "_citation");
-            newManual.setCategoryId(BookUtils.getCategoryByCpu(category).getCatid());
-            newManual.setTitle("Упоминания в других книгах");
-            newManual.setText(String.format("<p>В этих книгах так же можно найти информацию об играх для %s.</p>", BookUtils.getCategoryName(category)));
-            StringBuilder sb = new StringBuilder();
-            sb.append("<ul class=\"file-info\">\n");
-            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>", generateBookViewUri(b.getCpu()), b.getTitle())));
-            sb.append("</ul>\n");
-            newManual.setFullText(sb.toString());
-            newManual.setUrl("");
-            newManual.setMirror(sitePath);
-            addedBooks.add(newManual);
-        } else if (!calibreBooks.isEmpty()) {
-            // change
-            Video newManual = new Video(manual.get());
-            newManual.setText(String.format("<p>В этих книгах так же можно найти информацию об играх для %s.</p>", BookUtils.getCategoryName(category)));
-            StringBuilder sb = new StringBuilder();
-            sb.append("<ul class=\"file-info\">\n");
-            calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>", generateBookViewUri(b.getCpu()), b.getTitle())));
-            sb.append("</ul>\n");
-            newManual.setFullText(sb.toString());
-            oldBooks.add(newManual);
-        }
     }
 
     // Книги в розыске

@@ -883,12 +883,12 @@ public class CalibreUtils {
         }
     }
 
-    private static final Set<String> IMGS = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "gif", "exe", "py", "html", "gs0", "diz"));
+    private static final Set<String> IMAGES = new HashSet<>(Arrays.asList("jpeg", "jpg", "png", "tif", "tiff", "gif", "exe", "py", "html", "gs0", "diz"));
 
     private static boolean needToExtract(List<ArchiveEntry> fileNames) {
         Set<String> exts = fileNames.stream().map(ArchiveEntry::getName).map(FileUtils::getExtension).map(String::toLowerCase).collect(toSet());
         String joined = fileNames.stream().map(ArchiveEntry::getName).collect(joining());
-        return Collections.disjoint(exts, IMGS) && !joined.contains("\\") && !joined.contains("/");
+        return Collections.disjoint(exts, IMAGES) && !joined.contains("\\") && !joined.contains("/");
     }
 
     public static String fixSomeChars(String text) {

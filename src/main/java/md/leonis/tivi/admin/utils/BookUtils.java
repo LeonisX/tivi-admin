@@ -21,6 +21,7 @@ import md.leonis.tivi.admin.model.danneo.Access;
 import md.leonis.tivi.admin.model.danneo.BookCategory;
 import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.model.danneo.YesNo;
+import md.leonis.tivi.admin.renderer.CitationsRenderer;
 import md.leonis.tivi.admin.renderer.ManualGuideRenderer;
 import md.leonis.tivi.admin.view.media.CalibreInterface;
 
@@ -154,8 +155,8 @@ public class BookUtils {
             new ManualGuideRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type).generateManualsPage();
         }
         // - других книгах,
-        //SiteRenderer.generateCitationsPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
-        SiteRenderer.generateCitationsPage(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
+        //new CitationsRenderer(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks).generateCitationsPage();
+        new CitationsRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks).generateCitationsPage();
         // - так же страница с поиском книг
         //SiteRenderer.generateSearchPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
         SiteRenderer.generateSearchPage(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
@@ -525,7 +526,7 @@ public class BookUtils {
         }
         String cpu = calibreBook.getHasCover().equals(0) ? groupedMagazines.getValue().stream()
                 .filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0)
-                .sorted(Comparator.comparing(Book::getSort)).map(CalibreBook::getCpu).findFirst().orElseThrow(() ->new RuntimeException("cpu is null")) : calibreBook.getCpu();
+                .sorted(Comparator.comparing(Book::getSort)).map(CalibreBook::getCpu).findFirst().orElseThrow(() -> new RuntimeException("cpu is null")) : calibreBook.getCpu();
         video.setText(SiteRenderer.getTextShort(calibreBook, cpu));
         /*if (calibreBook.getHasCover().equals(0)) {
             CalibreBook bookWithCover = groupedMagazines.getValue().stream().filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0).sorted(Comparator.comparing(Book::getSort)).findFirst().orElseThrow(() ->new RuntimeException("CalibreBook is null"));
@@ -561,11 +562,11 @@ public class BookUtils {
     }
 
     public static BookCategory getCategoryByCpu(String cpu) {
-        return getCategories().stream().filter(c -> c.getCatcpu().equals(cpu)).findFirst().orElseThrow(() ->new RuntimeException("BookCategory is null"));
+        return getCategories().stream().filter(c -> c.getCatcpu().equals(cpu)).findFirst().orElseThrow(() -> new RuntimeException("BookCategory is null"));
     }
 
     public static BookCategory getCategoryById(Integer id) {
-        return getCategories().stream().filter(c -> c.getCatid().equals(id)).findFirst().orElseThrow(() ->new RuntimeException("BookCategory is null"));
+        return getCategories().stream().filter(c -> c.getCatid().equals(id)).findFirst().orElseThrow(() -> new RuntimeException("BookCategory is null"));
     }
 
     private static String getDescription(CalibreBook book, String category) {
@@ -591,7 +592,7 @@ public class BookUtils {
         }
         chunks.addAll(Arrays.asList(book.getAuthors().stream().map(Author::getName).filter(n -> !n.equalsIgnoreCase("неизвестный")).collect(joining(" ")).toLowerCase().replaceAll("[^\\w\\sА-Яа-я]", "").split(" ")));
         chunks.add(category);
-        chunks.addAll(new ArrayList<>(Arrays.asList(getCategories().stream().filter(c -> c.getCatcpu().equals(category)).findFirst().orElseThrow(() ->new RuntimeException("BookCategory is null")).getCatname().toLowerCase().replaceAll("[^\\w\\sА-Яа-я]", "").split(" "))));
+        chunks.addAll(new ArrayList<>(Arrays.asList(getCategories().stream().filter(c -> c.getCatcpu().equals(category)).findFirst().orElseThrow(() -> new RuntimeException("BookCategory is null")).getCatname().toLowerCase().replaceAll("[^\\w\\sА-Яа-я]", "").split(" "))));
         chunks.add(category);
         // TODO дополнить
         chunks.add(translation.getName());
@@ -760,7 +761,7 @@ public class BookUtils {
 
     private static BookCategory getParentRoot(List<BookCategory> categories, Integer id) {
         BookCategory cat = categories.stream().filter(c -> c.getCatid().equals(id)).findFirst()
-                .orElseThrow(() ->new RuntimeException("BookCategory is null"));
+                .orElseThrow(() -> new RuntimeException("BookCategory is null"));
         if (cat.getParentid().equals(0)) {
             return cat;
         } else {

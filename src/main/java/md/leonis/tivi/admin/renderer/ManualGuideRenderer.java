@@ -38,7 +38,8 @@ public class ManualGuideRenderer extends SiteRenderer {
         this.calibreBooks = allCalibreBooks.stream()
                 .filter(b -> b.getType().equals(type))
                 .filter(b -> b.belongsToCategory(category) || b.mentionedInCategory(category))
-                .sorted(Comparator.comparing(Book::getTitle)).collect(toList());
+                .sorted(Comparator.comparing(Book::getTitle))
+                .collect(toList());
         this.translation = listTypeTranslationMap.get(type);
         this.categoryName = BookUtils.getCategoryByCpu(category).getCatname();
         this.declension = StringUtils.getDeclension(categoryName);
