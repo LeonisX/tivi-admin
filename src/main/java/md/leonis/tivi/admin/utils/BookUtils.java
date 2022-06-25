@@ -21,6 +21,7 @@ import md.leonis.tivi.admin.model.danneo.Access;
 import md.leonis.tivi.admin.model.danneo.BookCategory;
 import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.model.danneo.YesNo;
+import md.leonis.tivi.admin.renderer.ManualGuideRenderer;
 import md.leonis.tivi.admin.view.media.CalibreInterface;
 
 import java.text.Normalizer;
@@ -53,7 +54,7 @@ public class BookUtils {
     public static String cloudStorageLink;
 
     // on cloud: book, magazine, comics
-    public static List<String> onSiteList = Arrays.asList(/*"doc", */"emulator", "guide"/*, "manual"*/);
+    public static List<String> onSiteList = Arrays.asList(/*DOC, */EMULATOR, GUIDE/*, MANUAL*/);
 
     public static void auditBooks() {
         JavaFxUtils.showPane("media/CalibreAudit.fxml");
@@ -122,7 +123,7 @@ public class BookUtils {
             return compareMagazines(calibreBooks, category);
         }
         //List<CalibreBook> filteredCalibreBooks = calibreBooks.stream().filter(b -> !b.getType().equals("magazines"))
-        List<CalibreBook> filteredCalibreBooks = calibreBooks.stream().filter(b -> b.getType() != null && b.getType().equals("book"))
+        List<CalibreBook> filteredCalibreBooks = calibreBooks.stream().filter(b -> b.getType() != null && b.getType().equals(BOOK))
                 .filter(b -> b.getOwn() != null && b.getOwn()).sorted(Comparator.comparing(Book::getTitle)).collect(toList());
 
         List<String> multi = Arrays.asList("consoles", "computers"); //computers реально не задействован - только для журналов.
@@ -134,15 +135,8 @@ public class BookUtils {
                 return p.size() == 1 && p.contains(category);
             }).collect(toList());
         } else {
-            filteredCalibreBooks = filteredCalibreBooks.stream().filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category)).collect(toList());
+            filteredCalibreBooks = filteredCalibreBooks.stream().filter(b -> b.belongsToCategory(category)).collect(toList());
         }
-
-        //TODO подумать как убрать этот хак
-        filteredCalibreBooks.forEach(b -> {
-            if (b.getTextMore() == null) {
-                b.setTextMore("");
-            }
-        });
 
         List<Video> filteredSiteBooks = siteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryByCpu(category).getCatid())).collect(toList());
 
@@ -156,8 +150,8 @@ public class BookUtils {
         //oldbooks - генерить
         // - мануалами (солюшенами) и другими страницами
         for (String type : listTypeTranslationMap.keySet()) { //doc, emu, guide, manual
-            //SiteRenderer.generateManualsPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type);
-            SiteRenderer.generateManualsPage(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type);
+            //new ManualGuideRenderer(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type).generateManualsPage();
+            new ManualGuideRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type).generateManualsPage();
         }
         // - других книгах,
         //SiteRenderer.generateCitationsPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
@@ -180,7 +174,7 @@ public class BookUtils {
         //Разницу считаем только у тех, что имеют теги
         List<Video> allBooks = new ArrayList<>(filteredSiteBooks);
         allBooks.addAll(oldBooks);
-        /*allBooks.addAll(allCalibreBooks.stream()*//*.filter(b -> b.getType().equals("book"))*//*
+        /*allBooks.addAll(allCalibreBooks.stream()*//*.filter(b -> b.getType().equals(BOOK))*//*
                 .filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getTiviId() != null && b.getTiviId() > 0)
                 .map(b -> calibreToVideo(b, category)).collect(toList()));*/
         List<Pair<Video, Video>> changed = allBooks.stream().collect(groupingBy(Video::getId))
@@ -249,14 +243,13 @@ public class BookUtils {
     }
 
     public static ComparisionResult<Video> compareMagazines(List<CalibreBook> calibreBooks, String category) {
-        List<CalibreBook> calibreMagazines = calibreBooks.stream().filter(b -> b.getType().equals(category.equals("magazines") ? "magazine" : category) && !category.equals("gd"))
-                //.filter(b -> b.getTags().stream().map(Tag::getName).collect(toList()).contains(category))
+        List<CalibreBook> calibreMagazines = calibreBooks.stream().filter(b -> b.getType().equals(category.equals("magazines") ? MAGAZINE : category) && !category.equals("gd"))
+                //.filter(b -> b.belongsToCategory(category))
                 .sorted(Comparator.comparing(Book::getSort))
                 /*.filter(b -> b.getOwn() != null && b.getOwn())*/.collect(toList());
 
         Map<CalibreBook, List<CalibreBook>> groupedMagazines = calibreMagazines.stream()/*.filter(b ->*/
-                /*b.getTags().stream().map(Tag::getName).collect(toList()).contains(category) ||
-                        (b.getAltTags() != null && b.getAltTags().stream().map(CustomColumn::getValue).collect(toList()).contains(category)))*/
+                /*b.belongsToCategory(category) || (b.mentionedInCategory(category)))*/
                 .peek(b -> {
                     if (b.getSeries() == null) {
                         b.setSeries(new PublisherSeries(0L, b.getTitle(), ""));
@@ -359,7 +352,7 @@ public class BookUtils {
     }
 
     public static void setSiteCpu(CalibreBook book) {
-        if (book.getType().equals("magazine") || book.getType().equals("comics")) {
+        if (book.getType().equals(MAGAZINE) || book.getType().equals(COMICS)) {
             book.setSiteCpu(BookUtils.getMagazineCpu(book));
         } else {
             book.setSiteCpu(BookUtils.getSiteCpu(book, BookUtils.getCategoryByTags(book)));
@@ -447,7 +440,7 @@ public class BookUtils {
     }
 
     public static String getSiteCpu(CalibreBook calibreBook, String category) {
-        if (calibreBook.getTags().size() > 1 && calibreBook.getTags().stream().map(Tag::getName).collect(toList()).contains(category)) {
+        if (calibreBook.getTags().size() > 1 && calibreBook.belongsToCategory(category)) {
             return category + "_" + calibreBook.getCpu();
         } else {
             return calibreBook.getCpu();
@@ -455,7 +448,7 @@ public class BookUtils {
     }
 
     public static String getMagazineCpu(CalibreBook calibreBook) {
-        if (calibreBook.getType().equalsIgnoreCase("comics")) {
+        if (calibreBook.getType().equals(COMICS)) {
             return calibreBook.getCpu();
         } else {
             return generateCpu(calibreBook.getSeries().getName());
@@ -649,7 +642,7 @@ public class BookUtils {
                 //May be this code don't work
                 //!!!
                 if (!b.getCpu().equals("magazines_in_search")) {
-                    Long bookId = calibreBooks.stream().filter(cb -> cb.getType().equals("magazine"))
+                    Long bookId = calibreBooks.stream().filter(cb -> cb.getType().equals(MAGAZINE))
                             .filter(cb -> cb.getSeries() != null && generateCpu(cb.getSeries().getName()).equals(b.getCpu()))
                             .min(Comparator.comparing(Book::getSort)).map(Book::getId).orElseThrow(() -> new RuntimeException("BookId is null"));
                     List<Video> videoList = SiteDbUtils.listBooks(b.getCpu(), b.getCategoryId());

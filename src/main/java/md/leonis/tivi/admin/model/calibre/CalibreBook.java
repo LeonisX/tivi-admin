@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @lombok.Data
@@ -53,4 +55,12 @@ public class CalibreBook extends Book {
     private transient String siteCpu;
     private transient String siteUri;
     private transient String siteThumbUri;
+
+    public boolean belongsToCategory(String category) {
+        return tags.stream().map(Tag::getName).collect(toList()).contains(category);
+    }
+
+    public boolean mentionedInCategory(String category) {
+        return altTags.stream().map(CustomColumn::getValue).collect(toList()).contains(category);
+    }
 }

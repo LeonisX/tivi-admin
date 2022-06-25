@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static md.leonis.tivi.admin.utils.StringUtils.GUIDE;
 
 public class CalibreAuditController extends SubPane implements CalibreInterface {
 
@@ -248,7 +249,7 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
     public void checkOwnPublishers() {
         auditLog.clear();
         calibreBooks.stream().filter(calibreBook -> calibreBook.getOwn() != null)
-                .filter(calibreBook -> !calibreBook.getType().equals("guide"))
+                .filter(calibreBook -> !calibreBook.getType().equals(GUIDE))
                 .filter(calibreBook -> calibreBook.getPublisher() == null && calibreBook.getOwn())
                 .forEach(calibreBook -> addLog(calibreBook.getTitle()));
     }

@@ -1,6 +1,5 @@
 package md.leonis.tivi.admin.view.media;
 
-import com.github.junrar.exception.RarException;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,11 +14,11 @@ import javafx.stage.DirectoryChooser;
 import javafx.util.Callback;
 import javafx.util.Pair;
 import javafx.util.StringConverter;
-import md.leonis.tivi.admin.model.danneo.BookCategory;
 import md.leonis.tivi.admin.model.ComparisionResult;
+import md.leonis.tivi.admin.model.calibre.CalibreBook;
+import md.leonis.tivi.admin.model.danneo.BookCategory;
 import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.model.gui.View;
-import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.utils.*;
 
 import java.io.File;
@@ -29,7 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static md.leonis.tivi.admin.utils.BookUtils.*;
+import static md.leonis.tivi.admin.utils.BookUtils.siteBooks;
+import static md.leonis.tivi.admin.utils.StringUtils.GUIDE;
 
 public class SiteCompareController extends SubPane {
 
@@ -97,7 +97,7 @@ public class SiteCompareController extends SubPane {
 
     public void generateForumGuides() {
         SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
-        SiteRenderer.forumGuideRenderer(calibreBooks.stream().filter(b -> b.getType().equals("guide")).filter(CalibreBook::getOwn).collect(toList()));
+        SiteRenderer.forumGuideRenderer(calibreBooks.stream().filter(b -> b.getType().equals(GUIDE)).filter(CalibreBook::getOwn).collect(toList()));
     }
 
     public void dumpCalibreDB() {
@@ -108,11 +108,11 @@ public class SiteCompareController extends SubPane {
         SiteDbUtils.dumpDB();
     }
 
-    public void dumpImages() throws IOException {
+    public void dumpImages() {
         new CalibreUtils().dumpImages();
     }
 
-    public void dumpBooks() throws IOException, RarException {
+    public void dumpBooks() throws IOException {
         new CalibreUtils().dumpBooks();
     }
 

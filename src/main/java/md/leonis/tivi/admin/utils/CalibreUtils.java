@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.stream.Collectors.*;
+import static md.leonis.tivi.admin.utils.StringUtils.*;
 
 public class CalibreUtils {
 
@@ -87,6 +88,9 @@ public class CalibreUtils {
                 } else {
                     calibreBook.setTextMore("");
                 }
+            }
+            if (calibreBook.getTextMore() == null) {
+                calibreBook.setTextMore("");
             }
         });
 
@@ -734,13 +738,13 @@ public class CalibreUtils {
 
         List<CalibreBook> calibreBooks = readBooks();
 
-        File booksDir = new File(Config.outputPath + "books");
-        File magazinesDir = new File(Config.outputPath + "magazines");
-        File manualsDir = new File(Config.outputPath + "manuals");
-        File comicsDir = new File(Config.outputPath + "comics");
-        File guidesDir = new File(Config.outputPath + "guides");
-        File docsDir = new File(Config.outputPath + "docs");
-        File emulatorsDir = new File(Config.outputPath + "emulators");
+        File booksDir = new File(Config.outputPath + BOOK + "s");
+        File magazinesDir = new File(Config.outputPath + MAGAZINE + "s");
+        File manualsDir = new File(Config.outputPath + MANUAL + "s");
+        File comicsDir = new File(Config.outputPath + COMICS);
+        File guidesDir = new File(Config.outputPath + GUIDE + "s");
+        File docsDir = new File(Config.outputPath + DOC + "s");
+        File emulatorsDir = new File(Config.outputPath + EMULATOR + "s");
 
         FileUtils.deleteFileOrFolder(booksDir.toPath());
         FileUtils.deleteFileOrFolder(magazinesDir.toPath());
@@ -755,6 +759,7 @@ public class CalibreUtils {
             String category = BookUtils.getCategoryByTags(book);
             Path destPath;
             System.out.println(book);
+            //TODO
             switch (book.getType()) {
                 case "magazine":
                     //TODO may be languages in path

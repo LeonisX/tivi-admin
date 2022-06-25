@@ -22,7 +22,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static md.leonis.tivi.admin.model.template.SourceItem.getDomain;
-import static md.leonis.tivi.admin.utils.StringUtils.plural;
+import static md.leonis.tivi.admin.utils.StringUtils.*;
 
 public class ChangelogRenderer {
 
@@ -59,13 +59,13 @@ public class ChangelogRenderer {
         root.put("totalRecordsString", plural("запись", calibreBooks.size()));
 
         List<ChangelogItem> changelog = new ArrayList<>();
-        changelog.add(new ChangelogItem("Книг игровой тематики", calibreBooks, oldCalibreBooks, "book"));
-        changelog.add(new ChangelogItem("Игровых журналов", calibreBooks, oldCalibreBooks, "magazine"));
-        changelog.add(new ChangelogItem("Руководств пользователя", calibreBooks, oldCalibreBooks, "guide"));
-        changelog.add(new ChangelogItem("Комиксов", calibreBooks, oldCalibreBooks, "comics"));
-        changelog.add(new ChangelogItem("Различных документов", calibreBooks, oldCalibreBooks, "doc"));
-        changelog.add(new ChangelogItem("Сервисных мануалов", calibreBooks, oldCalibreBooks, "manual"));
-        changelog.add(new ChangelogItem("Описаний эмуляторов", calibreBooks, oldCalibreBooks, "emulator"));
+        changelog.add(new ChangelogItem("Книг игровой тематики", calibreBooks, oldCalibreBooks, BOOK));
+        changelog.add(new ChangelogItem("Игровых журналов", calibreBooks, oldCalibreBooks, MAGAZINE));
+        changelog.add(new ChangelogItem("Руководств пользователя", calibreBooks, oldCalibreBooks, GUIDE));
+        changelog.add(new ChangelogItem("Комиксов", calibreBooks, oldCalibreBooks, COMICS));
+        changelog.add(new ChangelogItem("Различных документов", calibreBooks, oldCalibreBooks, DOC));
+        changelog.add(new ChangelogItem("Сервисных мануалов", calibreBooks, oldCalibreBooks, MANUAL));
+        changelog.add(new ChangelogItem("Описаний эмуляторов", calibreBooks, oldCalibreBooks, EMULATOR));
         root.put("changelog", changelog.stream().sorted(Comparator.comparing(ChangelogItem::getCount).reversed()).collect(Collectors.toList()));
 
         List<SourceItem> sources = filesMap.values().stream()
@@ -84,22 +84,22 @@ public class ChangelogRenderer {
 
         List<PlatformItem> byPlatform = new ArrayList<>();
 
-        if (maps.get("book") != null) {
-            maps.get("book").stream().flatMap(b -> b.getTags().stream().map(t -> categoryMap.get(t.getName())))
+        if (maps.get(BOOK) != null) {
+            maps.get(BOOK).stream().flatMap(b -> b.getTags().stream().map(t -> categoryMap.get(t.getName())))
                     .collect(Collectors.groupingBy(BookCategory::getParentid)).entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey))
                     .forEach(e -> e.getValue().stream().collect(Collectors.groupingBy(BookCategory::getCatid)).entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getKey)).forEach(en -> {
                         byPlatform.add(new PlatformItem(en.getValue().size(), plural("книга", en.getValue().size()), en.getValue().get(0).getCatname(), SiteRenderer.generateBookCategoryUri(en.getValue().get(0).getCatcpu())));
                     }));
         }
 
-        if (maps.get("magazine") != null && !maps.get("magazine").isEmpty()) {
-            byPlatform.add(new PlatformItem(maps.get("magazine").size(), "", plural("журнал", maps.get("magazine").size()), SiteRenderer.generateBookCategoryUri("magazines")));
+        if (maps.get(MAGAZINE) != null && !maps.get(MAGAZINE).isEmpty()) {
+            byPlatform.add(new PlatformItem(maps.get(MAGAZINE).size(), "", plural("журнал", maps.get(MAGAZINE).size()), SiteRenderer.generateBookCategoryUri(MAGAZINE)));
         }
-        if (maps.get("comics") != null && !maps.get("comics").isEmpty()) {
-            byPlatform.add(new PlatformItem(maps.get("comics").size(), "", plural("комикс", maps.get("comics").size()), SiteRenderer.generateBookCategoryUri("comics")));
+        if (maps.get(COMICS) != null && !maps.get(COMICS).isEmpty()) {
+            byPlatform.add(new PlatformItem(maps.get(COMICS).size(), "", plural("комикс", maps.get(COMICS).size()), SiteRenderer.generateBookCategoryUri(COMICS)));
         }
-        if (maps.get("magazine") != null && maps.get("comics") != null) {
-            int other = filesMap.size() - maps.get("magazine").size() - maps.get("comics").size() - maps.get("book").size();
+        if (maps.get(MAGAZINE) != null && maps.get(COMICS) != null) {
+            int other = filesMap.size() - maps.get(MAGAZINE).size() - maps.get(COMICS).size() - maps.get(BOOK).size();
             if (other > 0) {
                 byPlatform.add(new PlatformItem(other, "всего остального", "", ""));
             }
