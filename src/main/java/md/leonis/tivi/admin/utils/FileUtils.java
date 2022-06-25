@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Set;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.TERMINATE;
@@ -69,6 +70,15 @@ public class FileUtils {
         if (Files.exists(result)) {
             return findFreeFileName(path, fileName, ext, ++incr);
         }
+        return result;
+    }
+
+    public static String findFreeFileName(Set<String> fileNames, String fileName, String ext, int incr) {
+        String result = FileUtils.prepareFileName(fileName, ext, incr);
+        if (fileNames.contains(result)) {
+            return findFreeFileName(fileNames, fileName, ext, ++incr);
+        }
+        fileNames.add(result);
         return result;
     }
 

@@ -15,7 +15,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Pair;
-import md.leonis.tivi.admin.model.*;
+import md.leonis.tivi.admin.model.ComparisionResult;
 import md.leonis.tivi.admin.model.calibre.*;
 import md.leonis.tivi.admin.model.danneo.Access;
 import md.leonis.tivi.admin.model.danneo.BookCategory;
@@ -419,7 +419,7 @@ public class BookUtils {
         video.setAge(""); // extsize
         video.setDescription(getDescription(calibreBook, category));
         video.setKeywords(getKeywords(calibreBook, category));
-        video.setText(SiteRenderer.getTextShort(calibreBook, calibreBook.getCpu()));
+        video.setText(new TextShortRenderer(calibreBook).getTextShort());
         //TODO list other files
         video.setFullText(calibreBook.getTextMore());
         video.setUserText("");
@@ -462,7 +462,7 @@ public class BookUtils {
         }
         System.out.println(calibreBook.getDataList());
         return calibreBook.getDataList().stream()
-                .peek(data -> data.setFileName(findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0))).collect(toList());
+                .peek(data -> data.setFileName(FileUtils.findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0))).collect(toList());
     }
 
 /*
@@ -473,25 +473,6 @@ public class BookUtils {
         return CalibreUtils.bookRecords.stream().filter(b -> b.getName().equals(data.getFileName())).
     }
 */
-
-    public static String findFreeFileName(Set<String> fileNames, String fileName, String ext, int incr) {
-        String result = fileName + incrToString(incr) + "." + ext;
-        if (fileNames.contains(result)) {
-            return findFreeFileName(fileNames, fileName, ext, ++incr);
-        }
-        return result;
-    }
-
-    private static String incrToString(int incr) {
-        switch (incr) {
-            case 0:
-                return "";
-            case 1:
-                return " (alt)";
-            default:
-                return " (alt" + incr + ")";
-        }
-    }
 
     private static Video calibreMagazineToVideo(Map.Entry<CalibreBook, List<CalibreBook>> groupedMagazines, String category) {
         CalibreBook calibreBook = groupedMagazines.getValue().get(0);
@@ -526,7 +507,7 @@ public class BookUtils {
         String cpu = calibreBook.getHasCover().equals(0) ? groupedMagazines.getValue().stream()
                 .filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0)
                 .sorted(Comparator.comparing(Book::getSort)).map(CalibreBook::getCpu).findFirst().orElseThrow(() -> new RuntimeException("cpu is null")) : calibreBook.getCpu();
-        video.setText(SiteRenderer.getTextShort(calibreBook, cpu));
+        video.setText(new TextShortRenderer(calibreBook, cpu).getTextShort());
         /*if (calibreBook.getHasCover().equals(0)) {
             CalibreBook bookWithCover = groupedMagazines.getValue().stream().filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0).sorted(Comparator.comparing(Book::getSort)).findFirst().orElseThrow(() ->new RuntimeException("CalibreBook is null"));
             if (bookWithCover != null) {

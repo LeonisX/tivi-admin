@@ -75,7 +75,7 @@ public class StringUtils {
         }).collect(Collectors.joining());
     }
 
-    static String choosePluralMerge(long number, String caseOne, String caseTwo, String caseFive) {
+    public static String choosePluralMerge(long number, String caseOne, String caseTwo, String caseFive) {
         /* Выбирает правильную форму существительного в зависимости от числа.
            Чтобы легко запомнить, в каком порядке указывать варианты, пользуйтесь мнемоническим правилом:
            один-два-пять - один гвоздь, два гвоздя, пять гвоздей.

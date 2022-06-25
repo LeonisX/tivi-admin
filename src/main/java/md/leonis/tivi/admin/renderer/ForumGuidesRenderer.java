@@ -4,6 +4,7 @@ import md.leonis.tivi.admin.model.calibre.Author;
 import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.model.calibre.Tag;
 import md.leonis.tivi.admin.utils.BookUtils;
+import md.leonis.tivi.admin.utils.FileUtils;
 import md.leonis.tivi.admin.utils.SiteRenderer;
 
 import java.util.*;
@@ -72,7 +73,7 @@ public class ForumGuidesRenderer extends SiteRenderer {
 
                 b.getDataList().forEach(d -> {
                     sources.add(d.getFormat());
-                    String fileName = findFreeFileName(fileNames, b.getFileName() != null ? b.getFileName() : b.getTitle(), d.getFormat().toLowerCase(), 0);
+                    String fileName = FileUtils.findFreeFileName(fileNames, b.getFileName() != null ? b.getFileName() : b.getTitle(), d.getFormat().toLowerCase(), 0);
                     links.add(generateDownloadLink(GUIDE, BookUtils.getCategoryByTags(b), fileName));
                 });
 

@@ -4,6 +4,7 @@ import md.leonis.tivi.admin.model.Declension;
 import md.leonis.tivi.admin.model.calibre.*;
 import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.utils.BookUtils;
+import md.leonis.tivi.admin.utils.FileUtils;
 import md.leonis.tivi.admin.utils.SiteRenderer;
 import md.leonis.tivi.admin.utils.StringUtils;
 
@@ -147,7 +148,7 @@ public class ManualGuideRenderer extends SiteRenderer {
             Set<String> fileNames = new HashSet<>();
             String downloadLink = b.getDataList().isEmpty() ? "" :
                     b.getDataList().stream().map(d -> {
-                        String fileName = findFreeFileName(fileNames, b.getFileName() != null ? b.getFileName() : b.getTitle(), d.getFormat().toLowerCase(), 0);
+                        String fileName = FileUtils.findFreeFileName(fileNames, b.getFileName() != null ? b.getFileName() : b.getTitle(), d.getFormat().toLowerCase(), 0);
                         return String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"%s\" alt=\"download\" target=\"_blank\"/></a>",
                                 generateDownloadLink(translation.getPlural(), BookUtils.getCategoryByTags(b), fileName), getTypeLink(d.getFormat()));
                     }).collect(Collectors.joining(" "));
