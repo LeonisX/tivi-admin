@@ -127,7 +127,7 @@ public class StringUtils {
     }
 
     public static Map<String, TypeTranslation> listTypeTranslationMap = new HashMap<>();
-    static Map<String, TypeTranslation> viewTypeTranslationMap = new HashMap<>();
+    public static Map<String, TypeTranslation> viewTypeTranslationMap = new HashMap<>();
 
     public static String BOOK = "book";
     public static String MAGAZINE = "magazine";

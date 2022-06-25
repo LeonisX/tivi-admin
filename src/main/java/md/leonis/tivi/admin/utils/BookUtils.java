@@ -22,6 +22,7 @@ import md.leonis.tivi.admin.model.danneo.BookCategory;
 import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.model.danneo.YesNo;
 import md.leonis.tivi.admin.renderer.CitationsRenderer;
+import md.leonis.tivi.admin.renderer.MagazinesRenderer;
 import md.leonis.tivi.admin.renderer.ManualGuideRenderer;
 import md.leonis.tivi.admin.renderer.SearchPageRenderer;
 import md.leonis.tivi.admin.view.media.CalibreInterface;
@@ -140,11 +141,11 @@ public class BookUtils {
             filteredCalibreBooks = filteredCalibreBooks.stream().filter(b -> b.belongsToCategory(category)).collect(toList());
         }
 
-        List<Video> filteredSiteBooks = siteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryByCpu(category).getCatid())).collect(toList());
+        List<Video> filteredSiteBooks = siteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryId(category))).collect(toList());
 
         //Если в Calibre null, 0 - значит добавленные
         Collection<Video> addedBooks = filteredCalibreBooks.stream().filter(b -> b.getTiviId() == null || b.getTiviId() < 1).map(b -> calibreToVideo(b, category))
-                .peek(b -> b.setCategoryId(getCategoryByCpu(category).getCatid())).collect(toList());
+                .peek(b -> b.setCategoryId(getCategoryId(category))).collect(toList());
 
         //calibre -> site
         List<Video> oldBooks = filteredCalibreBooks.stream().filter(b -> b.getTiviId() != null && b.getTiviId() > 0).map(b -> calibreToVideo(b, category)).collect(toList());
@@ -163,13 +164,13 @@ public class BookUtils {
         new SearchPageRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks).generateSearchPage();
         // - упоминания в журналах
         for (String type : viewTypeTranslationMap.keySet()) { //magazines, comics
-            //SiteRenderer.generateMagazinesPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type);
-            SiteRenderer.generateMagazinesPage(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type);
+            //new MagazinesRendererfilteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type).generateMagazinesPage();
+            new MagazinesRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type).generateMagazinesPage();
         }
 
         //Если в Calibre нет нужного ID значит удалённые
         Map<Integer, Video> newIds = oldBooks.stream().collect(Collectors.toMap(Video::getId, Function.identity()));
-        Map<Integer, Video> oldIds = filteredSiteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryByCpu(category).getCatid())).collect(Collectors.toMap(Video::getId, Function.identity()));
+        Map<Integer, Video> oldIds = filteredSiteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryId(category))).collect(Collectors.toMap(Video::getId, Function.identity()));
 
         Collection<Video> deletedBooks = new ArrayList<>(CalibreUtils.mapDifference(oldIds, newIds));
 
@@ -185,7 +186,7 @@ public class BookUtils {
                     Video siteBook = videos.get(0);
                     Video calibreBook = videos.get(1);
                     calibreBook.setCategoryId(siteBook.getCategoryId());
-                    //calibreBook.setCategoryId(getCategoryByCpu(category).getCatid());
+                    //calibreBook.setCategoryId(getCategoryId(category));
                     calibreBook.setImage_align(siteBook.getImage_align());
                     calibreBook.setViews(siteBook.getViews());
                     calibreBook.setLoads(siteBook.getLoads());
@@ -260,11 +261,11 @@ public class BookUtils {
                 .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()))
                 .entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().get(0), Map.Entry::getValue));
 
-        List<Video> siteMagazines = siteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryByCpu(category).getCatid())).collect(toList());
+        List<Video> siteMagazines = siteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryId(category))).collect(toList());
 
         //Если в Calibre null, 0 - значит добавленные
         Collection<Video> addedBooks = groupedMagazines.entrySet().stream().filter(b -> b.getKey().getTiviId() == null || b.getKey().getTiviId() < 1).map(b -> calibreMagazineToVideo(b, category))
-                .peek(b -> b.setCategoryId(getCategoryByCpu(category).getCatid())).collect(toList());
+                .peek(b -> b.setCategoryId(getCategoryId(category))).collect(toList());
 
         //calibre -> site
         List<Video> oldBooks = groupedMagazines.entrySet().stream().filter(b -> b.getKey().getTiviId() != null && b.getKey().getTiviId() > 0).map(b -> calibreMagazineToVideo(b, category)).collect(toList());
@@ -560,6 +561,10 @@ public class BookUtils {
 
     public static String getCategoryName(String cpu) {
         return getCategoryByCpu(cpu).getCatname();
+    }
+
+    public static int getCategoryId(String cpu) {
+        return getCategoryByCpu(cpu).getCatid();
     }
 
     public static BookCategory getCategoryByCpu(String cpu) {

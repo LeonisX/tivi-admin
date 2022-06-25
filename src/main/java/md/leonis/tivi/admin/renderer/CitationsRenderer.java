@@ -54,7 +54,7 @@ public class CitationsRenderer extends SiteRenderer {
             renderTexts(newManual);
             newManual.setTitle("Упоминания в других книгах");
             newManual.setCpu(category + "_citation");
-            newManual.setCategoryId(BookUtils.getCategoryByCpu(category).getCatid());
+            newManual.setCategoryId(BookUtils.getCategoryId(category));
             newManual.setUrl("");
             newManual.setMirror(sitePath);
             addedBooks.add(newManual);

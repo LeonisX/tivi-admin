@@ -54,7 +54,7 @@ public class SearchPageRenderer extends SiteRenderer {
             Video newManual = new Video();
             renderTexts(newManual);
             newManual.setCpu(category + "_search");
-            newManual.setCategoryId(BookUtils.getCategoryByCpu(category).getCatid());
+            newManual.setCategoryId(BookUtils.getCategoryId(category));
             newManual.setUrl("");
             newManual.setMirror(sitePath);
             addedBooks.add(newManual);

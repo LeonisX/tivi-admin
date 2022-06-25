@@ -41,7 +41,7 @@ public class ManualGuideRenderer extends SiteRenderer {
                 .sorted(Comparator.comparing(Book::getTitle))
                 .collect(toList());
         this.translation = listTypeTranslationMap.get(type);
-        this.categoryName = BookUtils.getCategoryByCpu(category).getCatname();
+        this.categoryName = BookUtils.getCategoryName(category);
         this.declension = StringUtils.getDeclension(categoryName);
     }
 
@@ -61,7 +61,7 @@ public class ManualGuideRenderer extends SiteRenderer {
             Video newManual = new Video();
             renderTexts(newManual);
             newManual.setCpu(cpu);
-            newManual.setCategoryId(BookUtils.getCategoryByCpu(category).getCatid());
+            newManual.setCategoryId(BookUtils.getCategoryId(category));
             newManual.setUrl("");
             newManual.setMirror(sitePath);
             addedBooks.add(newManual);
