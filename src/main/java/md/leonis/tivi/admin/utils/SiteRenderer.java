@@ -1,7 +1,6 @@
 package md.leonis.tivi.admin.utils;
 
 import javafx.util.Pair;
-import md.leonis.tivi.admin.model.Declension;
 import md.leonis.tivi.admin.model.calibre.*;
 import md.leonis.tivi.admin.model.danneo.Video;
 import org.jsoup.Jsoup;
@@ -74,58 +73,6 @@ public class SiteRenderer {
 
     public static String generateBookCoverUri(String category, String cpu) {
         return String.format("%s/images/books/cover/%s/%s.jpg", sitePath, category, cpu);
-    }
-
-    // Разыскиваемые журналы
-    public static void generateMagazinesSearchPage(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
-        List<CalibreBook> calibreMagazines = allCalibreBooks.stream().filter(b -> b.getType().equals(MAGAZINE) && !category.equals("gd"))
-                //.filter(b -> b.belongsToCategory(category))
-                .filter(b -> b.getOwn() == null || !b.getOwn()).sorted(Comparator.comparing(Book::getSort)).collect(toList());
-
-        Map<CalibreBook, List<CalibreBook>> groupedMagazines = calibreMagazines.stream()//.filter(b ->
-                //b.belongsToCategory(category) || (b.mentionedInCategory(category)))
-                .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()))
-                .entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().get(0), Map.Entry::getValue))
-                .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        Optional<Video> manual = filteredSiteBooks.stream().filter(b -> b.getCpu().equals("magazines_in_search")).findFirst();
-        if (!groupedMagazines.isEmpty() && !manual.isPresent()) {
-            //add
-            Video newManual = new Video();
-            newManual.setCpu("magazines_in_search");
-            newManual.setCategoryId(BookUtils.getCategoryId(category));
-            newManual.setTitle("Разыскиваемые журналы");
-            newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже журналов.</p>");
-            StringBuilder sb = new StringBuilder();
-            //TODO link
-            //TODO table with images
-            groupedMagazines.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getSeries().getName())).forEach(e -> {
-                sb.append(String.format("<h3>%s</h3>", e.getKey().getSeries().getName()));
-                sb.append("<ul class=\"file-info\">\n");
-                e.getValue().forEach(c -> sb.append(String.format("<li>%s</li>", c.getTitle())));
-                sb.append("</ul>\n");
-            });
-            newManual.setFullText(sb.toString());
-            newManual.setUrl("");
-            newManual.setMirror(sitePath);
-            addedBooks.add(newManual);
-        } else if (!groupedMagazines.isEmpty()) {
-            // change
-            Video newManual = new Video(manual.get());
-            newManual.setTitle("Разыскиваемые журналы");
-            newManual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже журналов.</p>");
-            StringBuilder sb = new StringBuilder();
-            //TODO link
-            //TODO table with images
-            groupedMagazines.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getSeries().getName())).forEach(e -> {
-                sb.append(String.format("<h3>%s</h3>", e.getKey().getSeries().getName()));
-                sb.append("<ul class=\"file-info\">\n");
-                e.getValue().forEach(c -> sb.append(String.format("<li>%s</li>", c.getTitle())));
-                sb.append("</ul>\n");
-            });
-            newManual.setFullText(sb.toString());
-            oldBooks.add(newManual);
-        }
     }
 
     public static void forumGuideRenderer(List<CalibreBook> calibreBooks) {

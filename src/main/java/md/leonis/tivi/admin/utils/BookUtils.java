@@ -21,10 +21,7 @@ import md.leonis.tivi.admin.model.danneo.Access;
 import md.leonis.tivi.admin.model.danneo.BookCategory;
 import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.model.danneo.YesNo;
-import md.leonis.tivi.admin.renderer.CitationsRenderer;
-import md.leonis.tivi.admin.renderer.MagazinesRenderer;
-import md.leonis.tivi.admin.renderer.ManualGuideRenderer;
-import md.leonis.tivi.admin.renderer.SearchPageRenderer;
+import md.leonis.tivi.admin.renderer.*;
 import md.leonis.tivi.admin.view.media.CalibreInterface;
 
 import java.text.Normalizer;
@@ -271,7 +268,7 @@ public class BookUtils {
         List<Video> oldBooks = groupedMagazines.entrySet().stream().filter(b -> b.getKey().getTiviId() != null && b.getKey().getTiviId() > 0).map(b -> calibreMagazineToVideo(b, category)).collect(toList());
 
         // страница с поиском журналов
-        SiteRenderer.generateMagazinesSearchPage(calibreMagazines, siteMagazines, category, addedBooks, oldBooks);
+        new MagazinesSearchPageRenderer(calibreMagazines, siteMagazines, category, addedBooks, oldBooks).generateMagazinesSearchPage();
 
         //Если в Calibre нет нужного ID значит удалённые
         Map<Integer, Video> newIds = oldBooks.stream().collect(Collectors.toMap(Video::getId, Function.identity()));

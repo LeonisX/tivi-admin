@@ -23,7 +23,7 @@ public class MagazinesRenderer extends SiteRenderer {
     private final Collection<Video> addedBooks;
     private final List<Video> oldBooks;
 
-    private final Map<String, List<CalibreBook>> books;
+    private final Map<String, List<CalibreBook>> groupedBooks;
     private final TypeTranslation translation;
     private final Declension declension;
 
@@ -33,7 +33,7 @@ public class MagazinesRenderer extends SiteRenderer {
         this.addedBooks = addedBooks;
         this.oldBooks = oldBooks;
 
-        books = allCalibreBooks.stream()
+        this.groupedBooks = allCalibreBooks.stream()
                 .filter(b -> b.getType().equals(type))
                 .filter(b -> b.getOwn() != null && b.getOwn())
                 .filter(b -> b.belongsToCategory(category) || b.mentionedInCategory(category))
@@ -48,6 +48,9 @@ public class MagazinesRenderer extends SiteRenderer {
     }
 
     public void generateMagazinesPage() {
+        if (groupedBooks.isEmpty()) {
+            return;
+        }
         String cpu = generateMagazinesCpu();
         Optional<Video> manual = filteredSiteBooks.stream().filter(b -> b.getCpu().equals(cpu)).findFirst();
         if (manual.isPresent()) {
@@ -55,7 +58,7 @@ public class MagazinesRenderer extends SiteRenderer {
             Video newManual = new Video(manual.get());
             renderTexts(newManual);
             oldBooks.add(newManual);
-        } else if (!books.isEmpty()) {
+        } else {
             //add
             Video newManual = new Video();
             renderTexts(newManual);
@@ -90,7 +93,7 @@ public class MagazinesRenderer extends SiteRenderer {
         StringBuilder sb = new StringBuilder();
         sb.append("<ul class=\"file-info\">\n");
         //new TreeMap<>(books).forEach((key, value) -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>", generateBookViewUri(value.get(0).getCpu()), key)));
-        new TreeMap<>(books).forEach((key, value) -> {
+        new TreeMap<>(groupedBooks).forEach((key, value) -> {
             if (value.get(0).getType().equals(COMICS)) {
                 sb.append(String.format("<li><a href=\"%s\">%s</a></li>", generateBookViewUri(value.get(0).getCpu()), key));
             } else {
