@@ -79,6 +79,13 @@ public class SiteRenderer {
         return String.format("%s/images/books/cover/%s/%s.jpg", sitePath, category, cpu);
     }
 
+    static String cleanHtml(String str) {
+        return str.trim().replace("\\r", "").replace("\\n", "")
+                .replace("\r", "").replace("\n", "")
+                .replace("\u0000", "").replace(" ", "")
+                .replace("<p></p><p>", "<p>").replace("</p><p></p>", "</p>");
+    }
+
     //TODO
     //TODO probably for books, magazines too
     //TODO probably for vBulletin renderers too, need to check

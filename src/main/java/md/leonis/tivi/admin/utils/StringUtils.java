@@ -4,6 +4,7 @@ import md.leonis.tivi.admin.model.Declension;
 import md.leonis.tivi.admin.model.calibre.PlatformsTranslation;
 import md.leonis.tivi.admin.model.calibre.TypeTranslation;
 
+import java.text.Normalizer;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -58,6 +59,13 @@ public class StringUtils {
 
         CHAR_MAP = Stream.concat(upperCharMap.entrySet().stream(), lowerCharMap.entrySet().stream())
                 .collect(Collectors.toMap(e -> (int) e.getKey(), Map.Entry::getValue));
+    }
+
+    public static String generateCpu(String title) {
+        return Normalizer.normalize(StringUtils.toTranslit(title.toLowerCase()), Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                .replaceAll("[^\\p{Alnum}]+", "_")
+                .replaceAll("_*$", "");
     }
 
     /**

@@ -253,9 +253,48 @@ public class CalibreUtils {
             });
         });*/
 
-        BookUtils.preprocessBooks(calibreBooks);
+        preprocessBooks(calibreBooks);
 
         return calibreBooks;
+    }
+
+    private void preprocessBooks(List<CalibreBook> calibreBooks) {
+        calibreBooks.forEach(this::setSiteCpu);
+        calibreBooks.forEach(this::setSiteUri);
+        calibreBooks.forEach(this::setSiteThumbUri);
+    }
+
+    private void setSiteCpu(CalibreBook book) {
+        if (book.getType().equals(MAGAZINE) || book.getType().equals(COMICS)) {
+            book.setSiteCpu(getMagazineCpu(book));
+        } else {
+            book.setSiteCpu(getSiteCpu(book, BookUtils.getCategoryByTags(book)));
+        }
+    }
+
+    public static String getMagazineCpu(CalibreBook calibreBook) {
+        if (calibreBook.getType().equals(COMICS)) {
+            return calibreBook.getCpu();
+        } else {
+            return generateCpu(calibreBook.getSeries().getName());
+        }
+    }
+
+    public static String getSiteCpu(CalibreBook calibreBook, String category) {
+        if (calibreBook.getTags().size() > 1 && calibreBook.belongsToCategory(category)) {
+            return category + "_" + calibreBook.getCpu();
+        } else {
+            return calibreBook.getCpu();
+        }
+    }
+
+    //TODO test magazines
+    private void setSiteUri(CalibreBook book) {
+        book.setSiteUri(SiteRenderer.generateSiteUri(book));
+    }
+
+    private void setSiteThumbUri(CalibreBook book) {
+        book.setSiteThumbUri(SiteRenderer.generateBookThumbUri(BookUtils.getCategoryByTags(book), book.getCpu()));
     }
 
     public static ComparisionResult<CalibreBook> compare(List<CalibreBook> oldBooks, List<CalibreBook> newBooks) {
