@@ -36,8 +36,8 @@ public class Config {
             Properties prop = new Properties();
             prop.load(inputStream);
             String apiDir = prop.getProperty("api.dir") + "/";
-            sitePath = prop.getProperty("site.path") + "/";
-            apiPath = sitePath + apiDir;
+            sitePath = prop.getProperty("site.path");
+            apiPath = sitePath +  "/" + apiDir;
             encoding = prop.getProperty("encoding");
             serverSecret = prop.getProperty("server.secret");
             calibreDbPath = prop.getProperty("calibre.db.path") + File.separatorChar;

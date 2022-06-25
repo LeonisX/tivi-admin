@@ -200,7 +200,7 @@ public class ListVideosController extends SubPane {
         List<Button> buttons = icons.stream().map(icon -> new Button("", new ImageView(new Image(icon)))).collect(Collectors.toList());
         final HBox box = new HBox();
 
-        ButtonsCell(TableView table) {
+        ButtonsCell(TableView<VideoView> table) {
             box.setSpacing(5);
             box.setAlignment(Pos.CENTER);
             box.getChildren().addAll(buttons);
@@ -216,18 +216,18 @@ public class ListVideosController extends SubPane {
                     );
         }
 
-        private void action(TableView table, Reaction reaction) {
+        private void action(TableView<VideoView> table, Reaction reaction) {
             table.getSelectionModel().select(getTableRow().getIndex());
             int index = getTableRow().getIndex();
             int id = VideoUtils.videos.get(index).id.get();
             switch (reaction) {
                 case VIEW:
-                    VideoView item = (VideoView) table.getItems().get(index);
+                    VideoView item = table.getItems().get(index);
                     String url = Config.sitePath;
                     if (item.cpuProperty().get().isEmpty()) {
-                        url += "index.php?dn=video&to=open&id=" + item.id.get();
+                        url += "/index.php?dn=video&to=open&id=" + item.id.get();
                     } else {
-                        url += "video/open/" + item.cpuProperty().get() + ".html";
+                        url += "/video/open/" + item.cpuProperty().get() + ".html";
                     }
                     WebUtils.openWebPage(url);
                     break;

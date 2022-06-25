@@ -22,7 +22,13 @@ public class FileUtils {
     @SneakyThrows
     public static void backupFile(Path path) {
         if (Files.exists(path)) {
-            Files.move(path, path.resolveSibling(path.getFileName() + ".bak"));
+            Path backupPath = path.resolveSibling(path.getFileName() + ".bak");
+            Files.deleteIfExists(backupPath);
+            Files.copy(path, backupPath);
+            try {
+                Files.deleteIfExists(backupPath);
+            } catch (Exception ignored) {
+            }
         }
     }
 

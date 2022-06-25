@@ -2,9 +2,8 @@ package md.leonis.tivi.admin.utils;
 
 import javafx.util.Pair;
 import md.leonis.tivi.admin.model.Declension;
-import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.model.calibre.*;
-import md.leonis.tivi.admin.utils.archive.SevenZipUtils;
+import md.leonis.tivi.admin.model.danneo.Video;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -21,8 +20,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
+import static md.leonis.tivi.admin.utils.Config.sitePath;
 import static md.leonis.tivi.admin.utils.StringUtils.*;
-import static md.leonis.tivi.admin.utils.Config.*;
 
 public class SiteRenderer {
 

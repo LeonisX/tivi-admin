@@ -37,6 +37,8 @@
 
 <h2>Новые и обновлённые книги в картинках</h2>
 
+<p><i>Картинки кликабельны.</i></p>
+
 <#list byPictures as item>
     <a href="${item.siteUri}"><img src="${item.siteThumbUri}" title="${item.title}" alt="${item.cpu}"/></a>
 </#list>

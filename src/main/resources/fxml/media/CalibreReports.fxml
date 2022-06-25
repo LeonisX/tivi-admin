@@ -42,7 +42,7 @@
                <Button mnemonicParsing="false" onAction="#reloadCalibreBooks" text="Reload" GridPane.columnIndex="2" GridPane.rowIndex="2" />
 
                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="4">
-                   <Label minWidth="269.0" prefHeight="17.0" prefWidth="309.0" text="Отчёт по добавленным книгам" />
+                   <Label minWidth="269.0" prefHeight="17.0" prefWidth="309.0" text="Отчёт по добавленным и изменённым книгам" />
                </HBox>
                <Button mnemonicParsing="false" onAction="#generateHtmlReport" prefHeight="25.0" prefWidth="97.0" text="HTML" GridPane.columnIndex="1" GridPane.rowIndex="4" />
            </GridPane>

@@ -167,7 +167,7 @@ public class AddVideo3Controller extends SubPane {
         boolean visible = !VideoUtils.video.getImage().isEmpty();
         if (visible) {
             String path = VideoUtils.video.getImage();
-            if (!path.startsWith("http")) path = Config.sitePath + path;
+            if (!path.startsWith("http")) path = Config.sitePath + "/" + path;
             Image image = new Image(path);
             System.out.println(image.isError());
             imageView.setImage(image);

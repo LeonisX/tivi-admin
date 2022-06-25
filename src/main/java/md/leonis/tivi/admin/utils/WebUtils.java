@@ -2,6 +2,7 @@ package md.leonis.tivi.admin.utils;
 
 import java.io.IOException;
 import java.net.*;
+import java.nio.file.Path;
 
 public class WebUtils {
 
@@ -13,6 +14,10 @@ public class WebUtils {
         conn.setRequestProperty("AuthToken", Config.serverSecret);
         conn.setRequestProperty("User-Agent", "TiVi's admin client");
         return MultipartUtility.readResponse(conn);
+    }
+
+    public static void openWebPage(Path path) {
+        openWebPage(path.toAbsolutePath().toString());
     }
 
     public static void openWebPage(String url) {
