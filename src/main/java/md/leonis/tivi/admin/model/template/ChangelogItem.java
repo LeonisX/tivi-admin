@@ -3,6 +3,7 @@ package md.leonis.tivi.admin.model.template;
 import md.leonis.tivi.admin.model.calibre.CalibreBook;
 
 import java.util.List;
+import java.util.Set;
 
 public class ChangelogItem {
 
@@ -10,10 +11,10 @@ public class ChangelogItem {
     private Long count;
     private Long diff;
 
-    public ChangelogItem(String title, List<CalibreBook> books, List<CalibreBook> oldBooks, String type) {
+    public ChangelogItem(String title, List<CalibreBook> books, List<CalibreBook> oldBooks, Set<Long> deletedBookIds, String type) {
         this.title = title;
         this.count = books.stream().filter(b -> b.getType().equals(type)).count();
-        this.diff = count - oldBooks.stream().filter(b -> b.getType().equals(type)).count();
+        this.diff = count - oldBooks.stream().filter(b -> b.getType().equals(type)).filter(b -> !deletedBookIds.contains(b.getId())).count();
     }
 
     public String getTitle() {

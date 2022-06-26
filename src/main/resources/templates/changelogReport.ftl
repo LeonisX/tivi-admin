@@ -6,7 +6,8 @@
 </head>
 <body>
 <h2>Общая статистика</h2>
-<p>За период с ${fromDate} по ${toDate} было добавлено, либо отредактировано ${editedCount} ${editedRecordsString}.</p>
+<p>За период с ${fromDate} по ${toDate} было добавлено, либо отредактировано ${editedCount} ${editedRecordsString}.
+    <#if deletedCount != 0> Удалено дубликатов: ${deletedCount}.</#if> Оцифровано, либо найдено ${totalAddedScans} ${totalAddedPlural}.</p>
 
 <p>Всего в базе данных ${totalRecords} ${totalRecordsString}, а именно:</p>
 
@@ -15,6 +16,9 @@
     <li>${item.title}: ${item.count}<#if item.diff != 0> (+${item.diff})<#else></#if></li>
     </#list>
 </ul>
+
+<p>В электронном виде доступно ${availableBooks}% от всей коллекции.</p>
+<p>Осталось отсканировать всего ${absentBooks} ${absentBooksPlural}.</p>
 
 <h2>Основные источники новых поступлений</h2>
 

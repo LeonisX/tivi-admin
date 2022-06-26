@@ -43,6 +43,7 @@ public class ChangelogRenderer {
     public List<String> generateHtmlReport() {
 
         List<CalibreBook> modifiedBooks = getModifiedBooks();
+        Set<Long> deletedBookIds = getDeletedBookIds();
 
         long lastFileId = oldCalibreBooks.stream().flatMap(b -> b.getDataList().stream()).mapToLong(Data::getId).max()
                 .orElseThrow(() -> new RuntimeException("oldCalibreBooks is empty"));
@@ -54,18 +55,25 @@ public class ChangelogRenderer {
         root.put("toDate", LocalDate.now().format(DTF));
         root.put("editedCount", modifiedBooks.size());
         root.put("editedRecordsString", plural("запись", modifiedBooks.size()));
+        root.put("deletedCount", deletedBookIds.size());
 
         root.put("totalRecords", calibreBooks.size());
         root.put("totalRecordsString", plural("запись", calibreBooks.size()));
 
+        int availableBooks = (int) calibreBooks.stream().filter(CalibreBook::getOwn).count();
+        int absentBooks = calibreBooks.size() - availableBooks;
+        root.put("availableBooks", availableBooks * 10000 / calibreBooks.size() / 100.0);
+        root.put("absentBooks", calibreBooks.size() - availableBooks);
+        root.put("absentBooksPlural", plural("книга", absentBooks));
+
         List<ChangelogItem> changelog = new ArrayList<>();
-        changelog.add(new ChangelogItem("Книг игровой тематики", calibreBooks, oldCalibreBooks, BOOK));
-        changelog.add(new ChangelogItem("Игровых журналов", calibreBooks, oldCalibreBooks, MAGAZINE));
-        changelog.add(new ChangelogItem("Руководств пользователя", calibreBooks, oldCalibreBooks, GUIDE));
-        changelog.add(new ChangelogItem("Комиксов", calibreBooks, oldCalibreBooks, COMICS));
-        changelog.add(new ChangelogItem("Различных документов", calibreBooks, oldCalibreBooks, DOC));
-        changelog.add(new ChangelogItem("Сервисных мануалов", calibreBooks, oldCalibreBooks, MANUAL));
-        changelog.add(new ChangelogItem("Описаний эмуляторов", calibreBooks, oldCalibreBooks, EMULATOR));
+        changelog.add(new ChangelogItem("Книг игровой тематики", calibreBooks, oldCalibreBooks, deletedBookIds, BOOK));
+        changelog.add(new ChangelogItem("Игровых журналов", calibreBooks, oldCalibreBooks, deletedBookIds, MAGAZINE));
+        changelog.add(new ChangelogItem("Руководств пользователя", calibreBooks, oldCalibreBooks, deletedBookIds, GUIDE));
+        changelog.add(new ChangelogItem("Комиксов", calibreBooks, oldCalibreBooks, deletedBookIds, COMICS));
+        changelog.add(new ChangelogItem("Различных документов", calibreBooks, oldCalibreBooks, deletedBookIds, DOC));
+        changelog.add(new ChangelogItem("Сервисных мануалов", calibreBooks, oldCalibreBooks, deletedBookIds, MANUAL));
+        changelog.add(new ChangelogItem("Описаний эмуляторов", calibreBooks, oldCalibreBooks, deletedBookIds, EMULATOR));
         root.put("changelog", changelog.stream().sorted(Comparator.comparing(ChangelogItem::getCount).reversed()).collect(Collectors.toList()));
 
         List<SourceItem> sources = filesMap.values().stream()
@@ -106,6 +114,10 @@ public class ChangelogRenderer {
         }
         root.put("byPlatform", byPlatform);
 
+        int totalAdded = byPlatform.stream().mapToInt(PlatformItem::getCount).sum();
+        root.put("totalAddedScans", totalAdded);
+        root.put("totalAddedPlural", plural("книга", totalAdded));
+
         //TODO разобраться с alt, title, что важнее, если что - брать официальное название
         List<CalibreBook> addedBooks = filesMap.values().stream().sorted(Comparator.comparing(CalibreBook::getTitle)).collect(Collectors.toList());
         root.put("byPictures", addedBooks);
@@ -126,6 +138,13 @@ public class ChangelogRenderer {
 
     private List<CalibreBook> getModifiedBooks() {
         return calibreBooks.stream().filter(book -> book.getLastModified().isAfter(fromDate)).collect(Collectors.toList());
+    }
+
+    private Set<Long> getDeletedBookIds() {
+        Set<Long> oldIds = oldCalibreBooks.stream().map(Book::getId).collect(Collectors.toSet());
+        Set<Long> newIds = calibreBooks.stream().map(Book::getId).collect(Collectors.toSet());
+        oldIds.removeAll(newIds);
+        return oldIds;
     }
 
     public Path getReportPath() {

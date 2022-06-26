@@ -52,8 +52,8 @@ public class CalibreReportsController extends SubPane implements CalibreInterfac
     }
 
     public void generateHtmlReport() {
-        ChangelogRenderer renderer = new ChangelogRenderer(calibreBooks, oldCalibreBooks);
         clearTextArea();
+        ChangelogRenderer renderer = new ChangelogRenderer(calibreBooks, oldCalibreBooks);
         renderer.generateHtmlReport().forEach(this::addLine);
         WebUtils.openWebPage(renderer.getReportPath());
     }
