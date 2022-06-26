@@ -97,7 +97,7 @@ public class MagazinesRenderer extends SiteRenderer {
             if (value.get(0).getType().equals(COMICS)) {
                 sb.append(String.format("<li><a href=\"%s\">%s</a></li>", generateBookViewUri(value.get(0).getCpu()), key));
             } else {
-                sb.append(String.format("<li><a href=\"%s\">%s</a></li>", generateBookViewUri(BookUtils.generateCpu(value.get(0).getSeries().getName())), key));
+                sb.append(String.format("<li><a href=\"%s\">%s</a></li>", generateBookViewUri(StringUtils.generateCpu(value.get(0).getSeries().getName())), key));
             }
         });
         sb.append("</ul>\n");
