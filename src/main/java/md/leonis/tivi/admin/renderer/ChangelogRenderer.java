@@ -1,5 +1,6 @@
 package md.leonis.tivi.admin.renderer;
 
+import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.Book;
 import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.model.calibre.Data;
@@ -21,6 +22,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static md.leonis.tivi.admin.model.Type.*;
 import static md.leonis.tivi.admin.model.template.SourceItem.getDomain;
 import static md.leonis.tivi.admin.utils.StringUtils.*;
 
@@ -88,7 +90,7 @@ public class ChangelogRenderer {
 
         Map<String, BookCategory> categoryMap = BookUtils.getCategories().stream().collect(Collectors.toMap(BookCategory::getCatcpu, Function.identity()));
 
-        Map<String, List<CalibreBook>> maps = filesMap.values().stream().collect(Collectors.groupingBy(CalibreBook::getType));
+        Map<Type, List<CalibreBook>> maps = filesMap.values().stream().collect(Collectors.groupingBy(CalibreBook::getType));
 
         List<PlatformItem> byPlatform = new ArrayList<>();
 
@@ -101,10 +103,10 @@ public class ChangelogRenderer {
         }
 
         if (maps.get(MAGAZINE) != null && !maps.get(MAGAZINE).isEmpty()) {
-            byPlatform.add(new PlatformItem(maps.get(MAGAZINE).size(), "", plural("журнал", maps.get(MAGAZINE).size()), SiteRenderer.generateBookCategoryUri(MAGAZINE)));
+            byPlatform.add(new PlatformItem(maps.get(MAGAZINE).size(), "", plural("журнал", maps.get(MAGAZINE).size()), SiteRenderer.generateBookCategoryUri(MAGAZINE.getValue())));
         }
         if (maps.get(COMICS) != null && !maps.get(COMICS).isEmpty()) {
-            byPlatform.add(new PlatformItem(maps.get(COMICS).size(), "", plural("комикс", maps.get(COMICS).size()), SiteRenderer.generateBookCategoryUri(COMICS)));
+            byPlatform.add(new PlatformItem(maps.get(COMICS).size(), "", plural("комикс", maps.get(COMICS).size()), SiteRenderer.generateBookCategoryUri(COMICS.getValue())));
         }
         if (maps.get(MAGAZINE) != null && maps.get(COMICS) != null) {
             int other = filesMap.size() - maps.get(MAGAZINE).size() - maps.get(COMICS).size() - maps.get(BOOK).size();

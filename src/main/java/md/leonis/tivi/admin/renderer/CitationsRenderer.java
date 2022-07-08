@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
+import static md.leonis.tivi.admin.model.Type.BOOK;
 import static md.leonis.tivi.admin.utils.Config.sitePath;
-import static md.leonis.tivi.admin.utils.StringUtils.BOOK;
 
 public class CitationsRenderer extends SiteRenderer {
 

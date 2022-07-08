@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Pair;
 import md.leonis.tivi.admin.model.ComparisionResult;
+import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.Book;
 import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.model.calibre.PublisherSeries;
@@ -34,6 +35,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
+import static md.leonis.tivi.admin.model.Type.*;
 import static md.leonis.tivi.admin.utils.CalibreBookVideoConverter.calibreMagazineToVideo;
 import static md.leonis.tivi.admin.utils.CalibreBookVideoConverter.calibreToVideo;
 import static md.leonis.tivi.admin.utils.StringUtils.*;
@@ -150,7 +152,7 @@ public class BookUtils {
 
         //oldbooks - генерить
         // - мануалами (солюшенами) и другими страницами
-        for (String type : listTypeTranslationMap.keySet()) { //doc, emu, guide, manual
+        for (Type type : Arrays.asList(DOC, EMULATOR, GUIDE, MAGAZINE)) { //doc, emu, guide, manual
             //new ManualGuideRenderer(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type).generateManualsPage();
             new ManualGuideRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type).generateManualsPage();
         }
@@ -161,7 +163,7 @@ public class BookUtils {
         //SiteRenderer.generateSearchPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
         new SearchPageRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks).generateSearchPage();
         // - упоминания в журналах
-        for (String type : viewTypeTranslationMap.keySet()) { //magazines, comics
+        for (Type type : Arrays.asList(MAGAZINE, COMICS)) { //magazines, comics
             //new MagazinesRendererfilteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type).generateMagazinesPage();
             new MagazinesRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type).generateMagazinesPage();
         }

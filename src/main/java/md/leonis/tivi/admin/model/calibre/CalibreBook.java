@@ -3,6 +3,7 @@ package md.leonis.tivi.admin.model.calibre;
 import com.google.gson.annotations.SerializedName;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import md.leonis.tivi.admin.model.Type;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,10 +34,10 @@ public class CalibreBook extends Book {
     private String format;
     private String source;
     private String officialTitle;
-    private String type;
+    private Type type;
     private String company;
     private String udk;
-    private Integer edition;
+    private Integer edition; // тираж
     private String postprocessing;
     private LocalDateTime signedInPrint;
     private String fileName;
@@ -51,7 +52,7 @@ public class CalibreBook extends Book {
     private Long tiviId;
     private String cpu;
 
-    // вычисляемые значения
+    // вычисляемые значения, эти значения нужны для генерации страниц на сайте
     private transient String siteCpu;
     private transient String siteUri;
     private transient String siteThumbUri;

@@ -1,6 +1,7 @@
 package md.leonis.tivi.admin.utils;
 
 import md.leonis.tivi.admin.model.Declension;
+import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.PlatformsTranslation;
 import md.leonis.tivi.admin.model.calibre.TypeTranslation;
 
@@ -8,6 +9,8 @@ import java.text.Normalizer;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static md.leonis.tivi.admin.model.Type.*;
 
 /**
  * Класс переводит русский текст в транслит. Например, строка "Текст" будет преобразована в "Tekst".
@@ -134,42 +137,33 @@ public class StringUtils {
         return declensionMap.getOrDefault(term.toLowerCase(), new Declension(term, term, term, term, term, term));
     }
 
-    public static Map<String, TypeTranslation> listTypeTranslationMap = new HashMap<>();
-    public static Map<String, TypeTranslation> viewTypeTranslationMap = new HashMap<>();
-
-    public static String BOOK = "book";
-    public static String MAGAZINE = "magazine";
-    public static String COMICS = "comics";
-    public static String DOC = "doc";
-    public static String EMULATOR = "emulator";
-    public static String GUIDE = "guide";
-    public static String MANUAL = "manual";
+    public static Map<Type, TypeTranslation> typeTranslationMap = new HashMap<>();
 
     static {
-        listTypeTranslationMap.put(DOC, new TypeTranslation(DOC + "s", "Documentation for", "Документация для", "Документация для", "")); // род
-        listTypeTranslationMap.put(EMULATOR, new TypeTranslation(EMULATOR + "s", "Emulators descriptions for", "Описания эмуляторов", "Описания эмуляторов", "")); // род
-        listTypeTranslationMap.put(GUIDE, new TypeTranslation(GUIDE + "s", "Solutions for", "Прохождения, солюшены игр для", "Описания и прохождения игр", "")); // род
-        listTypeTranslationMap.put(MANUAL, new TypeTranslation(MANUAL + "s", "Manuals for", "Мануалы, учебники для", "Мануалы для", "")); // род
+        typeTranslationMap.put(DOC, new TypeTranslation(DOC.getValue() + "s", "Documentation for", "Документация для", "Документация для", "")); // род
+        typeTranslationMap.put(EMULATOR, new TypeTranslation(EMULATOR.getValue() + "s", "Emulators descriptions for", "Описания эмуляторов", "Описания эмуляторов", "")); // род
+        typeTranslationMap.put(GUIDE, new TypeTranslation(GUIDE.getValue() + "s", "Solutions for", "Прохождения, солюшены игр для", "Описания и прохождения игр", "")); // род
+        typeTranslationMap.put(MANUAL, new TypeTranslation(MANUAL.getValue() + "s", "Manuals for", "Мануалы, учебники для", "Мануалы для", "")); // род
 
-        viewTypeTranslationMap.put(COMICS, new TypeTranslation(COMICS, "", "", "Комиксы и манга по мотивам игр %s", "<p>Мы собрали небольшую коллекцию комиксов, связанных с %s.</p>"));
-        viewTypeTranslationMap.put(MAGAZINE, new TypeTranslation(MAGAZINE + "s", "", "", "Упоминания %s в журналах", "<p>Игры для %s так же рассмотрены в следующих журналах.</p>"));
+        typeTranslationMap.put(COMICS, new TypeTranslation(COMICS.getValue(), "", "", "Комиксы и манга по мотивам игр %s", "<p>Мы собрали небольшую коллекцию комиксов, связанных с %s.</p>"));
+        typeTranslationMap.put(MAGAZINE, new TypeTranslation(MAGAZINE.getValue() + "s", "", "", "Упоминания %s в журналах", "<p>Игры для %s так же рассмотрены в следующих журналах.</p>"));
     }
 
-    static Map<String, PlatformsTranslation> platformsTranslationMap = new HashMap<>();
+    public static Map<Type, PlatformsTranslation> platformsTranslationMap = new HashMap<>();
 
     static {
         platformsTranslationMap.put(BOOK, new PlatformsTranslation("Книга", "<p>В книге представлены описания игр для %s</p>",
                 "<p>Так же здесь можно найти описания для %s</p>", "Книга %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
         platformsTranslationMap.put(MAGAZINE, new PlatformsTranslation("Журнал", "<p>В журнале представлены описания игр для %s</p>",
                 "<p>Так же здесь можно найти описания для %s</p>", "Журнал %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
-        platformsTranslationMap.put(MANUAL, new PlatformsTranslation("Сервисный мануал", "<p>Этот мануал покрывает платформы %s</p>",
+        platformsTranslationMap.put(MANUAL, new PlatformsTranslation("Сервисный мануал", "<p>Этот мануал охватывает платформы %s</p>",
                 "<p>Так же здесь можно найти информацию о %s</p>", "Мануал %s с описаниями для %s", "описание, устройство, эксплуатация, управление"));
-        platformsTranslationMap.put(GUIDE, new PlatformsTranslation("Мануал", "<p>Этот мануал покрывает платформы %s</p>",
+        platformsTranslationMap.put(GUIDE, new PlatformsTranslation("Мануал", "<p>Этот мануал охватывает платформы %s</p>",
                 "<p>Так же здесь можно найти информацию о %s</p>", "Мануал %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
 
-        platformsTranslationMap.put(DOC, new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
-        platformsTranslationMap.put(EMULATOR, new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
-        platformsTranslationMap.put(COMICS, new PlatformsTranslation("", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
+        platformsTranslationMap.put(DOC, new PlatformsTranslation("Документация", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
+        platformsTranslationMap.put(EMULATOR, new PlatformsTranslation("Эмулятор", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
+        platformsTranslationMap.put(COMICS, new PlatformsTranslation("Комикс", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
     }
 
 
@@ -215,6 +209,24 @@ public class StringUtils {
                 return word + rule[1];
             default:
                 return word + rule[2];
+        }
+    }
+
+    // Просто множественное число
+
+    public static String pluralWords(String word) {
+        return Arrays.stream(word.split(" ")).map(StringUtils::plural).collect(Collectors.joining(" "));
+    }
+
+    public static String plural(String word) {
+        if (word.endsWith("сь") || word.endsWith("бь") || word.endsWith("дь") || word.endsWith("рь") || word.endsWith("а") || word.endsWith("я")) {
+            return word.substring(0, word.length() - 1) + "и"; // запись, книга, документация
+        } else if (word.endsWith("о")) {
+            return word.substring(0, word.length() - 1) + "а"; // окно
+        } else if (word.endsWith("ый")) {
+            return word.substring(0, word.length() - 1) + "е"; // сервисный
+        } else {
+            return word + "ы"; // журнал
         }
     }
 }

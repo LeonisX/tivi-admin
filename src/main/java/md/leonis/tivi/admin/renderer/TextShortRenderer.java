@@ -9,7 +9,7 @@ import md.leonis.tivi.admin.utils.StringUtils;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
-import static md.leonis.tivi.admin.utils.StringUtils.MAGAZINE;
+import static md.leonis.tivi.admin.model.Type.MAGAZINE;
 
 public class TextShortRenderer extends SiteRenderer {
 

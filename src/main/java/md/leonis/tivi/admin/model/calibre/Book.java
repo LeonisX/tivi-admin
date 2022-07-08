@@ -7,6 +7,7 @@ import lombok.ToString;
 
 import java.time.LocalDateTime;
 
+// Таблица books в чистом виде
 @lombok.Data
 @NoArgsConstructor
 @AllArgsConstructor

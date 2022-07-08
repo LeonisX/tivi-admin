@@ -1,6 +1,7 @@
 package md.leonis.tivi.admin.utils;
 
 import javafx.util.Pair;
+import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.Book;
 import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.model.calibre.PlatformsTranslation;
@@ -23,6 +24,7 @@ import java.util.*;
 import static java.util.stream.Collectors.joining;
 import static md.leonis.tivi.admin.utils.Config.sitePath;
 import static md.leonis.tivi.admin.utils.StringUtils.platformsTranslationMap;
+import static md.leonis.tivi.admin.utils.StringUtils.typeTranslationMap;
 
 public class SiteRenderer {
 
@@ -34,25 +36,25 @@ public class SiteRenderer {
         return String.format("images/systems/%s.png", catCpu);
     }
 
-    public static String generateDownloadLink(String type, String category, String fileName) {
-        return String.format("%s/up/media/%ss/%s/%s", sitePath, type, category, fileName);
+    public static String generateDownloadLink(Type type, String category, String fileName) {
+        return String.format("%s/up/media/%ss/%s/%s", sitePath, typeTranslationMap.get(type).getPlural(), category, fileName);
     }
 
-    public static String generateDownloadLink(String type, String category, String fileName, String ext) {
-        return String.format("%s/up/media/%ss/%s/%s.%s", sitePath, type, category, fileName, ext);
+    public static String generateDownloadLink(Type type, String category, String fileName, String ext) {
+        return String.format("%s/up/media/%ss/%s/%s.%s", sitePath, typeTranslationMap.get(type).getPlural(), category, fileName, ext);
     }
 
     //TODO enum const or delete this comment
     public static String generateSiteUri(CalibreBook book) {
         switch (book.getType()) {
-            case "book":
-            case "magazine":
-            case "comics":
+            case BOOK:
+            case MAGAZINE:
+            case COMICS:
                 return generateBookViewUri(book.getSiteCpu());
-            case "guide":
-            case "doc":
-            case "manual":
-            case "emulator":
+            case GUIDE:
+            case DOC:
+            case MANUAL:
+            case EMULATOR:
                 return generateBookGroupViewUri(BookUtils.getCategoryByTags(book), book.getType());
             default:
                 throw new RuntimeException("Wrong book type: " + book.getType());
@@ -63,7 +65,7 @@ public class SiteRenderer {
         return String.format("%s/media/open/%s.html", sitePath, cpu);
     }
 
-    public static String generateBookGroupViewUri(String category, String type) {
+    public static String generateBookGroupViewUri(String category, Type type) {
         return String.format("%s/media/open/%s_%ss.html", sitePath, category, type);
     }
 

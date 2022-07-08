@@ -39,8 +39,14 @@ public class JsonUtils {
     static private class BooleanTypeAdapter implements JsonDeserializer<Boolean> {
         @Override
         public Boolean deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-            int code = json.getAsInt();
-            return code == 0 ? false : code == 1 ? true : null;
+            if (json.getAsString().equals("true")) {
+                return true;
+            } else if (json.getAsString().equals("false")) {
+                return false;
+            } else {
+                int code = json.getAsInt();
+                return code == 0 ? false : code == 1 ? true : null;
+            }
         }
     }
 }

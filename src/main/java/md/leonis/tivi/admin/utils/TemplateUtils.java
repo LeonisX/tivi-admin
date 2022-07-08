@@ -30,8 +30,24 @@ public class TemplateUtils {
         }
     }
 
+    public static String processTemplateToString(Map<String, Object> root, String templateName) {
+        try {
+            Template template = loadTemplate(templateName);
+            // обработка шаблона и модели данных
+            //Writer streamWriter = new OutputStreamWriter(System.out);
+            Writer stringWriter = new StringWriter();
+            // вывод в консоль
+            //template.process(root, streamWriter);
+            template.process(root, stringWriter);
+            return stringWriter.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static Template loadTemplate(String templateName) throws IOException {
         Configuration cfg = new Configuration(Configuration.VERSION_2_3_31);
+        cfg.setAPIBuiltinEnabled(true);
         cfg.setTemplateLoader(new FileTemplateLoader(new File(TemplateUtils.class.getResource("/").getFile())));
         return cfg.getTemplate(String.format("templates/%s.ftl", templateName));
     }

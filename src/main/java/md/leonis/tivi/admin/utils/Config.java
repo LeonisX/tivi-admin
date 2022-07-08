@@ -12,10 +12,11 @@ public class Config {
     public static String sitePath;
     public static String apiPath;
     public static String encoding;
-    public static String sqliteUrl;
+    public static String calibreDbFullPath;
     public static String calibreDbPath;
     public static String calibreDbName = "metadata.db";
     public static String outputPath;
+    public static boolean debugMode;
 
     public static String sampleVideo;
 
@@ -42,8 +43,9 @@ public class Config {
             serverSecret = prop.getProperty("server.secret");
             calibreDbPath = prop.getProperty("calibre.db.path") + File.separatorChar;
             calibreDbName = prop.getProperty("calibre.db.name");
-            sqliteUrl = String.format("jdbc:sqlite:%s%s", calibreDbPath, calibreDbName);
+            calibreDbFullPath = String.format("%s%s", calibreDbPath, calibreDbName);
             outputPath = prop.getProperty("output.path") + File.separatorChar;
+            debugMode = Boolean.parseBoolean(prop.getProperty("debug.mode"));
         }
     }
 }

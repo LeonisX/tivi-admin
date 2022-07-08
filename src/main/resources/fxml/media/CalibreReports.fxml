@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+
 <BorderPane prefHeight="850.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="md.leonis.tivi.admin.view.media.CalibreReportsController">
     <center>
         <TextArea fx:id="textArea" maxHeight="1.7976931348623157E308" minHeight="247.0" prefHeight="240.0" prefWidth="1000.0" BorderPane.alignment="CENTER" />
@@ -26,18 +34,29 @@
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                    <RowConstraints maxHeight="32.0" minHeight="16.0" prefHeight="32.0" vgrow="SOMETIMES" />
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                </rowConstraints>
 
                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="1">
-                   <Label text="Книг в прежней библиотеке Calibre"/>
+                   <Label text="Книг в прежней библиотеке Calibre" />
                    <Label text="(" />
                    <Label fx:id="fromDate" />
                    <Label text=")" />
+                   <Label fx:id="prevCachedValuesLabel" text="кэшированные значения!!!!" textFill="RED" visible="false" GridPane.rowIndex="1">
+                       <font>
+                           <Font name="System Bold" size="12.0" />
+                       </font></Label>
                </HBox>
                <Label fx:id="prevCalibreCountLabel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="2">
+                   <Label text="Книг в библиотеке Calibre" GridPane.rowIndex="2" />
+                   <Label fx:id="cachedValuesLabel" text="кэшированные значения!!!!" textFill="RED" visible="false" GridPane.rowIndex="2">
+                  <font>
+                     <Font name="System Bold" size="12.0" />
+                  </font></Label>
+               </HBox>
 
-               <Label text="Книг в библиотеке Calibre" GridPane.rowIndex="2" />
                <Label fx:id="calibreCountLabel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                <Button mnemonicParsing="false" onAction="#reloadCalibreBooks" text="Reload" GridPane.columnIndex="2" GridPane.rowIndex="2" />
 
@@ -45,6 +64,11 @@
                    <Label minWidth="269.0" prefHeight="17.0" prefWidth="309.0" text="Отчёт по добавленным и изменённым книгам" />
                </HBox>
                <Button mnemonicParsing="false" onAction="#generateHtmlReport" prefHeight="25.0" prefWidth="97.0" text="HTML" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="5">
+                   <Label minWidth="269.0" prefHeight="17.0" prefWidth="309.0" text="Сгенерировать каталоги" />
+               </HBox>
+               <Button mnemonicParsing="false" onAction="#generateCatalogs" prefHeight="25.0" prefWidth="97.0" text="HTML" GridPane.columnIndex="1" GridPane.rowIndex="5" />
            </GridPane>
        </VBox>
    </top>

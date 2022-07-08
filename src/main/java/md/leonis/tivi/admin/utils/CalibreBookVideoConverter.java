@@ -1,5 +1,6 @@
 package md.leonis.tivi.admin.utils;
 
+import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.*;
 import md.leonis.tivi.admin.model.danneo.Access;
 import md.leonis.tivi.admin.model.danneo.Video;
@@ -14,12 +15,14 @@ import java.util.*;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static md.leonis.tivi.admin.utils.StringUtils.*;
+import static md.leonis.tivi.admin.model.Type.EMULATOR;
+import static md.leonis.tivi.admin.model.Type.GUIDE;
+import static md.leonis.tivi.admin.utils.StringUtils.platformsTranslationMap;
 
 public class CalibreBookVideoConverter {
 
     // on cloud: book, magazine, comics
-    public static List<String> onSiteList = Arrays.asList(/*DOC, */EMULATOR, GUIDE/*, MANUAL*/);
+    public static List<Type> onSiteList = Arrays.asList(/*DOC, */EMULATOR, GUIDE/*, MANUAL*/);
 
     static Video calibreToVideo(CalibreBook calibreBook, String category) {
         Video video = new Video();
@@ -168,7 +171,7 @@ public class CalibreBookVideoConverter {
     private static String getKeywords(CalibreBook book, String category) {
         PlatformsTranslation translation = platformsTranslationMap.get(book.getType());
         List<String> chunks = new ArrayList<>(Arrays.asList(book.getTitle().toLowerCase().replaceAll("[^\\w\\sА-Яа-я]", "").split(" ")));
-        chunks.add(book.getType());
+        chunks.add(book.getType().getValue());
         chunks.add(translation.getName());
         if (book.getPublisher() != null) {
             chunks.addAll(Arrays.asList(book.getPublisher().getName().toLowerCase().replaceAll("[^\\w\\sА-Яа-я]", "").split(" ")));

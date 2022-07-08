@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
-import static md.leonis.tivi.admin.utils.StringUtils.GUIDE;
+import static md.leonis.tivi.admin.model.Type.GUIDE;
 
 public class ForumGuidesRenderer extends SiteRenderer {
 

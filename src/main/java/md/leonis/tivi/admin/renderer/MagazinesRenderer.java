@@ -1,6 +1,7 @@
 package md.leonis.tivi.admin.renderer;
 
 import md.leonis.tivi.admin.model.Declension;
+import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.model.calibre.PublisherSeries;
 import md.leonis.tivi.admin.model.calibre.TypeTranslation;
@@ -12,9 +13,9 @@ import md.leonis.tivi.admin.utils.StringUtils;
 import java.util.*;
 
 import static java.util.stream.Collectors.groupingBy;
+import static md.leonis.tivi.admin.model.Type.COMICS;
 import static md.leonis.tivi.admin.utils.Config.sitePath;
-import static md.leonis.tivi.admin.utils.StringUtils.COMICS;
-import static md.leonis.tivi.admin.utils.StringUtils.viewTypeTranslationMap;
+import static md.leonis.tivi.admin.utils.StringUtils.typeTranslationMap;
 
 public class MagazinesRenderer extends SiteRenderer {
 
@@ -27,7 +28,7 @@ public class MagazinesRenderer extends SiteRenderer {
     private final TypeTranslation translation;
     private final Declension declension;
 
-    public MagazinesRenderer(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, String type) {
+    public MagazinesRenderer(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, Type type) {
         this.filteredSiteBooks = filteredSiteBooks;
         this.category = category;
         this.addedBooks = addedBooks;
@@ -43,7 +44,7 @@ public class MagazinesRenderer extends SiteRenderer {
                     }
                 })
                 .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()));
-        this.translation = viewTypeTranslationMap.get(type);
+        this.translation = typeTranslationMap.get(type);
         this.declension = StringUtils.getDeclension(BookUtils.getCategoryName(category));
     }
 

@@ -6,6 +6,7 @@ import javafx.util.Pair;
 import lombok.SneakyThrows;
 import md.leonis.tivi.admin.model.ArchiveEntry;
 import md.leonis.tivi.admin.model.ComparisionResult;
+import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.Comment;
 import md.leonis.tivi.admin.model.calibre.*;
 import md.leonis.tivi.admin.model.calibre.links.*;
@@ -15,8 +16,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,18 +32,19 @@ import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.stream.Collectors.*;
+import static md.leonis.tivi.admin.model.Type.*;
 import static md.leonis.tivi.admin.utils.StringUtils.*;
 
 public class CalibreUtils {
 
-    private final String sqliteUrl;
+    private final String calibreDbFullPath;
 
     public CalibreUtils() {
-        sqliteUrl = Config.sqliteUrl;
+        calibreDbFullPath = Config.calibreDbFullPath;
     }
 
     public CalibreUtils(String dbFileName) {
-        this.sqliteUrl = getJdbcString(dbFileName);
+        this.calibreDbFullPath = dbFileName;
     }
 
     /*PRAGMA index_list(books);
@@ -60,6 +63,35 @@ public class CalibreUtils {
     }
 
     public List<CalibreBook> readBooks() {
+        if (Config.debugMode) {
+            return readBooksFromFile();
+        } else {
+            return readBooksFromDb();
+        }
+    }
+
+    public List<CalibreBook> readBooksFromFile() {
+        try {
+            Path path = Paths.get(calibreDbFullPath);
+            path = path.resolveSibling(path.getFileName() + ".json");
+            if (Files.exists(path)) {
+                Reader reader = Files.newBufferedReader(path);
+                return JsonUtils.gson.fromJson(reader, new TypeToken<List<CalibreBook>>() {
+                }.getType());
+            } else {
+                List<CalibreBook> books = readBooksFromDb();
+                FileWriter writer = new FileWriter(path.toFile());
+                JsonUtils.gson.toJson(books, writer);
+                writer.flush();
+                return books;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return readBooksFromDb();
+        }
+    }
+
+    public List<CalibreBook> readBooksFromDb() {
         List<CalibreBook> calibreBooks = selectAllFrom("books", CalibreBook.class);
 
         List<Comment> comments = selectAllFrom("comments", Comment.class);
@@ -150,7 +182,7 @@ public class CalibreUtils {
             calibreBook.setOfficialTitle(officialTitles.stream().filter(i -> ids13.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
 
             List<Long> ids14 = links.get(14).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
-            calibreBook.setType(types.stream().filter(i -> ids14.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
+            calibreBook.setType(types.stream().filter(i -> ids14.contains(i.getId())).findFirst().map(CustomColumn::getValue).map(Type::fromString).orElse(null));
 
             List<Long> ids15 = links.get(15).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
             calibreBook.setCompany(companies.stream().filter(i -> ids15.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
@@ -557,7 +589,7 @@ public class CalibreUtils {
     private Connection connect() {
         Connection conn;
         try {
-            conn = DriverManager.getConnection(sqliteUrl);
+            conn = DriverManager.getConnection(getJdbcString(calibreDbFullPath));
             conn.setAutoCommit(true);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -770,13 +802,13 @@ public class CalibreUtils {
     public void dumpBooks() throws IOException {
         List<CalibreBook> calibreBooks = readBooks();
 
-        File booksDir = new File(Config.outputPath + BOOK + "s");
-        File magazinesDir = new File(Config.outputPath + MAGAZINE + "s");
-        File manualsDir = new File(Config.outputPath + MANUAL + "s");
-        File comicsDir = new File(Config.outputPath + COMICS);
-        File guidesDir = new File(Config.outputPath + GUIDE + "s");
-        File docsDir = new File(Config.outputPath + DOC + "s");
-        File emulatorsDir = new File(Config.outputPath + EMULATOR + "s");
+        File booksDir = new File(Config.outputPath + typeTranslationMap.get(BOOK).getPlural());
+        File magazinesDir = new File(Config.outputPath + typeTranslationMap.get(MAGAZINE).getPlural());
+        File manualsDir = new File(Config.outputPath + typeTranslationMap.get(MANUAL).getPlural());
+        File comicsDir = new File(Config.outputPath + typeTranslationMap.get(COMICS).getPlural());
+        File guidesDir = new File(Config.outputPath + typeTranslationMap.get(GUIDE).getPlural());
+        File docsDir = new File(Config.outputPath + typeTranslationMap.get(DOC).getPlural());
+        File emulatorsDir = new File(Config.outputPath + typeTranslationMap.get(EMULATOR).getPlural());
 
         FileUtils.deleteFileOrFolder(booksDir.toPath());
         FileUtils.deleteFileOrFolder(magazinesDir.toPath());
@@ -793,7 +825,7 @@ public class CalibreUtils {
             System.out.println(book);
             //TODO
             switch (book.getType()) {
-                case "magazine":
+                case MAGAZINE:
                     //TODO may be languages in path
                     System.out.println("====================");
                     System.out.println(magazinesDir.toPath());
@@ -802,23 +834,23 @@ public class CalibreUtils {
                     System.out.println(book.getSeries());
                     destPath = magazinesDir.toPath().resolve(book.getSeries().getName());
                     break;
-                case "manual":
+                case MANUAL:
                     //TODO may be languages in path
                     destPath = manualsDir.toPath().resolve(category);
                     break;
-                case "comics":
+                case COMICS:
                     //TODO may be languages in path
                     destPath = comicsDir.toPath().resolve(category);
                     break;
-                case "guide":
+                case GUIDE:
                     //TODO may be languages in path
                     destPath = guidesDir.toPath().resolve(category);
                     break;
-                case "doc":
+                case DOC:
                     //TODO may be languages in path
                     destPath = docsDir.toPath().resolve(category);
                     break;
-                case "emulator":
+                case EMULATOR:
                     //TODO may be languages in path
                     destPath = emulatorsDir.toPath().resolve(category);
                     break;
@@ -935,13 +967,13 @@ public class CalibreUtils {
     }
 
     static class LocalDateAdapter implements JsonSerializer<LocalDate> {
-        public JsonElement serialize(LocalDate date, Type typeOfSrc, JsonSerializationContext context) {
+        public JsonElement serialize(LocalDate date, java.lang.reflect.Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive(date.format(DateTimeFormatter.ISO_LOCAL_DATE)); // "yyyy-mm-dd"
         }
     }
 
     static class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime> {
-        public JsonElement serialize(LocalDateTime date, Type typeOfSrc, JsonSerializationContext context) {
+        public JsonElement serialize(LocalDateTime date, java.lang.reflect.Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive(date.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         }
     }

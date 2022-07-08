@@ -1,6 +1,7 @@
 package md.leonis.tivi.admin.renderer;
 
 import md.leonis.tivi.admin.model.Declension;
+import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.*;
 import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.utils.BookUtils;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static md.leonis.tivi.admin.model.Type.*;
 import static md.leonis.tivi.admin.utils.Config.sitePath;
 import static md.leonis.tivi.admin.utils.StringUtils.*;
 
@@ -22,14 +24,14 @@ public class ManualGuideRenderer extends SiteRenderer {
     private final String category;
     private final Collection<Video> addedBooks;
     private final List<Video> oldBooks;
-    private final String type;
+    private final Type type;
 
     private final List<CalibreBook> calibreBooks;
     private final TypeTranslation translation;
     private final String categoryName;
     private final Declension declension;
 
-    public ManualGuideRenderer(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, String type) {
+    public ManualGuideRenderer(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, Type type) {
         this.filteredSiteBooks = filteredSiteBooks;
         this.category = category;
         this.addedBooks = addedBooks;
@@ -41,7 +43,7 @@ public class ManualGuideRenderer extends SiteRenderer {
                 .filter(b -> b.belongsToCategory(category) || b.mentionedInCategory(category))
                 .sorted(Comparator.comparing(Book::getTitle))
                 .collect(toList());
-        this.translation = listTypeTranslationMap.get(type);
+        this.translation = typeTranslationMap.get(type);
         this.categoryName = BookUtils.getCategoryName(category);
         this.declension = StringUtils.getDeclension(categoryName);
     }
@@ -70,7 +72,7 @@ public class ManualGuideRenderer extends SiteRenderer {
     }
 
     private String generateCpu() {
-        return category + "_" + listTypeTranslationMap.get(type).getPlural();
+        return category + "_" + typeTranslationMap.get(type).getPlural();
     }
 
     private void renderTexts(Video manual) {
@@ -150,7 +152,7 @@ public class ManualGuideRenderer extends SiteRenderer {
                     b.getDataList().stream().map(d -> {
                         String fileName = FileUtils.findFreeFileName(fileNames, b.getFileName() != null ? b.getFileName() : b.getTitle(), d.getFormat().toLowerCase(), 0);
                         return String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"%s\" alt=\"download\" target=\"_blank\"/></a>",
-                                generateDownloadLink(translation.getPlural(), BookUtils.getCategoryByTags(b), fileName), getTypeLink(d.getFormat()));
+                                generateDownloadLink(type, BookUtils.getCategoryByTags(b), fileName), getTypeLink(d.getFormat()));
                     }).collect(Collectors.joining(" "));
             String externalLink = b.getExternalLink() == null || b.getExternalLink().isEmpty() ? ""
                     : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page-16.png\" alt=\"download\" target=\"_blank\" /></a> ", b.getExternalLink());

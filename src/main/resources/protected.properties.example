@@ -11,3 +11,5 @@ calibre.db.path=D:\\Calibre
 calibre.db.name=metadata.db
 
 output.path=C:\\...
+
+debug.mode=false
