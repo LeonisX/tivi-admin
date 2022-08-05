@@ -36,6 +36,7 @@
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
@@ -43,47 +44,62 @@
                <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                </rowConstraints>
+
                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="2">
-                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Путь к исходной базе  Calibre" />
+                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Путь к исходной базе Calibre" />
                    <TextField fx:id="calibreDir" prefHeight="26.0" prefWidth="281.0" text="E:" />
                </HBox>
+               <Label fx:id="calibreTotals" minWidth="38.0" prefHeight="17.0" prefWidth="38.0" text="#" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+               <Button mnemonicParsing="false" onAction="#reloadCalibreData" prefHeight="25.0" prefWidth="97.0" text="Reload" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+               <Button mnemonicParsing="false" onAction="#dumpCalibreDB" prefHeight="25.0" prefWidth="97.0" text="Dump" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                <Button mnemonicParsing="false" onAction="#selectCalibreDir" prefHeight="25.0" prefWidth="97.0" text="Select" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-               <Button mnemonicParsing="false" onAction="#reloadSiteData" prefHeight="25.0" prefWidth="97.0" text="Reload" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+
                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="3">
                    <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="База на сайте" />
                </HBox>
-               <Button mnemonicParsing="false" onAction="#compare" prefHeight="25.0" prefWidth="97.0" text="Compare" GridPane.columnIndex="3" GridPane.rowIndex="5" />
-               <Label fx:id="calibreTotals" minWidth="38.0" prefHeight="17.0" prefWidth="38.0" text="#" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                <Label fx:id="siteTotals" minWidth="38.0" prefHeight="17.0" prefWidth="38.0" text="#" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-               <Button mnemonicParsing="false" onAction="#generate" prefHeight="25.0" prefWidth="97.0" text="Generate" GridPane.columnIndex="4" GridPane.rowIndex="5" />
-               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="5">
-                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Фильтр по платформе:" />
-                   <ComboBox fx:id="categoryComboBox" onAction="#onSelectCategory" prefHeight="25.0" prefWidth="237281.0" />
-               </HBox>
-               <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Обложки и превьюшки" GridPane.rowIndex="6" />
-               <Button mnemonicParsing="false" onAction="#dumpImages" prefHeight="25.0" prefWidth="97.0" text="Prepare" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-               <Button disable="true" mnemonicParsing="false" onAction="#uploadImages" prefHeight="25.0" prefWidth="97.0" text="Upload" GridPane.columnIndex="4" GridPane.rowIndex="6" />
-               <Button mnemonicParsing="false" onAction="#dumpBooks" prefHeight="25.0" prefWidth="97.0" text="Prepare" GridPane.columnIndex="2" GridPane.rowIndex="8" />
-               <Button disable="true" mnemonicParsing="false" onAction="#uploadBooks" prefHeight="25.0" prefWidth="97.0" text="Upload" GridPane.columnIndex="4" GridPane.rowIndex="8" />
-               <Button mnemonicParsing="false" onAction="#dumpCalibreDB" prefHeight="25.0" prefWidth="97.0" text="Dump" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+               <Button mnemonicParsing="false" onAction="#reloadSiteData" prefHeight="25.0" prefWidth="97.0" text="Reload" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                <Button mnemonicParsing="false" onAction="#dumpSiteDB" prefHeight="25.0" prefWidth="97.0" text="Dump" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-               <Button mnemonicParsing="false" onAction="#reloadCalibreData" prefHeight="25.0" prefWidth="97.0" text="Reload" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="7">
-                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Книги и журналы" />
-               </HBox>
-               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="8">
-                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Ссылка на облако:" />
-                   <TextField fx:id="cloudStorageLink" prefHeight="26.0" prefWidth="281.0" text="https://cloud.mail.ru/public/c5d4/gaoYK6cxR" />
-               </HBox>
+
                <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Категории" GridPane.rowIndex="4" />
                <Label fx:id="categoriesTotals" minWidth="38.0" prefHeight="17.0" prefWidth="38.0" text="#" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                <Button mnemonicParsing="false" onAction="#reloadCategories" prefHeight="25.0" prefWidth="97.0" text="Reload" GridPane.columnIndex="2" GridPane.rowIndex="4" />
                <Button mnemonicParsing="false" onAction="#recalcCategories" prefHeight="25.0" prefWidth="97.0" text="Recalc" GridPane.columnIndex="3" GridPane.rowIndex="4" />
                <Button mnemonicParsing="false" onAction="#updateCategories" prefHeight="25.0" prefWidth="97.0" text="Update" GridPane.columnIndex="4" GridPane.rowIndex="4" />
-               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="9">
-                   <Label text="Обзоры для форума"/>
+
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="5">
+                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Обновить платформу на сайте (иногда сбоит):" />
+                   <ComboBox fx:id="categoryComboBox" onAction="#onSelectCategory" prefHeight="25.0" prefWidth="237281.0" />
                </HBox>
-            <Button mnemonicParsing="false" onAction="#generateForumGuides" prefHeight="25.0" prefWidth="97.0" text="Generate" GridPane.columnIndex="4" GridPane.rowIndex="9" />
+               <Button mnemonicParsing="false" onAction="#compare" prefHeight="25.0" prefWidth="97.0" text="Compare" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+               <Button mnemonicParsing="false" onAction="#updateOnSite" prefHeight="25.0" prefWidth="97.0" text="Update" GridPane.columnIndex="4" GridPane.rowIndex="5" />
+
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="6">
+                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Сгенерировать SQL файл (для ручного апдейта):" />
+               </HBox>
+               <Button mnemonicParsing="false" onAction="#generateSQL" prefHeight="25.0" prefWidth="97.0" text="Generate SQL" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+               <Button mnemonicParsing="false" onAction="#getTiviIds" prefHeight="25.0" prefWidth="97.0" text="Get TiviIds" GridPane.columnIndex="4" GridPane.rowIndex="6" />
+
+               <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Обложки и превьюшки" GridPane.rowIndex="7" />
+               <Button mnemonicParsing="false" onAction="#dumpImages" prefHeight="25.0" prefWidth="97.0" text="Prepare" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+               <Button disable="true" mnemonicParsing="false" onAction="#uploadImages" prefHeight="25.0" prefWidth="97.0" text="Upload" GridPane.columnIndex="4" GridPane.rowIndex="7" />
+
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="8">
+                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Книги и журналы" />
+               </HBox>
+
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="9">
+                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Ссылка на облако:" />
+                   <TextField fx:id="cloudStorageLink" prefHeight="26.0" prefWidth="281.0" text="https://cloud.mail.ru/public/c5d4/gaoYK6cxR" />
+               </HBox>
+               <Button mnemonicParsing="false" onAction="#dumpBooks" prefHeight="25.0" prefWidth="97.0" text="Prepare" GridPane.columnIndex="2" GridPane.rowIndex="9" />
+               <Button disable="true" mnemonicParsing="false" onAction="#uploadBooks" prefHeight="25.0" prefWidth="97.0" text="Upload" GridPane.columnIndex="4" GridPane.rowIndex="9" />
+
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="10">
+                   <Label text="Обзоры для форума" />
+               </HBox>
+            <Button mnemonicParsing="false" onAction="#generateForumGuides" prefHeight="25.0" prefWidth="97.0" text="Generate" GridPane.columnIndex="4" GridPane.rowIndex="10" />
+
            </GridPane>
        </VBox>
    </top>

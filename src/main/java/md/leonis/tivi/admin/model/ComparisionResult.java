@@ -14,6 +14,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class ComparisionResult<T> {
 
+    private String category;
     private final Collection<T> addedBooks;
     private final Collection<T> deletedBooks;
     private final Map<T, List<Pair<String, Pair<String, String>>>> changedBooks;

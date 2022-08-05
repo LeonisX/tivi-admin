@@ -102,6 +102,6 @@ public class CatalogsRenderer {
     }
 
     public Path getReportPath() {
-        return Paths.get(Config.calibreDbPath).resolve("catalog.xlsx");
+        return Paths.get(Config.outputPath).resolve("catalog.xlsx");
     }
 }

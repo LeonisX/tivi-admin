@@ -154,8 +154,9 @@ public class CalibreBookVideoConverter {
             return new ArrayList<>();
         }
         System.out.println(calibreBook.getDataList());
+        String fileName = StringUtils.isBlank(calibreBook.getFileName()) ? calibreBook.getTitle() : calibreBook.getFileName();
         return calibreBook.getDataList().stream()
-                .peek(data -> data.setFileName(FileUtils.findFreeFileName(fileNames, calibreBook.getFileName(), data.getFormat().toLowerCase(), 0))).collect(toList());
+                .peek(data -> data.setFileName(FileUtils.findFreeFileName(fileNames, fileName, data.getFormat().toLowerCase(), 0))).collect(toList());
     }
 
     private static String getDescription(CalibreBook book, String category) {

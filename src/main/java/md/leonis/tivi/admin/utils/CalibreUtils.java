@@ -363,7 +363,7 @@ public class CalibreUtils {
             return result;
         }));
 
-        return new ComparisionResult<>(addedBooks, deletedBooks, changedBooks);
+        return new ComparisionResult<>("", addedBooks, deletedBooks, changedBooks);
     }
 
     static <K, V> Collection<V> mapDifference(Map<? extends K, ? extends V> left, Map<? extends K, ? extends V> right) {
@@ -822,16 +822,15 @@ public class CalibreUtils {
         for (CalibreBook book : shallowCopy) {
             String category = BookUtils.getCategoryByTags(book);
             Path destPath;
-            System.out.println(book);
+            //System.out.println(book);
             //TODO
             switch (book.getType()) {
                 case MAGAZINE:
                     //TODO may be languages in path
-                    System.out.println("====================");
-                    System.out.println(magazinesDir.toPath());
-                    System.out.println(book);
-                    System.out.println(book.getSeries());
-                    System.out.println(book.getSeries());
+                    //System.out.println("====================");
+                    //System.out.println(magazinesDir.toPath());
+                    //System.out.println(book);
+                    //System.out.println(book.getSeries());
                     destPath = magazinesDir.toPath().resolve(book.getSeries().getName());
                     break;
                 case MANUAL:
@@ -863,6 +862,11 @@ public class CalibreUtils {
             //сначала надо копировать, а архивы обрабатывать в конце
             for (Data data : book.getDataList()) {
                 Path srcBook = Paths.get(Config.calibreDbPath).resolve(book.getPath()).resolve(data.getName() + "." + data.getFormat().toLowerCase());
+                // может так случиться, что файл был удалён, но в базе он есть.
+                if (!Files.exists(srcBook)) {
+                    System.out.println("The file is absent: " + srcBook);
+                    continue;
+                }
                 switch (data.getFormat().toLowerCase()) {
                     case "zip":
                         if (!needToExtract(SevenZipUtils.getZipFileList(srcBook.toFile()))) {
@@ -907,6 +911,10 @@ public class CalibreUtils {
             }
             for (Data data : book.getDataList()) {
                 Path srcBook = Paths.get(Config.calibreDbPath).resolve(book.getPath()).resolve(data.getName() + "." + data.getFormat().toLowerCase());
+                // может так случиться, что файл был удалён, но в базе он есть.
+                if (!Files.exists(srcBook)) {
+                    continue;
+                }
                 switch (data.getFormat().toLowerCase()) {
                     case "zip":
                         if (needToExtract(SevenZipUtils.getZipFileList(srcBook.toFile()))) {
@@ -928,7 +936,7 @@ public class CalibreUtils {
             i++;
         }
 
-        //delete empty dirs
+        // delete empty dirs
         Files.walk(Paths.get(Config.outputPath))
                 .sorted(Comparator.reverseOrder())
                 .map(Path::toFile)

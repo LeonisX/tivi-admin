@@ -150,6 +150,6 @@ public class ChangelogRenderer {
     }
 
     public Path getReportPath() {
-        return Paths.get(Config.calibreDbPath).resolve("changelog.html");
+        return Paths.get(Config.outputPath).resolve("changelog.html");
     }
 }

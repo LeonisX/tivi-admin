@@ -81,10 +81,10 @@ public class TextShortRenderer extends SiteRenderer {
             sb.append(String.format("<li><span>Формат:</span> %s</li>\n", book.getFormat()));
         }
         if (book.getScannedBy() != null) {
-            sb.append(String.format("<li><span>Сканировал:</span> <a rel=\"nofollow\" target=\"_blank\" href=\"%s\">%s</a>\n", book.getSource(), book.getScannedBy()));
+            sb.append(String.format("<li><span>Сканирование:</span> <a rel=\"nofollow\" target=\"_blank\" href=\"%s\">%s</a>\n", book.getSource(), book.getScannedBy()));
         }
         if (book.getPostprocessing() != null) {
-            sb.append(String.format("<li><span>Постобработка:</span>%s\n", book.getPostprocessing()));
+            sb.append(String.format("<li><span>Обработка:</span>%s\n", book.getPostprocessing()));
         }
 
         sb.append("</ul>\n");

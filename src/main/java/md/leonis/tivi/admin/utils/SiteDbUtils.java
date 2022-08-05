@@ -215,7 +215,7 @@ public class SiteDbUtils {
 
 
     public static void dumpDBAsNativeSql(String tableName) {
-        FileUtils.mkdirs(Config.outputPath + "nat");
+        FileUtils.mkdirs(Config.outputPath);
         int count = 0;
         int maxTries = 15;
         while (true) {
@@ -224,7 +224,7 @@ public class SiteDbUtils {
                 String queryId = WebUtils.readFromUrl(requestURL);
                 System.out.println(queryId);
                 String fileName = Config.apiPath + "backup/" + queryId + ".sql.gz";
-                File newFile = new File(Config.outputPath + "nat" + File.separatorChar + tableName + ".txt");
+                File newFile = new File(Config.outputPath + File.separatorChar + tableName + "-" + LocalDateTime.now().toString().replace(":", "-") + ".sql");
                 GZipUtils.gunzipItToFile(fileName, newFile);
                 break;
             } catch (Exception e) {
@@ -242,7 +242,7 @@ public class SiteDbUtils {
     public static String dumpBaseAsJson(String tableName) {
         TableStatus table = tableStatuses.stream().filter(t -> t.getName().equals(tableName)).findFirst()
                 .orElseThrow(() -> new RuntimeException("TableStatus is null"));
-        FileUtils.mkdirs(Config.outputPath + "gen");
+        FileUtils.mkdirs(Config.outputPath);
         List<String> jsons = new ArrayList<>();
         long offset = 0;
         long limit = 1 + Math.round(1048576 / (table.getAvgRowLength() * 1.7 + 1));

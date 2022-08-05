@@ -140,6 +140,8 @@ public class StringUtils {
     public static Map<Type, TypeTranslation> typeTranslationMap = new HashMap<>();
 
     static {
+        typeTranslationMap.put(BOOK, new TypeTranslation(BOOK.getValue() + "s", "", "", "", "")); // нужно только для генерации коллекции
+
         typeTranslationMap.put(DOC, new TypeTranslation(DOC.getValue() + "s", "Documentation for", "Документация для", "Документация для", "")); // род
         typeTranslationMap.put(EMULATOR, new TypeTranslation(EMULATOR.getValue() + "s", "Emulators descriptions for", "Описания эмуляторов", "Описания эмуляторов", "")); // род
         typeTranslationMap.put(GUIDE, new TypeTranslation(GUIDE.getValue() + "s", "Solutions for", "Прохождения, солюшены игр для", "Описания и прохождения игр", "")); // род
@@ -228,5 +230,9 @@ public class StringUtils {
         } else {
             return word + "ы"; // журнал
         }
+    }
+
+    public static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
     }
 }

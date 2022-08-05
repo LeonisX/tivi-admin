@@ -168,7 +168,7 @@ public class QueryIntegrationTest {
 //    }
 
     private boolean queryExist(String tableName) throws IOException, NoSuchAlgorithmException {
-        File f = new File(Config.outputPath + "nat" + File.separatorChar + tableName + ".txt");
+        File f = new File(Config.outputPath + File.separatorChar + tableName + ".txt");
         if (!f.exists()) {
             return false;
         }
@@ -177,7 +177,7 @@ public class QueryIntegrationTest {
         String expected = DatatypeConverter.printHexBinary(hash);
 
 
-        f = new File(Config.outputPath + "gen" + File.separatorChar + tableName + ".txt");
+        f = new File(Config.outputPath + File.separatorChar + tableName + ".txt");
         if (!f.exists()) {
             return false;
         }
@@ -188,7 +188,7 @@ public class QueryIntegrationTest {
     }
 
 //    public void generateInsertQueries(String json, TableStatus table, String as) throws IOException {
-//        try (FileOutputStream fos = new FileOutputStream(Config.workPath + "gen" + File.separatorChar + table.getName() + ".txt")) {
+//        try (FileOutputStream fos = new FileOutputStream(Config.workPath + File.separatorChar + table.getName() + ".txt")) {
 //            jsonToSqlInsertQuery(json, fos, table, as);
 //        }
 //    }

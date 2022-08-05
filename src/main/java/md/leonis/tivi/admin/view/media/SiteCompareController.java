@@ -25,6 +25,9 @@ import md.leonis.tivi.admin.utils.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,12 +89,32 @@ public class SiteCompareController extends SubPane {
         fillTreeTableView(BookUtils.compare(calibreBooks, categoryComboBox.getValue().getCatcpu()));
     }
 
-    public void generate() {
+    public void updateOnSite() {
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
         SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
         ComparisionResult<Video> comparisionResult = BookUtils.compare(calibreBooks, categoryComboBox.getValue().getCatcpu());
-        BookUtils.syncDataWithSite(calibreBooks, comparisionResult, calibreDir.getText(), categoryComboBox.getValue().getCatcpu());
+        BookUtils.syncDataWithSite(comparisionResult, categoryComboBox.getValue().getCatcpu(), true);
+        BookUtils.loadTiviIds(calibreBooks, comparisionResult, calibreDir.getText() + Config.calibreDbName, categoryComboBox.getValue().getCatcpu());
         reloadSiteData();
+        reloadCalibreData();
+    }
+
+    public void generateSQL() throws IOException {
+        BookUtils.cloudStorageLink = cloudStorageLink.getText();
+        SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
+        List<String> sql = categoryComboBox.getItems().stream().filter(bc -> bc.getCatcpu() != null && !bc.getCatcpu().equals("magazines"))
+                .map(bc -> BookUtils.compare(calibreBooks, bc.getCatcpu()))
+                .flatMap(cr -> BookUtils.syncDataWithSite(cr, categoryComboBox.getValue().getCatcpu(), false).stream())
+                .collect(toList());
+
+        Path path = Paths.get(Config.outputPath).resolve("update-queries.sql");
+        FileUtils.backupFile(path);
+        Files.write(path, sql);
+    }
+
+    public void getTiviIds() {
+        reloadSiteData();
+        BookUtils.loadTiviIds(calibreBooks, calibreDir.getText() + Config.calibreDbName);
         reloadCalibreData();
     }
 
@@ -177,6 +200,7 @@ public class SiteCompareController extends SubPane {
             public String toString(BookCategory category) {
                 return category == null ? null : category.getCatcpu();
             }
+
             @Override
             public BookCategory fromString(String catName) {
                 return null;
