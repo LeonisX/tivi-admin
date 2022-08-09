@@ -459,8 +459,7 @@ public class BookUtils {
             if (video == null) {
                 System.out.println(String.format("Empty. CPU: %s; Title: %s", b.getSiteCpu(), b.getTitle()));
             } else {
-                System.out.println(video.getId());
-                System.out.println(b.getSiteCpu());
+                System.out.println(String.format("Assigned TiviId %s to %s", video.getId(), b.getSiteCpu()));
                 calibreUtils.upsertTiviId(b.getId(), video.getId());
             }
         });
@@ -472,8 +471,7 @@ public class BookUtils {
                 if (video == null) {
                     System.out.println(String.format("Empty magazine. CPU: %s; Title: %s", b.getSiteCpu(), b.getTitle()));
                 } else {
-                    System.out.println(video.getId());
-                    System.out.println(b.getSiteCpu());
+                    System.out.println(String.format("Assigned TiviId %s to %s", video.getId(), b.getSiteCpu()));
                     calibreUtils.upsertTiviId(b.getId(), video.getId());
                 }
             }
