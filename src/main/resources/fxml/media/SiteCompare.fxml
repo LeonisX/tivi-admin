@@ -77,8 +77,8 @@
                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="6">
                    <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Сгенерировать SQL файл (для ручного апдейта):" />
                </HBox>
-               <Button mnemonicParsing="false" onAction="#generateSQL" prefHeight="25.0" prefWidth="97.0" text="Generate SQL" GridPane.columnIndex="3" GridPane.rowIndex="6" />
-               <Button mnemonicParsing="false" onAction="#getTiviIds" prefHeight="25.0" prefWidth="97.0" text="Get TiviIds" GridPane.columnIndex="4" GridPane.rowIndex="6" />
+               <Button disable="true" mnemonicParsing="false" onAction="#generateSQL" prefHeight="25.0" prefWidth="97.0" text="Generate SQL" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+               <Button disable="true" mnemonicParsing="false" onAction="#getTiviIds" prefHeight="25.0" prefWidth="97.0" text="Get TiviIds" GridPane.columnIndex="4" GridPane.rowIndex="6" />
 
                <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Обложки и превьюшки" GridPane.rowIndex="7" />
                <Button mnemonicParsing="false" onAction="#dumpImages" prefHeight="25.0" prefWidth="97.0" text="Prepare" GridPane.columnIndex="2" GridPane.rowIndex="7" />

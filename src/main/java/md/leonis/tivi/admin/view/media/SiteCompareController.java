@@ -89,22 +89,31 @@ public class SiteCompareController extends SubPane {
         fillTreeTableView(BookUtils.compare(calibreBooks, categoryComboBox.getValue().getCatcpu()));
     }
 
-    public void updateOnSite() {
+    public void updateOnSite() throws IOException {
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
         SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
         ComparisionResult<Video> comparisionResult = BookUtils.compare(calibreBooks, categoryComboBox.getValue().getCatcpu());
-        BookUtils.syncDataWithSite(comparisionResult, categoryComboBox.getValue().getCatcpu(), true);
+        List<String> sql = BookUtils.syncDataWithSite(comparisionResult, true);
         BookUtils.loadTiviIds(calibreBooks, comparisionResult, calibreDir.getText() + Config.calibreDbName, categoryComboBox.getValue().getCatcpu());
+
+        Path path = Paths.get(Config.outputPath).resolve(String.format("update-queries-%s.sql", categoryComboBox.getValue().getCatcpu()));
+        FileUtils.backupFile(path);
+        Files.write(path, sql);
+
         reloadSiteData();
         reloadCalibreData();
     }
 
+    //TODO delete???
+    //фактически этот код пока не работает, очень тяжело научить его не плодить дубликаты
     public void generateSQL() throws IOException {
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
         SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
+        //TODO тут такая беда, что просачиваются дубликаты.
+        //TODO unique by cpu
         List<String> sql = categoryComboBox.getItems().stream().filter(bc -> bc.getCatcpu() != null && !bc.getCatcpu().equals("magazines"))
                 .map(bc -> BookUtils.compare(calibreBooks, bc.getCatcpu()))
-                .flatMap(cr -> BookUtils.syncDataWithSite(cr, categoryComboBox.getValue().getCatcpu(), false).stream())
+                .flatMap(cr -> BookUtils.syncDataWithSite(cr, false).stream())
                 .collect(toList());
 
         Path path = Paths.get(Config.outputPath).resolve("update-queries.sql");
@@ -112,6 +121,8 @@ public class SiteCompareController extends SubPane {
         Files.write(path, sql);
     }
 
+    //TODO delete???
+    //фактически этот код пока не работает, очень тяжело научить его не плодить дубликаты
     public void getTiviIds() {
         reloadSiteData();
         BookUtils.loadTiviIds(calibreBooks, calibreDir.getText() + Config.calibreDbName);

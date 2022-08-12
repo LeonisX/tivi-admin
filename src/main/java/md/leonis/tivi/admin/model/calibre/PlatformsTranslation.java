@@ -7,11 +7,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public class PlatformsTranslation {
 
-    private String name;
-    private String platforms;
-    private String altPlatforms;
-    private String description;
-    private String keywords;
+    private final String name;
+    private final String platforms;
+    private final String altPlatforms;
+    private final String description;
+    private final String keywords;
 
     //TODO keywords here
 }

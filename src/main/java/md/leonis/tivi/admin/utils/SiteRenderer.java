@@ -2,9 +2,7 @@ package md.leonis.tivi.admin.utils;
 
 import javafx.util.Pair;
 import md.leonis.tivi.admin.model.Type;
-import md.leonis.tivi.admin.model.calibre.Book;
-import md.leonis.tivi.admin.model.calibre.CalibreBook;
-import md.leonis.tivi.admin.model.calibre.PlatformsTranslation;
+import md.leonis.tivi.admin.model.calibre.*;
 import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.renderer.TextShortRenderer;
 import org.jsoup.Jsoup;
@@ -167,21 +165,28 @@ public class SiteRenderer {
         if (book.getReleaseNote() != null && !book.getReleaseNote().isEmpty()) {
             sb.append(String.format("<p>%s</p>\n", book.getReleaseNote()));
         }
-
-        PlatformsTranslation translation = platformsTranslationMap.get(book.getType());
-        if (book.getTags() != null && book.getTags().size() > 1) {
-            String platforms = book.getTags().stream().map(b -> BookUtils.getCategoryName(b.getName())).collect(joining(", "));
-            sb.append(String.format(translation.getPlatforms(), platforms));
-        }
-        if (book.getAltTags() != null && !book.getAltTags().isEmpty()) {
-            String platforms = book.getAltTags().stream().map(b -> BookUtils.getCategoryName(b.getValue())).collect(joining(", "));
-            if (book.getTags() == null || book.getTags().size() == 1) {
-                sb.append(String.format(translation.getPlatforms(), platforms));
-            } else {
-                sb.append(String.format(translation.getAltPlatforms(), platforms));
+        if (!book.getType().equals(Type.COMICS)) {
+            PlatformsTranslation translation = platformsTranslationMap.get(book.getType());
+            if (book.getTags() != null && book.getTags().size() > 1) {
+                sb.append(String.format(translation.getPlatforms(), getPlatforms(book.getTags())));
+            }
+            if (book.getAltTags() != null && !book.getAltTags().isEmpty()) {
+                if (book.getTags() == null || book.getTags().size() == 1) {
+                    sb.append(String.format(translation.getPlatforms(), getPlatforms(book.getTags())));
+                }// else {
+                    sb.append(String.format(translation.getAltPlatforms(), getAltPlatforms(book.getAltTags())));
+                //}
             }
         }
         return sb.toString();
+    }
+
+    protected static String getPlatforms(List<Tag> tags) {
+        return tags.stream().map(b -> BookUtils.getCategoryName(b.getName())).collect(joining(", "));
+    }
+
+    protected static String getAltPlatforms(List<CustomColumn> tags) {
+        return tags.stream().map(b -> BookUtils.getCategoryName(b.getValue())).collect(joining(", "));
     }
 
     private static final String NEWS_FILE = "news.html";

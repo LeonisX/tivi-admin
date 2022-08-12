@@ -112,7 +112,7 @@ public class CalibreBookVideoConverter {
         //TODO custom
         video.setKeywords(getKeywords(calibreBook, category));
         //TODO что-то обобщённое. продумать что выводить. нужен издатель, с какого года, платформы (все альт), описание
-        if (!calibreBook.getOwn()) {
+        if (!calibreBook.getOwn() && groupedMagazines.getValue().size() > 1) {
             calibreBook.setHasCover(0);
         }
         String cpu = calibreBook.getHasCover().equals(0) ? groupedMagazines.getValue().stream()

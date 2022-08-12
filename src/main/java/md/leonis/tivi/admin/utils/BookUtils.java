@@ -133,11 +133,13 @@ public class BookUtils {
         List<String> multi = Arrays.asList("consoles", "computers"); //computers реально не задействован - только для журналов.
         if (multi.contains(category)) {
             // При multi не нужно искать упоминания в журналах
-            filteredCalibreBooks = filteredCalibreBooks.stream().filter(b -> /*b.getTags().size() > 1 ||*/ (b.getTags().size() == 1 && multi.contains(b.getTags().get(0).getName()))).filter(b -> {
-                List<String> p = b.getTags().stream().map(Tag::getName)
-                        .map(t -> getParentRoot(getCategories(), t)).map(BookCategory::getCatcpu).distinct().collect(toList());
-                return p.size() == 1 && p.contains(category);
-            }).collect(toList());
+            filteredCalibreBooks = filteredCalibreBooks.stream()
+                    .filter(b -> /*b.getTags().size() > 1 ||*/ (b.getTags().size() == 1 && multi.contains(b.getTags().get(0).getName())))
+                    .filter(b -> {
+                        List<String> p = b.getTags().stream().map(Tag::getName)
+                                .map(t -> getParentRoot(getCategories(), t)).map(BookCategory::getCatcpu).distinct().collect(toList());
+                        return p.size() == 1 && p.contains(category);
+                    }).collect(toList());
         } else {
             filteredCalibreBooks = filteredCalibreBooks.stream().filter(b -> b.belongsToCategory(category)).collect(toList());
         }
@@ -240,7 +242,7 @@ public class BookUtils {
     }
 
     public static ComparisionResult<Video> compareMagazines(List<CalibreBook> calibreBooks, String category) {
-        List<CalibreBook> calibreMagazines = calibreBooks.stream().filter(b -> b.getType().equals(category.equals("magazines") ? MAGAZINE : category) && !category.equals("gd"))
+        List<CalibreBook> calibreMagazines = calibreBooks.stream().filter(b -> b.getType().getValue().equals(category.equals("magazines") ? MAGAZINE.getValue() : category) && !category.equals("gd"))
                 //.filter(b -> b.belongsToCategory(category))
                 .sorted(Comparator.comparing(Book::getSort))
                 /*.filter(b -> b.getOwn() != null && b.getOwn())*/.collect(toList());
@@ -371,7 +373,7 @@ public class BookUtils {
         }
     }
 
-    public static List<String> syncDataWithSite(ComparisionResult<Video> comparisionResult, String cat, boolean write) {
+    public static List<String> syncDataWithSite(ComparisionResult<Video> comparisionResult, boolean write) {
         List<String> insertQueries = comparisionResult.getAddedBooks().stream()
                 .map(b -> "-- " + b.getTitle() + "\n" + SiteDbUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(toList());
         List<String> deleteQueries = comparisionResult.getDeletedBooks().stream()
@@ -448,6 +450,7 @@ public class BookUtils {
         }
     }
 
+    //TODO delete???
     public static void loadTiviIds(List<CalibreBook> calibreBooks, String calibreDbDirectory) {
         CalibreUtils calibreUtils = new CalibreUtils(calibreDbDirectory);
         Map<String, Video> map = siteBooks.stream().collect(Collectors.toMap(Video::getCpu, Function.identity()));

@@ -1,5 +1,6 @@
 package md.leonis.tivi.admin.renderer;
 
+import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.Author;
 import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.utils.BookUtils;
@@ -45,7 +46,9 @@ public class TextShortRenderer extends SiteRenderer {
         }
         if (book.getSeries() != null) {
             //TODO may be number, link in future
-            sb.append(String.format("<li><span>Серия:</span> %s</li>\n", book.getSeries().getName()));
+            if (!book.getType().equals(Type.COMICS)) {
+                sb.append(String.format("<li><span>Серия:</span> %s</li>\n", book.getSeries().getName()));
+            }
         }
         if (book.getCompany() != null) {
             sb.append(String.format("<li><span>Компания:</span> %s</li>\n", book.getCompany()));
@@ -85,6 +88,10 @@ public class TextShortRenderer extends SiteRenderer {
         }
         if (book.getPostprocessing() != null) {
             sb.append(String.format("<li><span>Обработка:</span>%s\n", book.getPostprocessing()));
+        }
+
+        if (book.getType().equals(Type.COMICS)) {
+            sb.append(String.format("<li><span>Платформы:</span> %s</li>\n", SiteRenderer.getPlatforms(book.getTags())));
         }
 
         sb.append("</ul>\n");

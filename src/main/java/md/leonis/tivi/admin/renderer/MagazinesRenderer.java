@@ -53,21 +53,21 @@ public class MagazinesRenderer extends SiteRenderer {
             return;
         }
         String cpu = generateMagazinesCpu();
-        Optional<Video> manual = filteredSiteBooks.stream().filter(b -> b.getCpu().equals(cpu)).findFirst();
-        if (manual.isPresent()) {
+        Optional<Video> magazine = filteredSiteBooks.stream().filter(b -> b.getCpu().equals(cpu)).findFirst();
+        if (magazine.isPresent()) {
             // change
-            Video newManual = new Video(manual.get());
-            renderTexts(newManual);
-            oldBooks.add(newManual);
+            Video newMagazine = new Video(magazine.get());
+            renderTexts(newMagazine);
+            oldBooks.add(newMagazine);
         } else {
             //add
-            Video newManual = new Video();
-            renderTexts(newManual);
-            newManual.setCpu(cpu);
-            newManual.setCategoryId(BookUtils.getCategoryId(category));
-            newManual.setUrl("");
-            newManual.setMirror(sitePath);
-            addedBooks.add(newManual);
+            Video newMagazine = new Video();
+            renderTexts(newMagazine);
+            newMagazine.setCpu(cpu);
+            newMagazine.setCategoryId(BookUtils.getCategoryId(category));
+            newMagazine.setUrl("");
+            newMagazine.setMirror(sitePath);
+            addedBooks.add(newMagazine);
         }
     }
 
