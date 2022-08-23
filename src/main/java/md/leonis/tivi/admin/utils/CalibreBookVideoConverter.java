@@ -65,7 +65,7 @@ public class CalibreBookVideoConverter {
         video.setAge(""); // extsize
         video.setDescription(getDescription(calibreBook, category));
         video.setKeywords(getKeywords(calibreBook, category));
-        video.setText(new TextShortRenderer(calibreBook).getTextShort());
+        video.setText(new TextShortRenderer(calibreBook, category).getTextShort(true));
         //TODO list other files
         video.setFullText(calibreBook.getTextMore());
         video.setUserText("");
@@ -85,10 +85,10 @@ public class CalibreBookVideoConverter {
         return video;
     }
 
-    static Video calibreMagazineToVideo(Map.Entry<CalibreBook, List<CalibreBook>> groupedMagazines, String category) {
-        CalibreBook calibreBook = groupedMagazines.getValue().get(0);
+    static Video calibreMagazineToVideo(List<CalibreBook> groupedMagazines, String category) {
+        CalibreBook calibreBook = groupedMagazines.get(0);
         Video video = new Video();
-        video.setTitle(calibreBook.getSeries().getName());
+        video.setTitle(CalibreUtils.getMagazineTitle(calibreBook));
         if (calibreBook.getTiviId() != null) {
             video.setId(Math.toIntExact(calibreBook.getTiviId()));
         }
@@ -112,25 +112,10 @@ public class CalibreBookVideoConverter {
         //TODO custom
         video.setKeywords(getKeywords(calibreBook, category));
         //TODO что-то обобщённое. продумать что выводить. нужен издатель, с какого года, платформы (все альт), описание
-        if (!calibreBook.getOwn() && groupedMagazines.getValue().size() > 1) {
-            calibreBook.setHasCover(0);
-        }
-        String cpu = calibreBook.getHasCover().equals(0) ? groupedMagazines.getValue().stream()
-                .filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0)
-                .sorted(Comparator.comparing(Book::getSort)).map(CalibreBook::getCpu).findFirst().orElseThrow(() -> new RuntimeException("cpu is null")) : calibreBook.getCpu();
-        video.setText(new TextShortRenderer(calibreBook, cpu).getTextShort());
-        /*if (calibreBook.getHasCover().equals(0)) {
-            CalibreBook bookWithCover = groupedMagazines.getValue().stream().filter(b -> b.getOwn() != null && b.getOwn()).filter(b -> b.getHasCover() > 0).sorted(Comparator.comparing(Book::getSort)).findFirst().orElseThrow(() ->new RuntimeException("CalibreBook is null"));
-            if (bookWithCover != null) {
-                bookWithCover.setHasCover(0);
-                video.setText(video.getText().replace(calibreBook.getCpu(), bookWithCover.getCpu()));
-            }
-        } else {
-            groupedMagazines.getValue().get(0).setHasCover(0);
-        }*/
+        video.setText(new TextShortRenderer(calibreBook, category).getTextShort(true));
         //TODO custom, generate - for all books
         //TODO list other (all) files
-        video.setFullText(SiteRenderer.getMagazineFullText(groupedMagazines, category, cpu));
+        video.setFullText(SiteRenderer.getMagazineFullText(groupedMagazines, calibreBook.getCpu(), category));
         video.setUserText("");
         video.setMirrorsname("");
         video.setMirrorsurl("");

@@ -7,5 +7,4 @@ public class CustomColumn {
 
     private Long id;
     private String value;
-
 }

@@ -45,6 +45,7 @@ public class SiteCompareController extends SubPane {
     public TreeTableView<View> treeTableView;
     public TextField cloudStorageLink;
     public Label categoriesTotals;
+    public CheckBox reloadSiteCheckBox;
 
     private List<CalibreBook> calibreBooks = new ArrayList<>();
 
@@ -82,6 +83,13 @@ public class SiteCompareController extends SubPane {
         calibreTotals.setText("" + calibreBooks.size());
     }
 
+    public void reloadBooks() {
+        if (reloadSiteCheckBox.isSelected()) {
+            reloadSiteData();
+            reloadCalibreData();
+        }
+    }
+
     public void compare() {
         setupTreeTableView();
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
@@ -100,8 +108,7 @@ public class SiteCompareController extends SubPane {
         FileUtils.backupFile(path);
         Files.write(path, sql);
 
-        reloadSiteData();
-        reloadCalibreData();
+        reloadBooks();
     }
 
     //TODO delete???

@@ -25,6 +25,7 @@ public class CalibreBook extends Book {
     private PublisherSeries publisher;
     private Rating rating;
     private PublisherSeries series;
+    private String group;
     private List<Tag> tags;
     private List<CustomColumn> altTags;
 
@@ -58,10 +59,18 @@ public class CalibreBook extends Book {
     private transient String siteThumbUri;
 
     public boolean belongsToCategory(String category) {
-        return tags.stream().map(Tag::getName).collect(toList()).contains(category);
+        return tags != null && tags.stream().map(Tag::getName).collect(toList()).contains(category);
+    }
+
+    public boolean belongsToCategoryExclusive(String category) {
+        return tags != null && tags.size() == 1 && tags.get(0).getName().equals(category);
     }
 
     public boolean mentionedInCategory(String category) {
-        return altTags.stream().map(CustomColumn::getValue).collect(toList()).contains(category);
+        return altTags != null && altTags.stream().map(CustomColumn::getValue).collect(toList()).contains(category);
+    }
+
+    public boolean mentionedSomewhere() {
+        return altTags != null && altTags.size() > 0;
     }
 }

@@ -139,16 +139,18 @@ public class StringUtils {
 
     public static Map<Type, TypeTranslation> typeTranslationMap = new HashMap<>();
 
+    public static String PR = "# ";
+
     static {
-        typeTranslationMap.put(BOOK, new TypeTranslation(BOOK.getValue() + "s", "", "", "", "")); // нужно только для генерации коллекции
+        typeTranslationMap.put(BOOK, new TypeTranslation(BOOK.getValue() + "s", "", "", PR + "Упоминания %s в других книгах", "")); // нужно только для генерации коллекции
 
-        typeTranslationMap.put(DOC, new TypeTranslation(DOC.getValue() + "s", "Documentation for", "Документация для", "⸳Документация для", "")); // род
-        typeTranslationMap.put(EMULATOR, new TypeTranslation(EMULATOR.getValue() + "s", "Emulators descriptions for", "Описания эмуляторов", "⸳Описания эмуляторов", "")); // род
-        typeTranslationMap.put(GUIDE, new TypeTranslation(GUIDE.getValue() + "s", "Solutions for", "Прохождения, солюшены игр для", "⸳Описания и прохождения игр", "")); // род
-        typeTranslationMap.put(MANUAL, new TypeTranslation(MANUAL.getValue() + "s", "Manuals for", "Мануалы, учебники для", "⸳Мануалы для", "")); // род
+        typeTranslationMap.put(DOC, new TypeTranslation(DOC.getValue() + "s", "Documentation for", "Документация для", PR + "Документация для", "")); // род
+        typeTranslationMap.put(EMULATOR, new TypeTranslation(EMULATOR.getValue() + "s", "Emulators descriptions for", "Описания эмуляторов", PR + "Описания эмуляторов", "")); // род
+        typeTranslationMap.put(GUIDE, new TypeTranslation(GUIDE.getValue() + "s", "Solutions for", "Прохождения, солюшены игр для", PR + "Описания и прохождения игр", "")); // род
+        typeTranslationMap.put(MANUAL, new TypeTranslation(MANUAL.getValue() + "s", "Manuals for", "Мануалы, учебники для", PR + "Мануалы для", "")); // род
 
-        typeTranslationMap.put(COMICS, new TypeTranslation(COMICS.getValue(), "", "", "⸳Комиксы и манга по мотивам игр %s", "<p>Мы собрали небольшую коллекцию комиксов, связанных с %s.</p>"));
-        typeTranslationMap.put(MAGAZINE, new TypeTranslation(MAGAZINE.getValue() + "s", "", "", "⸳Упоминания %s в журналах", "<p>Игры для %s так же рассмотрены в следующих журналах.</p>"));
+        typeTranslationMap.put(COMICS, new TypeTranslation(COMICS.getValue(), "Comics for", "Комиксы для", PR + "Комиксы и манга по мотивам игр %s", "<p>Мы собрали небольшую коллекцию комиксов, связанных с %s.</p>"));
+        typeTranslationMap.put(MAGAZINE, new TypeTranslation(MAGAZINE.getValue() + "s", "Magazines for", "Периодические издания для", PR + "Упоминания %s в периодических изданиях", "<p>Игры для %s так же рассмотрены в следующих периодических и сериальных изданиях:</p>"));
     }
 
     public static Map<Type, PlatformsTranslation> platformsTranslationMap = new HashMap<>();
@@ -156,8 +158,8 @@ public class StringUtils {
     static {
         platformsTranslationMap.put(BOOK, new PlatformsTranslation("Книга", "<p>В книге представлены описания игр для %s.</p>",
                 "<p>Так же здесь можно найти описания для %s</p>", "Книга %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
-        platformsTranslationMap.put(MAGAZINE, new PlatformsTranslation("Журнал", "<p>В журнале представлены описания игр для %s.</p>",
-                "<p>Так же здесь можно найти описания для %s</p>", "Журнал %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
+        platformsTranslationMap.put(MAGAZINE, new PlatformsTranslation("Журнал", "<p>Описания игр для %s.</p>",
+                "<p>Так же здесь можно найти описания для %s</p>", "Периодическое издание %s с описаниями для %s", "описания, прохождения, пароли, секреты, cheats, walkthrough"));
         platformsTranslationMap.put(MANUAL, new PlatformsTranslation("Сервисный мануал", "<p>Этот мануал охватывает платформы: %s.</p>",
                 "<p>Так же здесь можно найти информацию о %s</p>", "Мануал %s с описаниями для %s", "описание, устройство, эксплуатация, управление"));
         platformsTranslationMap.put(GUIDE, new PlatformsTranslation("Мануал", "<p>Этот мануал охватывает платформы: %s</p>",
@@ -165,7 +167,7 @@ public class StringUtils {
 
         platformsTranslationMap.put(DOC, new PlatformsTranslation("Документация", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
         platformsTranslationMap.put(EMULATOR, new PlatformsTranslation("Эмулятор", "<p>%s</p>", "<p>%s</p>", "%s %s", ""));
-        platformsTranslationMap.put(COMICS, new PlatformsTranslation("Комикс", "<p>%s</p>", "<p>%s</p>", "Комикс %s для %s", "комикс, comics"));
+        platformsTranslationMap.put(COMICS, new PlatformsTranslation("Комикс", "<p>%s</p>", "<p>%s</p>", "%s %s", "комикс, comics"));
     }
 
 
@@ -199,7 +201,7 @@ public class StringUtils {
     }
 
     private static String plural(String word, String[] rule, int count) {
-        if (count == 11) {
+        if (count >= 11 & count <= 19) {
             return word + rule[2];
         }
         switch (count % 10) {

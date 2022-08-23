@@ -8,7 +8,7 @@ import java.text.DecimalFormat;
 
 @Getter
 @Setter
-@ToString
+//@ToString
 @NoArgsConstructor
 @EqualsAndHashCode
 public class Video {
@@ -143,6 +143,8 @@ public class Video {
     @SerializedName("tags")
     private String tags = "";
 
+    private transient boolean isGroup;
+
     public Video(Video other) {
         this.id = other.id;
         this.categoryId = other.categoryId;
@@ -186,5 +188,14 @@ public class Video {
     public String getRate() {
         if (rated_count == 0) return "нет";
         return new DecimalFormat("#0.00").format(total_rating * 1.0 / rated_count);
+    }
+
+    @Override
+    public String toString() {
+        return "Video{" +
+                "id=" + id +
+                ", cpu='" + cpu + '\'' +
+                ", title='" + title + '\'' +
+                '}';
     }
 }

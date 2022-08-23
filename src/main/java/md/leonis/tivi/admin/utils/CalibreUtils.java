@@ -10,6 +10,7 @@ import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.Comment;
 import md.leonis.tivi.admin.model.calibre.*;
 import md.leonis.tivi.admin.model.calibre.links.*;
+import md.leonis.tivi.admin.renderer.MagazinesRenderer;
 import md.leonis.tivi.admin.utils.archive.RarUtils;
 import md.leonis.tivi.admin.utils.archive.SevenZipUtils;
 import org.jsoup.Jsoup;
@@ -133,7 +134,14 @@ public class CalibreUtils {
             calibreBook.setAuthors(authors.stream().filter(author -> ids.contains(author.getId())).collect(toList()));
         });
 
-        Integer[] c = {1, 2, 4, 6, 7, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21};
+        //TODO add to Integer[] c = {1, 2, 4, 6, 7, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22}; after august release
+        List<Link> links22 = null;
+        try {
+            links22 = selectAllFrom("books_custom_column_22_link", Link.class);
+        } catch (Exception ignored) {
+        }
+        List<Link> linkk22 = links22;
+        Integer[] c = {1, 2, 4, 6, 7, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21/*, 22*/};
 
         Map<Integer, List<Link>> links = Arrays.stream(c).collect(Collectors.toMap(i -> i, i -> selectAllFrom("books_custom_column_" + i + "_link", Link.class)));
 
@@ -157,8 +165,14 @@ public class CalibreUtils {
 
         List<SignedInPrint> signedInPrint = selectAllFrom("custom_column_5", SignedInPrint.class);
         List<CustomColumn> fileNames = selectAllFrom("custom_column_6", CustomColumn.class);
-        List<CustomColumn> externalLinks = selectAllFrom("custom_column_21", CustomColumn.class);
         List<CustomColumn> scannedBys = selectAllFrom("custom_column_7", CustomColumn.class);
+        List<CustomColumn> externalLinks = selectAllFrom("custom_column_21", CustomColumn.class);
+        //TODO simplify after release
+        List<CustomColumn> ggr = null;
+        if (linkk22 != null) {
+            ggr = selectAllFrom("custom_column_22", CustomColumn.class);
+        }
+        List<CustomColumn> groups = ggr;
         List<Link> pages = selectAllFrom("custom_column_8", Link.class);
         List<Own> owns = selectAllFrom("custom_column_9", Own.class);
 
@@ -213,6 +227,13 @@ public class CalibreUtils {
 
             List<Long> ids16 = links.get(16).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
             calibreBook.setCpu(cpus.stream().filter(i -> ids16.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
+
+            //TODO add to Integer[] c = {1, 2, 4, 6, 7, 10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22}; after august release
+            if (groups != null) {
+                List<Long> ids22 = linkk22.stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
+                //List<Long> ids22 = links.get(22).stream().filter(a -> a.getBook().equals(calibreBook.getId())).map(Link::getLongValue).collect(toList());
+                calibreBook.setGroup(groups.stream().filter(i -> ids22.contains(i.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
+            }
         });
 
         //List<CustomColumns> customColumns = selectAllFrom("custom_columns", CustomColumns.class);
@@ -265,6 +286,12 @@ public class CalibreUtils {
             calibreBook.setReleaseNote(releaseNotes.stream().filter(t -> ids.contains(t.getId())).findFirst().map(CustomColumn::getValue).orElse(null));
         });
 
+        calibreBooks.forEach(calibreBook -> {
+            if (calibreBook.getScannedBy() != null && calibreBook.getScannedBy().equals(calibreBook.getPostprocessing())) {
+                calibreBook.setPostprocessing(null);
+            }
+        });
+
         //calibreBooks.forEach(System.out::println);
         System.out.println("Readed books: " + calibreBooks.size());
         String validChars = " qwertyuiopasdfghjklzxcvbnmйцукенгшщзхъёфывапролджэячсмитьбю1234567890-_=+[{]};:'\",<.>/?!@#$%^&*()`~|©«®°µ»‘’“”•…№™u000a";
@@ -294,25 +321,44 @@ public class CalibreUtils {
         calibreBooks.forEach(this::setSiteCpu);
         calibreBooks.forEach(this::setSiteUri);
         calibreBooks.forEach(this::setSiteThumbUri);
+        /*calibreBooks.forEach(b -> {
+            if (b.getFileName() != null) {
+                b.setFileName(b.getFileName().replace(":", " -"));
+            }
+        });*/
+    }
+
+    public static String getMagazineTitle(CalibreBook book) {
+        if (book.getGroup() == null) {
+            return book.getSeries().getName();
+        } else {
+            return book.getGroup();
+        }
     }
 
     private void setSiteCpu(CalibreBook book) {
-        if (book.getType().equals(MAGAZINE) || book.getType().equals(COMICS)) {
+        if (book.getType().equals(MAGAZINE) || book.getType().equals(COMICS) || book.getGroup() != null) {
             book.setSiteCpu(getMagazineCpu(book));
         } else {
-            book.setSiteCpu(getSiteCpu(book, BookUtils.getCategoryByTags(book)));
+            book.setSiteCpu(getBookSiteCpu(book, BookUtils.getCategoryByTags(book)));
         }
     }
 
-    private String getMagazineCpu(CalibreBook calibreBook) {
+    public static String getMagazineCpu(CalibreBook calibreBook) {
         if (calibreBook.getType().equals(COMICS)) {
             return calibreBook.getCpu();
         } else {
-            return generateCpu(calibreBook.getSeries().getName());
+            if (calibreBook.getGroup() != null) {
+                return generateCpu(calibreBook.getGroup());
+            } else if (calibreBook.getSeries() != null) {
+                return generateCpu(calibreBook.getSeries().getName());
+            } else {
+                return generateCpu(calibreBook.getTitle());
+            }
         }
     }
 
-    private String getSiteCpu(CalibreBook calibreBook, String category) {
+    private String getBookSiteCpu(CalibreBook calibreBook, String category) {
         if (calibreBook.getTags().size() > 1 && calibreBook.belongsToCategory(category)) {
             return category + "_" + calibreBook.getCpu();
         } else {
@@ -320,7 +366,6 @@ public class CalibreUtils {
         }
     }
 
-    //TODO test magazines
     private void setSiteUri(CalibreBook book) {
         book.setSiteUri(SiteRenderer.generateSiteUri(book));
     }
@@ -821,17 +866,22 @@ public class CalibreUtils {
         int i = 1;
         for (CalibreBook book : shallowCopy) {
             String category = BookUtils.getCategoryByTags(book);
+            if (book.getGroup() != null) {
+                category = category + "/" + book.getGroup().replace(":", ".").replace("/", ".");
+            }
             Path destPath;
-            //System.out.println(book);
-            //TODO
             switch (book.getType()) {
                 case MAGAZINE:
                     //TODO may be languages in path
-                    //System.out.println("====================");
-                    //System.out.println(magazinesDir.toPath());
-                    //System.out.println(book);
-                    //System.out.println(book.getSeries());
-                    destPath = magazinesDir.toPath().resolve(book.getSeries().getName());
+                    List<CalibreBook> books = shallowCopy.stream().filter(b -> b.getSeries() != null && b.getSeries().equals(book.getSeries())).collect(toList());
+                    String tag = MagazinesRenderer.getSpecificTag(books);
+                    if (MagazinesRenderer.isSpecific(books)) { // specialized magz
+                        destPath = booksDir.toPath().resolve(tag);
+                    } else {
+                        destPath = magazinesDir.toPath();
+                    }
+                    String group = getMagazineTitle(book).replace(":", ". ").replace("/", ". ");
+                    destPath = destPath.resolve(group.replace(":", ". ").replace("/", ". "));
                     break;
                 case MANUAL:
                     //TODO may be languages in path

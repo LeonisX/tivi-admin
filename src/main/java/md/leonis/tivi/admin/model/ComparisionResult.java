@@ -18,5 +18,4 @@ public class ComparisionResult<T> {
     private final Collection<T> addedBooks;
     private final Collection<T> deletedBooks;
     private final Map<T, List<Pair<String, Pair<String, String>>>> changedBooks;
-
 }

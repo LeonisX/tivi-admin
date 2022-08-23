@@ -9,13 +9,17 @@
 <p>За период с ${fromDate} по ${toDate} было добавлено, либо отредактировано ${editedCount} ${editedRecordsString}.
     <#if deletedCount != 0> Удалено дубликатов: ${deletedCount}.</#if> Оцифровано, либо найдено ${totalAddedScans} ${totalAddedPlural}.</p>
 
-<p>Всего в базе данных ${totalRecords} ${totalRecordsString}, а именно:</p>
+<p>Всего в базе данных ${totalRecords}* ${totalRecordsString}, а именно:</p>
 
 <ul>
     <#list changelog as item>
-    <li>${item.title}: ${item.count}<#if item.diff != 0> (+${item.diff})<#else></#if></li>
+    <li>${item.title}: ${item.count}<#if item.diff != 0> (${item.stringDiff})<#else></#if></li>
     </#list>
 </ul>
+
+<p><i>* Обратите внимание, что речь идёт именно о типе уникальных записей в базе данных, а он может меняться.
+        Например, группа книг может быть переведена в группу периодических изданий (газет или журналов).
+        Добавленные книги и журналы издания мы рассмотрим далее.</i></p>
 
 <p>В электронном виде доступно ${availableBooks}% от всей коллекции.</p>
 <p>Осталось отсканировать всего ${absentBooks} ${absentBooksPlural}.</p>

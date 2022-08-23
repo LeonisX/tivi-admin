@@ -5,16 +5,20 @@ import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.utils.BookUtils;
 import md.leonis.tivi.admin.utils.SiteRenderer;
+import md.leonis.tivi.admin.utils.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static md.leonis.tivi.admin.model.Type.BOOK;
 import static md.leonis.tivi.admin.model.Type.MAGAZINE;
 import static md.leonis.tivi.admin.utils.Config.sitePath;
 
 public class MagazinesSearchPageRenderer extends SiteRenderer {
+
+    public static final String CPU = "magazines_in_search";
 
     private final Map<CalibreBook, List<CalibreBook>> groupedMagazines;
     private final List<Video> filteredSiteBooks;
@@ -30,11 +34,9 @@ public class MagazinesSearchPageRenderer extends SiteRenderer {
         this.oldBooks = oldBooks;
 
         List<CalibreBook> magazines = allCalibreBooks.stream().filter(b -> b.getType().equals(MAGAZINE) && !category.equals("gd"))
-                //.filter(b -> b.belongsToCategory(category))
                 .filter(b -> b.getOwn() == null || !b.getOwn()).sorted(Comparator.comparing(Book::getSort)).collect(toList());
 
-        this.groupedMagazines = magazines.stream()//.filter(b ->
-                //b.belongsToCategory(category) || (b.mentionedInCategory(category)))
+        this.groupedMagazines = magazines.stream()
                 .collect(groupingBy(calibreBook -> calibreBook.getSeries().getName()))
                 .entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().get(0), Map.Entry::getValue))
                 .entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -45,40 +47,40 @@ public class MagazinesSearchPageRenderer extends SiteRenderer {
         if (groupedMagazines.isEmpty()) {
             return;
         }
-        Optional<Video> manual = filteredSiteBooks.stream().filter(b -> b.getCpu().equals("magazines_in_search")).findFirst();
-        if (manual.isPresent()) {
+        Optional<Video> magazine = filteredSiteBooks.stream().filter(b -> b.getCpu().equals(CPU)).findFirst();
+        if (magazine.isPresent()) {
             // change
-            Video newManual = new Video(manual.get());
-            renderTexts(newManual);
-            oldBooks.add(newManual);
+            Video newMagazine = new Video(magazine.get());
+            renderTexts(newMagazine);
+            oldBooks.add(newMagazine);
         } else {
             //add
-            Video newManual = new Video();
-            renderTexts(newManual);
-            newManual.setCpu("magazines_in_search");
-            newManual.setCategoryId(BookUtils.getCategoryId(category));
-            newManual.setUrl("");
-            newManual.setMirror(sitePath);
-            addedBooks.add(newManual);
+            Video newMagazine = new Video();
+            renderTexts(newMagazine);
+            newMagazine.setCpu(CPU);
+            newMagazine.setCategoryId(BookUtils.getCategoryId(category));
+            newMagazine.setUrl("");
+            newMagazine.setMirror(sitePath);
+            addedBooks.add(newMagazine);
         }
     }
 
-    private void renderTexts(Video manual) {
-        manual.setTitle("Разыскиваемые журналы");
-        manual.setText("<p>Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже журналов.</p>");
-        manual.setFullText(generateFullText());
+    private void renderTexts(Video magazine) {
+        magazine.setTitle(StringUtils.PR + "Разыскиваемые периодические издания");
+        magazine.setText(SiteRenderer.generateHeaderImage(BOOK, category, "Будем очень признательны, если вы пришлёте в адрес сайта электронные версии представленных ниже газет и журналов.", "wanted"));
+        magazine.setFullText(generateFullText());
     }
 
     private String generateFullText() {
         StringBuilder sb = new StringBuilder();
-        //TODO link
-        //TODO table with images
         groupedMagazines.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getSeries().getName())).forEach(e -> {
-            sb.append(String.format("<h3>%s</h3>", e.getKey().getSeries().getName()));
+            sb.append(String.format("<h3>%s</h3>\n", e.getKey().getSeries().getName()));
             sb.append("<ul class=\"file-info\">\n");
-            e.getValue().forEach(c -> sb.append(String.format("<li>%s</li>", c.getTitle())));
+            e.getValue().forEach(c -> sb.append(String.format("<li>%s</li>\n", c.getTitle())));
             sb.append("</ul>\n");
         });
+
+        sb.append(SiteRenderer.generateMissedImagesList(groupedMagazines.values().stream().flatMap(Collection::stream).collect(toList())));
         return sb.toString();
     }
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
@@ -71,6 +72,7 @@
                    <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Обновить платформу на сайте (иногда сбоит):" />
                    <ComboBox fx:id="categoryComboBox" onAction="#onSelectCategory" prefHeight="25.0" prefWidth="237281.0" />
                </HBox>
+               <CheckBox fx:id="reloadSiteCheckBox" mnemonicParsing="false" onAction="#reloadBooks" selected="true" text="Reload site" GridPane.columnIndex="2" GridPane.rowIndex="5" />
                <Button mnemonicParsing="false" onAction="#compare" prefHeight="25.0" prefWidth="97.0" text="Compare" GridPane.columnIndex="3" GridPane.rowIndex="5" />
                <Button mnemonicParsing="false" onAction="#updateOnSite" prefHeight="25.0" prefWidth="97.0" text="Update" GridPane.columnIndex="4" GridPane.rowIndex="5" />
 
@@ -85,7 +87,7 @@
                <Button disable="true" mnemonicParsing="false" onAction="#uploadImages" prefHeight="25.0" prefWidth="97.0" text="Upload" GridPane.columnIndex="4" GridPane.rowIndex="7" />
 
                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="8">
-                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Книги и журналы" />
+                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Книги и периодика" />
                </HBox>
 
                <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="9">

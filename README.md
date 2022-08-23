@@ -85,6 +85,10 @@
 
 #### 2022
 
+постараться сделать обновление пачкой (брать категорию из книг напрямую)
+
+- Сохранять sql запросы в кумулятивный файл. разделять - пустая строка, дата, время, платформа
+- Чистить ББК, УДК, выделять авторский знак. Инфа об этом внизу страницы.
 - Эксперимент - 1 книга - 1 каталог. Внутри и обложки и текстовое описание в виде отдельных файлов.
 - Страну игр надо в журналы тоже. У них есть TIVIID уже.
 - <p style="font-weight: 600">Полные описания:</p> -> <strong></strong>
@@ -257,4 +261,39 @@ https://blog.idrsolutions.com/2015/04/how-to-write-jpeg-images-in-java/
 https://blog.idrsolutions.com/2015/04/how-to-write-out-png-images-in-java-2/
 
 http://www.java2s.com/Code/Java/2D-Graphics-GUI/Providesusefulmethodsforconvertingimagesfromonecolourdepthtoanother.htm
+
+### ББК, УДК, ISBN, авторский знак, и так далее.
+
+https://files.stroyinf.ru/Data2/1/4293722/4293722724.pdf
+https://ifap.ru/library/gost/7042020.pdf
+file:///C:/Users/user/Downloads/%D0%93%D0%9E%D0%A1%D0%A2%20%D0%A0%20704-2006.pdf
+https://meganorm.ru/Data2/1/4293850/4293850363.htm
+
+http://гпоунпк.рф/bibl/9.pdf
+http://mpgu.su/ob-mpgu/struktura/biblioteka/prepodavatelyam/rossiyskiy-indeks-nauchnogo-tsitirovaniya-rints/prisvoenie-avtorskogo-znaka-indeksa-bbk-i-udk/
+https://molochnoe.ru/library/to_prep_asp/authors_index
+http://sainfo.ru/liter/znak.php
+http://prepodavatel-xxi.ru/sites/default/files/prisvoenie_avtorskogo_znaka_UDK_i_BBK.pdf
+https://ru.wikipedia.org/wiki/%D0%90%D0%B2%D1%82%D0%BE%D1%80%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%BD%D0%B0%D0%BA
+https://bon-anza.ru/reference.php?id=5
+http://lib.ugtu.net/page/udk-i-bbk/
+https://avtor-online.ru/udk-bbk
+
+https://www.google.com/search?q=%D0%B1%D0%B8%D0%B1%D0%BB%D0%B8%D0%BE%D1%82%D0%B5%D0%BA%D0%B0+%D0%B8%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%86%D0%B8%D1%8F+%D0%BA%D0%B0%D1%80%D1%82%D0%BE%D1%87%D0%BA%D0%B0+%D0%BA%D0%BD%D0%B8%D0%B3%D0%B8+%D0%B1%D0%B1%D0%BA+%D1%83%D0%B4%D0%BA&client=firefox-b-d&sxsrf=ALiCzsZf-UisQ3UwOdt_qCOWsX3ynYRoJQ:1660209729270&ei=Qcr0Yq3yD_Dh7_UPlvOvYA&start=10&sa=N&ved=2ahUKEwjtlqmZu775AhXw8LsIHZb5CwwQ8tMDegQIARA9&biw=1436&bih=938&dpr=1
+http://www.uraledu.ru/node/4928
+https://www.ntspi.ru/library/directories_and_files/
+http://karlib.kz/ru/prof-meropriyatiya/32-metodicheskij-blog/1197-v-pomoshch-nachinayushchemu-bibliotekaryu
+http://prohschool.beloblast.ru/bibl/doc/norm/instrukcija_ob_uchete_bibliotechnogo_fonda.pdf
+http://гпоунпк.рф/bibl/8.pdf
+https://www.ipu.ru/structure/information-services/polygraphy/20804
+https://dwax.ru/bibliotechnaya-klassifikaciya-bbk-bibliotechno-bibliograficheskaya-klassifikaciya/
+https://author.today/post/140940
+http://roslavl.library67.ru/files/382/bbk.pdf
+https://lib.uni-dubna.ru/biblweb/recomends/ShkolaIndex.pdf
+
+https://studme.org/359791/tehnika/osnovnye_vidy_tipy_pechatnyh_izdaniy
+https://www.ifap.ru/library/gost/7602003.pdf
+https://spbarchives.ru/-/prilozenie-1-vidy-pecatnyh-izdanii
+
+
 

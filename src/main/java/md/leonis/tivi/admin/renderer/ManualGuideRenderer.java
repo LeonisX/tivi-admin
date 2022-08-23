@@ -28,7 +28,6 @@ public class ManualGuideRenderer extends SiteRenderer {
 
     private final List<CalibreBook> calibreBooks;
     private final TypeTranslation translation;
-    private final String categoryName;
     private final Declension declension;
 
     public ManualGuideRenderer(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, Type type) {
@@ -44,8 +43,7 @@ public class ManualGuideRenderer extends SiteRenderer {
                 .sorted(Comparator.comparing(Book::getTitle))
                 .collect(toList());
         this.translation = typeTranslationMap.get(type);
-        this.categoryName = BookUtils.getCategoryName(category);
-        this.declension = StringUtils.getDeclension(categoryName);
+        this.declension = StringUtils.getDeclension(BookUtils.getCategoryName(category));
     }
 
     public void generateManualsPage() {
@@ -87,11 +85,15 @@ public class ManualGuideRenderer extends SiteRenderer {
 
     //TODO html
     private String generateText() {
-        CalibreBook book = calibreBooks.stream().filter(cb -> cb.getHasCover() != 0).findFirst().orElseThrow(() -> new RuntimeException("All books w/o covers!"));
-        String imageLink = generateBookThumbUri(BookUtils.getCategoryByTags(book), book.getCpu());
-
-        return String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"%s\" alt=\"%s\" />%s %s</p>",
-                translation.getImageTitle() + " " + categoryName, imageLink, translation.getImageAlt() + " " + declension.getRod(), translation.getShortText(), declension.getRod());
+        String image = "manuals";
+        if (type.equals(GUIDE)) {
+            image = "solutions";
+        } else if (type.equals(EMULATOR)) {
+            image = "emulators";
+        } else if (type.equals(DOC)) {
+            image = "documents";
+        }
+        return SiteRenderer.generateHeaderImage(type, category, String.format("%s %s.", translation.getShortText().substring(PR.length() - 1), declension.getRod()), image);
     }
 
     private String generateFullText() {
@@ -112,21 +114,21 @@ public class ManualGuideRenderer extends SiteRenderer {
                 authors = b.getPublisher() == null ? "" : b.getPublisher().getName();
             }
             String downloadLink = b.getDataList().isEmpty() ? "" :
-                    String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" target=\"_blank\" /></a>", cloudStorageLink);
+                    String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" target=\"_blank\" /></a>\n", cloudStorageLink);
             /*String downloadLink = b.getDataList().isEmpty() ? "" :
                     String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/book.png\" alt=\"download\" /></a>",
                             generateDownloadLink(translation.getPlural(), category, b.getFileName() != null ? b.getFileName() : b.getTitle()), b.getDataList().get(0).getFormat().toLowerCase());*/
             String externalLink = b.getExternalLink() == null || b.getExternalLink().isEmpty() ? ""
-                    : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page.png\" alt=\"download\" /></a> ", b.getExternalLink());
+                    : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page.png\" alt=\"download\" /></a>\n", b.getExternalLink());
             String text = b.getTextShort().isEmpty() ? b.getTextMore() : b.getTextShort();
             String spoiler = "";
             if (!text.equals(b.getTextMore()) && !b.getTextMore().isEmpty()) {
-                spoiler += "<br /><span class=\"spoiler\" style=\"display: none;\">" + b.getTextMore() + "</span>";
+                spoiler += "<br /><span class=\"spoiler\" style=\"display: none;\">" + b.getTextMore() + "</span>\n";
             }
             text = trimHtmlTags(text.replace("\n", "").replace("\r", ""));
             String br = text.length() < 108 && spoiler.isEmpty() ? "<br /><br />" : "";
             String author = authors.isEmpty() ? "" : String.format("%s,", authors);
-            return String.format("<p>%s%s%s (C) %s,%s%s%s</p>",
+            return String.format("<p>%s%s%s (C) %s,%s%s%s</p>\n",
                     externalLink, downloadLink, text, author, formatDate(b.getSignedInPrint()), br, spoiler);
         }).collect(joining());
     }
