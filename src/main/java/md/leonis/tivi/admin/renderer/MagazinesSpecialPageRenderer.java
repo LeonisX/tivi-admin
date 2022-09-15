@@ -69,16 +69,16 @@ public class MagazinesSpecialPageRenderer extends SiteRenderer {
     private String generateText() {
         StringBuilder sb = new StringBuilder();
 
-        CalibreBook book = groupedMagazines.entrySet().stream().filter(e -> MagazinesRenderer.isSpecific(e.getValue()))
+        CalibreBook book = groupedMagazines.entrySet().stream().filter(e -> MagazinesCitationRenderer.isSpecific(e.getValue()))
                 .min(Comparator.comparing(b -> b.getKey().getSeries().getName())).orElseThrow(RuntimeException::new).getKey();
         String imageLink = generateBookThumbUri(BookUtils.getCategoryByTags(book), book.getCpu());
 
         sb.append(String.format("<p><img style=\"border: 1px solid #aaaaaa; float: right; margin: 5px;\" title=\"%s\" src=\"%s\" alt=\"%s\" />\n",
                 "Специализированные периодические издания", imageLink, "Специализированные журналы"));
 
-        groupedMagazines.entrySet().stream().filter(e -> MagazinesRenderer.isSpecific(e.getValue()))
+        groupedMagazines.entrySet().stream().filter(e -> MagazinesCitationRenderer.isSpecific(e.getValue()))
                 .sorted(Comparator.comparing(b -> b.getKey().getSeries().getName()))
-                .collect(Collectors.groupingBy(b -> BookUtils.getCategoryName(MagazinesRenderer.getSpecificTag(b.getValue()))))
+                .collect(Collectors.groupingBy(b -> BookUtils.getCategoryName(MagazinesCitationRenderer.getSpecificTag(b.getValue()))))
                 .entrySet().stream().sorted(Map.Entry.comparingByKey())
                 .forEach(e -> {
                     sb.append(String.format("<p  style=\"color:gray\"><strong><i>:: %s</i></strong></p>\n", e.getKey()));

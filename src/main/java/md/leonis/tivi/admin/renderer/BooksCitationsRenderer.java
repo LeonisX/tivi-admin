@@ -19,7 +19,7 @@ import static md.leonis.tivi.admin.model.Type.BOOK;
 import static md.leonis.tivi.admin.utils.Config.sitePath;
 import static md.leonis.tivi.admin.utils.StringUtils.typeTranslationMap;
 
-public class CitationsRenderer extends SiteRenderer {
+public class BooksCitationsRenderer extends SiteRenderer {
 
     private final List<CalibreBook> calibreBooks;
     private final List<Video> filteredSiteBooks;
@@ -31,7 +31,7 @@ public class CitationsRenderer extends SiteRenderer {
     private final Declension declension;
 
     // Упоминания в других книгах
-    public CitationsRenderer(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
+    public BooksCitationsRenderer(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
         this.filteredSiteBooks = filteredSiteBooks;
         this.category = category;
         this.addedBooks = addedBooks;
@@ -85,7 +85,7 @@ public class CitationsRenderer extends SiteRenderer {
         StringBuilder sb = new StringBuilder();
         //sb.append(String.format("<p>В этих книгах так же можно найти информацию об играх для %s:</p>\n", BookUtils.getCategoryName(category)));
         sb.append("<ul class=\"file-info\">\n");
-        calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>\n", generateBookViewUri(b.getCpu()), b.getTitle())));
+        calibreBooks.forEach(b -> sb.append(String.format("<li><a href=\"%s\">%s</a></li>\n", generateBookViewGroupUri(b), b.getTitle())));
         sb.append("</ul>\n");
         return SiteRenderer.generateHeaderImage(BOOK, category, sb.toString(), "citation");
     }

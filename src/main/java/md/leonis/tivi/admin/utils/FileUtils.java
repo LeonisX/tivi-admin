@@ -27,7 +27,7 @@ public class FileUtils {
             Files.deleteIfExists(backupPath);
             Files.copy(path, backupPath);
             try {
-                Files.deleteIfExists(backupPath);
+                Files.deleteIfExists(path);
             } catch (Exception ignored) {
             }
         }
@@ -112,29 +112,31 @@ public class FileUtils {
 
     @SneakyThrows
     public static void deleteFileOrFolder(final Path path) {
-        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                Files.deleteIfExists(file);
-                return CONTINUE;
-            }
+        if (Files.exists(path)) {
+            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+                    Files.deleteIfExists(file);
+                    return CONTINUE;
+                }
 
-            @Override
-            public FileVisitResult visitFileFailed(final Path file, final IOException e) {
-                return handleException(e);
-            }
+                @Override
+                public FileVisitResult visitFileFailed(final Path file, final IOException e) {
+                    return handleException(e);
+                }
 
-            private FileVisitResult handleException(final IOException e) {
-                e.printStackTrace(); // replace with more robust error handling
-                return TERMINATE;
-            }
+                private FileVisitResult handleException(final IOException e) {
+                    e.printStackTrace(); // replace with more robust error handling
+                    return TERMINATE;
+                }
 
-            @Override
-            public FileVisitResult postVisitDirectory(final Path dir, final IOException e) throws IOException {
-                if (e != null) return handleException(e);
-                Files.deleteIfExists(dir);
-                return CONTINUE;
-            }
-        });
+                @Override
+                public FileVisitResult postVisitDirectory(final Path dir, final IOException e) throws IOException {
+                    if (e != null) return handleException(e);
+                    Files.deleteIfExists(dir);
+                    return CONTINUE;
+                }
+            });
+        }
     }
 }

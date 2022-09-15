@@ -4,6 +4,7 @@ import md.leonis.tivi.admin.model.calibre.Book;
 import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.model.danneo.Video;
 import md.leonis.tivi.admin.utils.BookUtils;
+import md.leonis.tivi.admin.utils.CalibreUtils;
 import md.leonis.tivi.admin.utils.SiteRenderer;
 import md.leonis.tivi.admin.utils.StringUtils;
 
@@ -73,14 +74,17 @@ public class MagazinesSearchPageRenderer extends SiteRenderer {
 
     private String generateFullText() {
         StringBuilder sb = new StringBuilder();
-        groupedMagazines.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().getSeries().getName())).forEach(e -> {
-            sb.append(String.format("<h3>%s</h3>\n", e.getKey().getSeries().getName()));
+        groupedMagazines.entrySet().stream().sorted(Comparator.comparing(e -> CalibreUtils.getMagazineTitle(e.getKey()))).forEach(e -> {
+            sb.append(String.format("<h3>%s</h3>\n", CalibreUtils.getMagazineTitle(e.getKey())));
             sb.append("<ul class=\"file-info\">\n");
             e.getValue().forEach(c -> sb.append(String.format("<li>%s</li>\n", c.getTitle())));
             sb.append("</ul>\n");
         });
 
-        sb.append(SiteRenderer.generateMissedImagesList(groupedMagazines.values().stream().flatMap(Collection::stream).collect(toList())));
+        sb.append(SiteRenderer.generateTableView(groupedMagazines.entrySet().stream()
+                .sorted(Comparator.comparing(e -> e.getKey().getSeries().getName())).map(Map.Entry::getValue)
+                .flatMap(Collection::stream).sorted(Comparator.comparing(CalibreBook::getTitle)).collect(toList()))
+        );
         return sb.toString();
     }
 }

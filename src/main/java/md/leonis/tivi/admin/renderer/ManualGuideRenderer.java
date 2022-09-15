@@ -159,6 +159,9 @@ public class ManualGuideRenderer extends SiteRenderer {
             String externalLink = b.getExternalLink() == null || b.getExternalLink().isEmpty() ? ""
                     : String.format("<a href=\"%s\"><img style=\"float: left; margin-right: 5px;\" src=\"images/page-16.png\" alt=\"download\" target=\"_blank\" /></a> ", b.getExternalLink());
             String text = b.getTextShort().isEmpty() ? b.getTextMore() : b.getTextShort();
+            if (b.getOwn() == null || !b.getOwn()) {
+                text = "<b>РОЗЫСК:</b> " + text;
+            }
             String spoiler = "";
             if (!text.equals(b.getTextMore()) && !b.getTextMore().isEmpty()) {
                 spoiler += " <span class=\"spoiler\" style=\"display: none;\"><br />"

@@ -100,43 +100,19 @@ public class SiteCompareController extends SubPane {
     public void updateOnSite() throws IOException {
         BookUtils.cloudStorageLink = cloudStorageLink.getText();
         SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
-        ComparisionResult<Video> comparisionResult = BookUtils.compare(calibreBooks, categoryComboBox.getValue().getCatcpu());
-        List<String> sql = BookUtils.syncDataWithSite(comparisionResult, true);
-        BookUtils.loadTiviIds(calibreBooks, comparisionResult, calibreDir.getText() + Config.calibreDbName, categoryComboBox.getValue().getCatcpu());
+        List<ComparisionResult<Video>> comparisionResults = BookUtils.compare(calibreBooks, categoryComboBox.getValue().getCatcpu());
+        List<String> sql = BookUtils.syncDataWithSite(comparisionResults, true);
+        BookUtils.loadTiviIds(calibreBooks, comparisionResults, calibreDir.getText() + Config.calibreDbName);
 
-        Path path = Paths.get(Config.outputPath).resolve(String.format("update-queries-%s.sql", categoryComboBox.getValue().getCatcpu()));
+        String fileName = comparisionResults.size() <= 1 ? String.format("update-queries-%s.sql", categoryComboBox.getValue().getCatcpu()) : "update-queries.sql";
+        Path path = Paths.get(Config.outputPath).resolve(fileName);
         FileUtils.backupFile(path);
         Files.write(path, sql);
 
         reloadBooks();
     }
 
-    //TODO delete???
-    //фактически этот код пока не работает, очень тяжело научить его не плодить дубликаты
-    public void generateSQL() throws IOException {
-        BookUtils.cloudStorageLink = cloudStorageLink.getText();
-        SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
-        //TODO тут такая беда, что просачиваются дубликаты.
-        //TODO unique by cpu
-        List<String> sql = categoryComboBox.getItems().stream().filter(bc -> bc.getCatcpu() != null && !bc.getCatcpu().equals("magazines"))
-                .map(bc -> BookUtils.compare(calibreBooks, bc.getCatcpu()))
-                .flatMap(cr -> BookUtils.syncDataWithSite(cr, false).stream())
-                .collect(toList());
-
-        Path path = Paths.get(Config.outputPath).resolve("update-queries.sql");
-        FileUtils.backupFile(path);
-        Files.write(path, sql);
-    }
-
-    //TODO delete???
-    //фактически этот код пока не работает, очень тяжело научить его не плодить дубликаты
-    public void getTiviIds() {
-        reloadSiteData();
-        BookUtils.loadTiviIds(calibreBooks, calibreDir.getText() + Config.calibreDbName);
-        reloadCalibreData();
-    }
-
-    public void generateForumGuides() {
+    public void generateForumGuides() throws IOException {
         SiteRenderer.cloudStorageLink = cloudStorageLink.getText();
         new ForumGuidesRenderer(calibreBooks).generateForumGuides();
     }
@@ -168,7 +144,7 @@ public class SiteCompareController extends SubPane {
         //reloadSiteData();
         List<Pair<BookCategory, BookCategory>> comparisionResult = BookUtils.compareCategories();
         setupTreeTableView();
-        fillTreeTableView(comparisionResult);
+        fillTreeTableViewCategories(comparisionResult);
     }
 
     public void updateCategories() {
@@ -322,7 +298,7 @@ public class SiteCompareController extends SubPane {
     }
 
     @SuppressWarnings("unchecked")
-    private void fillTreeTableView(ComparisionResult<Video> comparisionResult) {
+    private void fillTreeTableView(List<ComparisionResult<Video>> comparisionResults) {
         TreeItem<View> addedItem = new TreeItem<>(new View("Added"));
         TreeItem<View> deletedItem = new TreeItem<>(new View("Deleted"));
         TreeItem<View> changedItem = new TreeItem<>(new View("Changed"));
@@ -334,20 +310,20 @@ public class SiteCompareController extends SubPane {
         TreeItem<View> rootItem = new TreeItem<>(new View("R00T"));
         rootItem.getChildren().addAll(addedItem, deletedItem, changedItem);
 
-        addedItem.getChildren().addAll(comparisionResult.getAddedBooks().stream().map(b -> {
-            TreeItem<View> treeItem = new TreeItem<>(new View(b.getTitle())); //TODO may be add more properties
+        addedItem.getChildren().addAll(comparisionResults.stream().flatMap(c -> c.getAddedBooks().stream()).map(b -> {
+            TreeItem<View> treeItem = new TreeItem<>(new View(groupTitle(b))); //TODO may be add more properties
             treeItem.setExpanded(true);
             return treeItem;
         }).collect(toList()));
 
-        deletedItem.getChildren().addAll(comparisionResult.getDeletedBooks().stream().map(b -> {
-            TreeItem<View> treeItem = new TreeItem<>(new View(b.getTitle())); //TODO may be add more properties
+        deletedItem.getChildren().addAll(comparisionResults.stream().flatMap(c -> c.getDeletedBooks().stream()).map(b -> {
+            TreeItem<View> treeItem = new TreeItem<>(new View(groupTitle(b))); //TODO may be add more properties
             treeItem.setExpanded(true);
             return treeItem;
         }).collect(toList()));
 
-        changedItem.getChildren().addAll(comparisionResult.getChangedBooks().entrySet().stream().map(b -> {
-            TreeItem<View> treeItem = new TreeItem<>(new View(b.getKey().getTitle()));
+        changedItem.getChildren().addAll(comparisionResults.stream().flatMap(c -> c.getChangedBooks().entrySet().stream()).map(b -> {
+            TreeItem<View> treeItem = new TreeItem<>(new View(groupTitle(b.getKey())));
             treeItem.setExpanded(true);
             b.getValue().forEach(c -> treeItem.getChildren().add(new TreeItem<>(
                     new View(c.getKey(), c.getValue().getKey(), c.getValue().getValue())
@@ -361,7 +337,16 @@ public class SiteCompareController extends SubPane {
         //treeTableView.setEditable(true);
     }
 
-    private void fillTreeTableView(List<Pair<BookCategory, BookCategory>> comparisionResult) {
+    // Добавить платформу к названию: # Книги в розыске (Arcade)
+    private String groupTitle(Video book) {
+        String title = book.getTitle();
+        if (title.startsWith("#") && book.getCpu().endsWith("_search")) {
+            title = String.format("%s (%s)", title, BookUtils.getCategoryName(book.getCpu().split("_")[0]));
+        }
+        return title;
+    }
+
+    private void fillTreeTableViewCategories(List<Pair<BookCategory, BookCategory>> comparisionResult) {
         TreeItem<View> changedItem = new TreeItem<>(new View("Changed"));
 
         changedItem.setExpanded(true);

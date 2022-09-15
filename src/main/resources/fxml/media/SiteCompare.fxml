@@ -37,7 +37,6 @@
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
-               <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
                    <RowConstraints maxHeight="32.0" minHeight="30.0" prefHeight="32.0" vgrow="SOMETIMES" />
@@ -76,31 +75,25 @@
                <Button mnemonicParsing="false" onAction="#compare" prefHeight="25.0" prefWidth="97.0" text="Compare" GridPane.columnIndex="3" GridPane.rowIndex="5" />
                <Button mnemonicParsing="false" onAction="#updateOnSite" prefHeight="25.0" prefWidth="97.0" text="Update" GridPane.columnIndex="4" GridPane.rowIndex="5" />
 
-               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="6">
-                   <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Сгенерировать SQL файл (для ручного апдейта):" />
-               </HBox>
-               <Button disable="true" mnemonicParsing="false" onAction="#generateSQL" prefHeight="25.0" prefWidth="97.0" text="Generate SQL" GridPane.columnIndex="3" GridPane.rowIndex="6" />
-               <Button disable="true" mnemonicParsing="false" onAction="#getTiviIds" prefHeight="25.0" prefWidth="97.0" text="Get TiviIds" GridPane.columnIndex="4" GridPane.rowIndex="6" />
+               <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Обложки и превьюшки" GridPane.rowIndex="6" />
+               <Button mnemonicParsing="false" onAction="#dumpImages" prefHeight="25.0" prefWidth="97.0" text="Prepare" GridPane.columnIndex="2" GridPane.rowIndex="6" />
+               <Button disable="true" mnemonicParsing="false" onAction="#uploadImages" prefHeight="25.0" prefWidth="97.0" text="Upload" GridPane.columnIndex="4" GridPane.rowIndex="6" />
 
-               <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Обложки и превьюшки" GridPane.rowIndex="7" />
-               <Button mnemonicParsing="false" onAction="#dumpImages" prefHeight="25.0" prefWidth="97.0" text="Prepare" GridPane.columnIndex="2" GridPane.rowIndex="7" />
-               <Button disable="true" mnemonicParsing="false" onAction="#uploadImages" prefHeight="25.0" prefWidth="97.0" text="Upload" GridPane.columnIndex="4" GridPane.rowIndex="7" />
-
-               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="8">
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="7">
                    <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Книги и периодика" />
                </HBox>
 
-               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="9">
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="8">
                    <Label minWidth="268.0" prefHeight="17.0" prefWidth="268.0" text="Ссылка на облако:" />
                    <TextField fx:id="cloudStorageLink" prefHeight="26.0" prefWidth="281.0" text="https://cloud.mail.ru/public/c5d4/gaoYK6cxR" />
                </HBox>
-               <Button mnemonicParsing="false" onAction="#dumpBooks" prefHeight="25.0" prefWidth="97.0" text="Prepare" GridPane.columnIndex="2" GridPane.rowIndex="9" />
-               <Button disable="true" mnemonicParsing="false" onAction="#uploadBooks" prefHeight="25.0" prefWidth="97.0" text="Upload" GridPane.columnIndex="4" GridPane.rowIndex="9" />
+               <Button mnemonicParsing="false" onAction="#dumpBooks" prefHeight="25.0" prefWidth="97.0" text="Prepare" GridPane.columnIndex="2" GridPane.rowIndex="8" />
+               <Button disable="true" mnemonicParsing="false" onAction="#uploadBooks" prefHeight="25.0" prefWidth="97.0" text="Upload" GridPane.columnIndex="4" GridPane.rowIndex="8" />
 
-               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="10">
+               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.rowIndex="9">
                    <Label text="Обзоры для форума" />
                </HBox>
-            <Button mnemonicParsing="false" onAction="#generateForumGuides" prefHeight="25.0" prefWidth="97.0" text="Generate" GridPane.columnIndex="4" GridPane.rowIndex="10" />
+            <Button mnemonicParsing="false" onAction="#generateForumGuides" prefHeight="25.0" prefWidth="97.0" text="Generate" GridPane.columnIndex="4" GridPane.rowIndex="9" />
 
            </GridPane>
        </VBox>

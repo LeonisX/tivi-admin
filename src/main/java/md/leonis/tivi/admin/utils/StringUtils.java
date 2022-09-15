@@ -237,4 +237,13 @@ public class StringUtils {
     public static boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
     }
+
+    // JDK 11: "a".repeat(N);
+    public static String repeat(char chr, int count) {
+        char[] charArray = new char[count];
+        for (int i = 0; i < count; i++) {
+            charArray[i] = chr;
+        }
+        return new String(charArray);
+    }
 }

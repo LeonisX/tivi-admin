@@ -19,7 +19,7 @@
 
 <p><i>* Обратите внимание, что речь идёт именно о типе уникальных записей в базе данных, а он может меняться.
         Например, группа книг может быть переведена в группу периодических изданий (газет или журналов).
-        Добавленные книги и журналы издания мы рассмотрим далее.</i></p>
+        Добавленные книги и журналы мы рассмотрим далее.</i></p>
 
 <p>В электронном виде доступно ${availableBooks}% от всей коллекции.</p>
 <p>Осталось отсканировать всего ${absentBooks} ${absentBooksPlural}.</p>
@@ -49,6 +49,20 @@
 
 <#list byPictures as item>
     <a href="${item.siteUri}"><img src="${item.siteThumbUri}" title="${item.title}" alt="${item.cpu}"/></a>
+</#list>
+
+<h2>Самые свежие пополнения (пока без сканов)</h2>
+
+<ul>
+    <#list newBooks as item>
+        <li>${item.title}</li>
+    </#list>
+</ul>
+
+<p><i>Картинки кликабельны.</i></p>
+
+<#list newBooks as item>
+    <a href="${item.siteCoverUri}"><img src="${item.siteThumbUri}" title="${item.title}" alt="${item.cpu}"/></a>
 </#list>
 
 </body>

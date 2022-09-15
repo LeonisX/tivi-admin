@@ -57,6 +57,7 @@ public class CalibreBook extends Book {
     private transient String siteCpu;
     private transient String siteUri;
     private transient String siteThumbUri;
+    private transient String siteCoverUri;
 
     public boolean belongsToCategory(String category) {
         return tags != null && tags.stream().map(Tag::getName).collect(toList()).contains(category);

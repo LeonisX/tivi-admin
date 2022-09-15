@@ -14,36 +14,51 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
-import static md.leonis.tivi.admin.model.Type.COMICS;
+import static md.leonis.tivi.admin.model.Type.MAGAZINE;
 import static md.leonis.tivi.admin.utils.Config.sitePath;
 import static md.leonis.tivi.admin.utils.StringUtils.typeTranslationMap;
 
-public class MagazinesRenderer extends SiteRenderer {
+public class MagazinesCitationRenderer extends SiteRenderer {
 
     private final List<Video> filteredSiteBooks;
     private final String category;
     private final Collection<Video> addedBooks;
     private final List<Video> oldBooks;
-    private final Type type;
+    private final Type type = MAGAZINE;
 
     private final Map<String, List<CalibreBook>> groupedBooks;
     private final TypeTranslation translation;
     private final Declension declension;
 
-    public MagazinesRenderer(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks, Type type) {
+    private final List<String> specificMags;
+    private final List<String> commonMags;
+    private final List<String> citations;
+
+    public MagazinesCitationRenderer(List<CalibreBook> allCalibreBooks, List<Video> filteredSiteBooks, String category, Collection<Video> addedBooks, List<Video> oldBooks) {
         this.filteredSiteBooks = filteredSiteBooks;
         this.category = category;
         this.addedBooks = addedBooks;
         this.oldBooks = oldBooks;
-        this.type = type;
 
         this.groupedBooks = getGroupedBooks(allCalibreBooks, type, category);
         this.translation = typeTranslationMap.get(type);
         this.declension = StringUtils.getDeclension(BookUtils.getCategoryName(category));
+
+        specificMags = getMagsHtml(true);
+        commonMags = getMagsHtml(false);
+        citations = new TreeMap<>(groupedBooks).values().stream()
+                .filter(calibreBooks -> calibreBooks.stream().flatMap(v -> v.getAltTags().stream()).map(CustomColumn::getValue).collect(Collectors.toSet()).contains(category))
+                .map(calibreBooks -> String.format("<li><a href=\"%s\">%s</a></li>\n", generateBookViewGroupUri(calibreBooks.get(0)), CalibreUtils.getMagazineTitle(calibreBooks.get(0))))
+                .collect(Collectors.toList());
+        citations.removeAll(specificMags);
+        citations.removeAll(commonMags);
     }
 
-    public void generateMagazinesPage() {
+    public void generateCitationPage() {
         if (groupedBooks.isEmpty()) {
+            return;
+        }
+        if (citations.isEmpty() && specificMags.size() == groupedBooks.size()) {
             return;
         }
         String cpu = generateMagazinesCpu();
@@ -82,39 +97,22 @@ public class MagazinesRenderer extends SiteRenderer {
     //TODO html
     private String generateText() {
         StringBuilder sb = new StringBuilder();
-        if (type.equals(COMICS)) {
-            sb.append(SiteRenderer.generateHeaderImage(type, category, String.format(translation.getText(), declension.getRod()), "comics"));
-            sb.append("<ul class=\"file-info\">\n");
-            new TreeMap<>(groupedBooks).forEach((key, value) ->
-                    sb.append(String.format("<li><a href=\"%s\">%s</a></li>\n", generateBookViewUri(value.get(0).getCpu()), key))
-            );
-            sb.append("</ul>\n");
-            return sb.toString();
-        } else {
-            List<String> specificMags = getMagsHtml(true);
-            List<String> commonMags = getMagsHtml(false);
-            List<String> citations = new TreeMap<>(groupedBooks).values().stream()
-                    .filter(calibreBooks -> calibreBooks.stream().flatMap(v -> v.getAltTags().stream()).map(CustomColumn::getValue).collect(Collectors.toSet()).contains(category))
-                    .map(calibreBooks -> String.format("<li><a href=\"%s\">%s</a></li>\n", generateBookViewUri(CalibreUtils.getMagazineCpu(calibreBooks.get(0))), CalibreUtils.getMagazineTitle(calibreBooks.get(0))))
-                    .collect(Collectors.toList());
-            citations.removeAll(specificMags);
-            citations.removeAll(commonMags);
-            if (!commonMags.isEmpty()) {
-                sb.append("<ul class=\"file-info\">\n");
-                commonMags.forEach(sb::append);
-                sb.append("</ul>\n");
-            }
-            if (!citations.isEmpty()) {
-                if (!specificMags.isEmpty()) {
-                    sb.append("<p>А так же:</p>\n");
-                }
-                sb.append("<ul class=\"file-info\">\n");
-                citations.forEach(sb::append);
-                sb.append("</ul>\n");
 
-            }
-            return SiteRenderer.generateHeaderImage(type, category, sb.toString(), "mention");
+        if (!commonMags.isEmpty()) {
+            sb.append("<ul class=\"file-info\">\n");
+            commonMags.forEach(sb::append);
+            sb.append("</ul>\n");
         }
+        if (!citations.isEmpty()) {
+            if (!commonMags.isEmpty()) { // специализированные журналы не выводим, потому что они пойдут отдельными сборниками
+                sb.append("<p>А так же:</p>\n");
+            }
+            sb.append("<ul class=\"file-info\">\n");
+            citations.forEach(sb::append);
+            sb.append("</ul>\n");
+
+        }
+        return SiteRenderer.generateHeaderImage(type, category, sb.toString(), "mention");
     }
 
     private List<String> getMagsHtml(boolean specific) {
@@ -151,18 +149,17 @@ public class MagazinesRenderer extends SiteRenderer {
     public static String getSpecificTag(List<CalibreBook> books) {
         Set<Map.Entry<String, List<String>>> set = books.stream().flatMap(b -> b.getTags().stream()).map(Tag::getName)
                 .collect(groupingBy(Function.identity())).entrySet();
-        return Collections.max(set, Comparator.comparingInt((Map.Entry<String, List<String>> e2) -> e2.getValue().size())).getKey();
+        return Collections.max(set, Comparator.comparingInt((Map.Entry<String, List<String>> e) -> e.getValue().size())).getKey();
     }
 
     //тут забираются не все журналы. сначала вытаскивать серии, потом искать по ним.
-    //так же посмотреть как испоьзуется. тут журналы, макстмум еще комиксы.
+    //так же посмотреть как используется. тут журналы, максимум еще комиксы.
     public static Map<String, List<CalibreBook>> getGroupedBooks(List<CalibreBook> books, Type type, String category) {
         Set<String> series = books.stream()
                 .filter(b -> b.getType().equals(type))
                 .filter(b -> b.belongsToCategory(category) || b.mentionedInCategory(category))
                 .filter(b -> b.getSeries() != null)
                 .map(b -> b.getSeries().getName())
-                .distinct()
                 .collect(Collectors.toSet());
         return books.stream()
                 .filter(b -> b.getType().equals(type))

@@ -4,9 +4,14 @@ import md.leonis.tivi.admin.model.calibre.Author;
 import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import md.leonis.tivi.admin.model.calibre.Tag;
 import md.leonis.tivi.admin.utils.BookUtils;
+import md.leonis.tivi.admin.utils.Config;
 import md.leonis.tivi.admin.utils.FileUtils;
 import md.leonis.tivi.admin.utils.SiteRenderer;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,11 +61,12 @@ public class ForumGuidesRenderer extends SiteRenderer {
                 }));
     }
 
-    //TODO file output, [bb]
-    public void generateForumGuides() {
-        groupedBooks.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey().toLowerCase())).forEach(entry -> {
-
-            System.out.println(String.format("\n[b]%s[/b]", entry.getKey()));
+    public void generateForumGuides() throws IOException {
+        List<Map.Entry<String, List<CalibreBook>>> toSort = new ArrayList<>(groupedBooks.entrySet());
+        toSort.sort(Comparator.comparing(e -> e.getKey().toLowerCase()));
+        List<String> bbLines = new ArrayList<>();
+        for (Map.Entry<String, List<CalibreBook>> entry : toSort) {
+            bbLines.add(String.format("\n[b]%s[/b]", entry.getKey()));
 
             List<String> lines = new ArrayList<>();
 
@@ -106,9 +112,12 @@ public class ForumGuidesRenderer extends SiteRenderer {
             });
 
             lines.stream().sorted(Comparator.comparing(l -> l.substring(l.indexOf("\"]")))).forEach(System.out::println);
-        });
+            bbLines.addAll(lines);
+        }
 
-        //manual.setFullText(fixLatinChars(manual.getFullText()));
+        Path path = Paths.get(Config.outputPath).resolve("forum-guides.txt");
+        FileUtils.backupFile(path);
+        Files.write(path, bbLines);
     }
 
 

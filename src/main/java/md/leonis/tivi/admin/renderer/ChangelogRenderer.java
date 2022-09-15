@@ -124,15 +124,21 @@ public class ChangelogRenderer {
         List<CalibreBook> addedBooks = filesMap.values().stream().sorted(Comparator.comparing(CalibreBook::getTitle)).collect(Collectors.toList());
         root.put("byPictures", addedBooks);
 
+        Long lastOldBookId = oldCalibreBooks.stream().mapToLong(Book::getId).max().orElseThrow(RuntimeException::new);
+        List<CalibreBook> newBooks = modifiedBooks.stream().filter(b -> b.getId() > lastOldBookId && b.getOwn() != null && !b.getOwn()).sorted(Comparator.comparing(CalibreBook::getTitle)).collect(Collectors.toList());
+
+        root.put("newBooks", newBooks);
+
         return TemplateUtils.processTemplateToFile(root, "changelogReport", getReportPath());
     }
 
     private Map<Long, CalibreBook> getFilesMap(List<CalibreBook> modifiedBooks, long lastFileId) {
         Map<Long, CalibreBook> files = new HashMap<>();
-        modifiedBooks
+        modifiedBooks.stream().filter(b -> b.getOwn() != null && b.getOwn())
                 .forEach(book -> book.getDataList().stream()
                         .filter(file -> file.getId() >= lastFileId)
                         .filter(file -> !"JPG".equals(file.getFormat()))
+                        .filter(file -> !"BMP".equals(file.getFormat()))
                         .min((f1, f2) -> f2.getId().compareTo(f1.getId())).ifPresent(file -> files.put(file.getId(), book))
                 );
         return files;

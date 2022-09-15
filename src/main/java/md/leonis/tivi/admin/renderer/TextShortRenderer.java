@@ -42,7 +42,7 @@ public class TextShortRenderer extends SiteRenderer {
         sb.append("<ul class=\"file-info\">\n");
 
         //if (book.getType().equals(MAGAZINE)) {
-        if ((isFirst && book.getGroup() != null) || book.getType().equals(MAGAZINE)) {
+        if ((isFirst && book.getGroup() != null) || (isFirst && book.getType().equals(MAGAZINE))) {
             sb.append(String.format("<li><strong>%s</strong></li>\n", book.getTitle()));
         }
         if (book.getOwn() == null || !book.getOwn()) {

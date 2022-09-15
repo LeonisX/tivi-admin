@@ -62,6 +62,9 @@ public class SiteRenderer {
     public static String generateBookViewUri(String cpu) {
         return String.format("%s/media/open/%s.html", sitePath, cpu);
     }
+    public static String generateBookViewGroupUri(CalibreBook book) {
+        return generateBookViewUri(book.getSiteCpu());
+    }
 
     public static String generateBookGroupViewUri(String category, Type type) {
         return String.format("%s/media/open/%s_%ss.html", sitePath, category, type);
@@ -178,7 +181,7 @@ public class SiteRenderer {
     }
 
     public static String generateMissedList(List<CalibreBook> calibreBooks) {
-        if (calibreBooks.isEmpty() || calibreBooks.stream().allMatch(CalibreBook::getOwn)) {
+        if (calibreBooks.isEmpty() || calibreBooks.get(0).getType().equals(Type.COMICS) || calibreBooks.stream().allMatch(CalibreBook::getOwn)) {
             return "";
         }
         StringBuilder sb = new StringBuilder();
@@ -316,5 +319,56 @@ public class SiteRenderer {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    //TODO html
+    public static String generateTableView(List<CalibreBook> books) {
+        int counter = 1;
+        StringBuilder sb = new StringBuilder();
+        StringBuilder imageBuilder = new StringBuilder();
+        StringBuilder titleBuilder = new StringBuilder();
+        sb.append("<p><table style=\"width:600px;\">\n");
+        for (CalibreBook book : books) {
+            if (counter == 1) {
+                sb.append("<tr>");
+            }
+            imageBuilder.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\">\n");
+            titleBuilder.append("<td style=\"text-align:center; padding-top: 5px; padding-bottom: 10px;\">\n");
+            if (book.getHasCover() != 0) {
+                String imageLink = generateBookCoverUri(BookUtils.getCategoryByTags(book), book.getCpu());
+                String imageThumb = generateBookThumbUri(BookUtils.getCategoryByTags(book), book.getCpu());
+                String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
+                String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
+                imageBuilder.append(String.format("<a href=\"%s\"><img style=\"border: 1px solid #aaaaaa;\" title=\"%s\" src=\"%s\" alt=\"%s\" /></a>\n", imageLink, imageTitle, imageThumb, imageAlt));
+            } else {
+                String imageThumb = "images/books/nocover.png";
+                String imageTitle = book.getOfficialTitle() == null ? book.getTitle() : book.getOfficialTitle();
+                String imageAlt = book.getFileName() == null ? book.getTitle() : book.getFileName();
+                imageBuilder.append(String.format("<img style=\"border: 1px solid #aaaaaa;\" title=\"%s\" src=\"%s\" alt=\"%s\" />\n", imageTitle, imageThumb, imageAlt));
+            }
+            titleBuilder.append(book.getTitle());
+            imageBuilder.append("</td>\n");
+            titleBuilder.append("</td>\n");
+            counter++;
+            if (counter > 3) {
+                imageBuilder.append("</tr><tr>\n");
+                titleBuilder.append("</tr>\n");
+                sb.append(imageBuilder).append(titleBuilder);
+                imageBuilder = new StringBuilder();
+                titleBuilder = new StringBuilder();
+                counter = 1;
+            }
+        }
+        if (counter != 1) {
+            for (int i = counter - 1; i <= 3; i++) {
+                imageBuilder.append("<td style=\"vertical-align:bottom;text-align:center;width:200px\"></td>\n");
+                titleBuilder.append("<td style=\"text-align:center;\"></td>\n");
+            }
+        }
+        if (!imageBuilder.toString().isEmpty()) {
+            sb.append(imageBuilder).append("</tr>\n").append(titleBuilder).append("</tr>\n");
+        }
+        sb.append("</table></p>\n");
+        return sb.toString();
     }
 }

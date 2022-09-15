@@ -10,7 +10,7 @@ import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.Comment;
 import md.leonis.tivi.admin.model.calibre.*;
 import md.leonis.tivi.admin.model.calibre.links.*;
-import md.leonis.tivi.admin.renderer.MagazinesRenderer;
+import md.leonis.tivi.admin.renderer.MagazinesCitationRenderer;
 import md.leonis.tivi.admin.utils.archive.RarUtils;
 import md.leonis.tivi.admin.utils.archive.SevenZipUtils;
 import org.jsoup.Jsoup;
@@ -321,6 +321,8 @@ public class CalibreUtils {
         calibreBooks.forEach(this::setSiteCpu);
         calibreBooks.forEach(this::setSiteUri);
         calibreBooks.forEach(this::setSiteThumbUri);
+        calibreBooks.forEach(this::setSiteCoverUri);
+
         /*calibreBooks.forEach(b -> {
             if (b.getFileName() != null) {
                 b.setFileName(b.getFileName().replace(":", " -"));
@@ -372,6 +374,10 @@ public class CalibreUtils {
 
     private void setSiteThumbUri(CalibreBook book) {
         book.setSiteThumbUri(SiteRenderer.generateBookThumbUri(BookUtils.getCategoryByTags(book), book.getCpu()));
+    }
+
+    private void setSiteCoverUri(CalibreBook book) {
+        book.setSiteCoverUri(SiteRenderer.generateBookCoverUri(BookUtils.getCategoryByTags(book), book.getCpu()));
     }
 
     public static ComparisionResult<CalibreBook> compare(List<CalibreBook> oldBooks, List<CalibreBook> newBooks) {
@@ -874,8 +880,11 @@ public class CalibreUtils {
                 case MAGAZINE:
                     //TODO may be languages in path
                     List<CalibreBook> books = shallowCopy.stream().filter(b -> b.getSeries() != null && b.getSeries().equals(book.getSeries())).collect(toList());
-                    String tag = MagazinesRenderer.getSpecificTag(books);
-                    if (MagazinesRenderer.isSpecific(books)) { // specialized magz
+                    if (books.isEmpty()) {
+                        throw new RuntimeException("Magazine w/o serie: " + book.getTitle());
+                    }
+                    String tag = MagazinesCitationRenderer.getSpecificTag(books);
+                    if (MagazinesCitationRenderer.isSpecific(books)) { // specialized magz
                         destPath = booksDir.toPath().resolve(tag);
                     } else {
                         destPath = magazinesDir.toPath();

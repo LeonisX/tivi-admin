@@ -85,10 +85,15 @@ public class CalibreBookVideoConverter {
         return video;
     }
 
-    static Video calibreMagazineToVideo(List<CalibreBook> groupedMagazines, String category) {
+    static Video calibreMagazineToVideo(List<CalibreBook> groupedMagazines, String category, String item) {
         CalibreBook calibreBook = groupedMagazines.get(0);
         Video video = new Video();
-        video.setTitle(CalibreUtils.getMagazineTitle(calibreBook));
+
+        if (calibreBook.getType().equals(Type.COMICS)) {
+            video.setTitle(CalibreUtils.getMagazineTitle(calibreBook));
+        } else {
+            video.setTitle(formatGroupTitle(groupedMagazines, item));
+        }
         if (calibreBook.getTiviId() != null) {
             video.setId(Math.toIntExact(calibreBook.getTiviId()));
         }
@@ -131,6 +136,14 @@ public class CalibreBookVideoConverter {
         video.setListid(0);
         // TODO tags = "";
         return video;
+    }
+
+    private static String formatGroupTitle(List<CalibreBook> books, String item) {
+        int count = (int) books.stream().filter(b -> b.getOwn() != null && b.getOwn()).count();
+        int total = books.size();
+        String tail = count == total ? "" : " из " + total;
+        String title = CalibreUtils.getMagazineTitle(books.get(0));
+        return String.format("%s (%s %s%s)", title, count, StringUtils.plural(item, count), tail);
     }
 
     private static List<Data> getDatasWithFileName(CalibreBook calibreBook) {

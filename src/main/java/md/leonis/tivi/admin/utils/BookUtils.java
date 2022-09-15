@@ -97,28 +97,16 @@ public class BookUtils {
         siteBooks = SiteDbUtils.getSiteBooks();
     }
 
-    public static ComparisionResult<Video> compare(List<CalibreBook> calibreBooks, String category) { //category == cpu
-        ComparisionResult<Video> comparisionResult = null;
-        //TODO тот способ ломает генерацию большого SQL, так как категория одна
+    public static List<ComparisionResult<Video>> compare(List<CalibreBook> calibreBooks, String category) { //category == cpu
+        List<ComparisionResult<Video>> comparisionResults = new ArrayList<>();
         if (category == null) {
             for (int i = 0; i < getCategories().size(); i++) {
-                System.out.println(i);
-                System.out.println(getCategories().get(i));
-                System.out.println(getCategories().get(i).getCatcpu());
-                ComparisionResult<Video> result = doCompare(calibreBooks, getCategories().get(i).getCatcpu());
-                if (comparisionResult == null) {
-                    comparisionResult = result;
-                } else {
-                    comparisionResult.getAddedBooks().addAll(result.getAddedBooks());
-                    comparisionResult.getChangedBooks().putAll(result.getChangedBooks());
-                    comparisionResult.getDeletedBooks().addAll(result.getDeletedBooks());
-                }
+                comparisionResults.add(doCompare(calibreBooks, getCategories().get(i).getCatcpu()));
             }
         } else {
-            comparisionResult = doCompare(calibreBooks, category);
+            comparisionResults.add(doCompare(calibreBooks, category));
         }
-        comparisionResult.setCategory(category);
-        return comparisionResult;
+        return comparisionResults;
     }
 
     public static ComparisionResult<Video> doCompare(List<CalibreBook> calibreBooks, String category) {
@@ -162,8 +150,7 @@ public class BookUtils {
         List<Video> books = groupedBooks.values().stream()
                 .filter(b -> b.stream().anyMatch(v -> v.getOwn() != null & v.getOwn()))
                 .map(b -> {
-                    Video book = calibreMagazineToVideo(b.stream().sorted(Comparator.comparing(CalibreBook::getSort)).collect(toList()), category);
-                    book.setTitle(formatGroupTitle(b, "книга"));
+                    Video book = calibreMagazineToVideo(b.stream().sorted(Comparator.comparing(CalibreBook::getSort)).collect(toList()), category, "книга");
                     book.setCategoryId(BookUtils.getCategoryId(category));
                     return book;
                 }).collect(toList());
@@ -175,12 +162,11 @@ public class BookUtils {
 
         // добавить специализированные журналы
         //потом можно добавить и комиксы, если будет такая необходимость
-        Map<String, List<CalibreBook>> groupedMags = MagazinesRenderer.getGroupedBooks(calibreBooks, MAGAZINE, category);
-        Map<String, List<CalibreBook>> filteredMags = MagazinesRenderer.getMags(groupedMags, category, true);
+        Map<String, List<CalibreBook>> groupedMags = MagazinesCitationRenderer.getGroupedBooks(calibreBooks, MAGAZINE, category);
+        Map<String, List<CalibreBook>> filteredMags = MagazinesCitationRenderer.getMags(groupedMags, category, true);
 
         List<Video> mags = filteredMags.values().stream().map(b -> {
-            Video mag = calibreMagazineToVideo(b.stream().sorted(Comparator.comparing(CalibreBook::getSort)).collect(toList()), category);
-            mag.setTitle(formatGroupTitle(b, "выпуск"));
+            Video mag = calibreMagazineToVideo(b.stream().sorted(Comparator.comparing(CalibreBook::getSort)).collect(toList()), category, "выпуск");
             mag.setGroup(true);
             return mag;
         }).collect(toList());
@@ -206,15 +192,14 @@ public class BookUtils {
         }
         // - других книгах,
         //new CitationsRenderer(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks).generateCitationsPage();
-        new CitationsRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks).generateCitationsPage();
+        new BooksCitationsRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks).generateCitationsPage();
         // - так же страница с поиском книг
         //SiteRenderer.generateSearchPage(filteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks);
         new SearchPageRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks).generateSearchPage();
         // - упоминания в журналах
-        for (Type type : Arrays.asList(MAGAZINE, COMICS)) { //magazines, comics
-            //new MagazinesRendererfilteredCalibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type).generateMagazinesPage();
-            new MagazinesRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks, type).generateMagazinesPage();
-        }
+        new MagazinesCitationRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks).generateCitationPage();
+        // - упоминания в комиксах
+        new ComicsCitationRenderer(calibreBooks, filteredSiteBooks, category, addedBooks, oldBooks).generateCitationPage();
 
         //Если в Calibre нет нужного ID значит удалённые
         Map<Integer, Video> newIds = oldBooks.stream().collect(Collectors.toMap(Video::getId, Function.identity()));
@@ -286,14 +271,6 @@ public class BookUtils {
         return new ComparisionResult<>(category, addedBooks, deletedBooks, changedBooks);
     }
 
-    private static String formatGroupTitle(List<CalibreBook> books, String item) {
-        int count = (int) books.stream().filter(b -> b.getOwn() != null && b.getOwn()).count();
-        int total = books.size();
-        String tail = count == total ? "" : " из " + total;
-        String title = CalibreUtils.getMagazineTitle(books.get(0));
-        return String.format("%s (%s %s%s)", title, count, StringUtils.plural(item, count), tail);
-    }
-
     public static ComparisionResult<Video> compareMagazines(List<CalibreBook> calibreBooks, String category) {
         List<CalibreBook> calibreMagazines = calibreBooks.stream().filter(b -> b.getType().getValue().equals(category.equals("magazines") ? MAGAZINE.getValue() : category) && !category.equals("gd"))
                 .sorted(Comparator.comparing(Book::getSort)).collect(toList());
@@ -309,11 +286,11 @@ public class BookUtils {
                 .entrySet().stream().collect(Collectors.toMap(entry -> entry.getValue().get(0).getSeries().getName(), Map.Entry::getValue));
 
         if (!category.equals("comics")) {
-            filteredMags = MagazinesRenderer.getMags(filteredMags, category, false);
+            filteredMags = MagazinesCitationRenderer.getMags(filteredMags, category, false);
         }
 
         List<Video> siteMagazines = siteBooks.stream().filter(b -> b.getCategoryId().equals(getCategoryId(category))).collect(toList());
-        List<Video> calibreMagazinesV = filteredMags.values().stream().map(b -> calibreMagazineToVideo(b, category)).collect(toList());
+        List<Video> calibreMagazinesV = filteredMags.values().stream().map(b -> calibreMagazineToVideo(b, category, "выпуск")).collect(toList());
 
         //Если в Calibre null, 0 - значит добавленные
         Collection<Video> addedBooks = calibreMagazinesV.stream().filter(b -> b.getId() == null || b.getId() < 1)
@@ -419,11 +396,11 @@ public class BookUtils {
     }
 
     public static BookCategory getCategoryByCpu(String cpu) {
-        return getCategories().stream().filter(c -> c.getCatcpu().equals(cpu)).findFirst().orElseThrow(() -> new RuntimeException("BookCategory is null"));
+        return getCategories().stream().filter(c -> c.getCatcpu().equals(cpu)).findFirst().orElseThrow(() -> new RuntimeException("BookCategory is null: "+ cpu));
     }
 
     public static BookCategory getCategoryById(Integer id) {
-        return getCategories().stream().filter(c -> c.getCatid().equals(id)).findFirst().orElseThrow(() -> new RuntimeException("BookCategory is null"));
+        return getCategories().stream().filter(c -> c.getCatid().equals(id)).findFirst().orElseThrow(() -> new RuntimeException("BookCategory is null: "+ id));
     }
 
     public static String getCategoryByTags(CalibreBook book) {
@@ -434,82 +411,89 @@ public class BookUtils {
         }
     }
 
-    public static List<String> syncDataWithSite(ComparisionResult<Video> comparisionResult, boolean write) {
-        List<String> insertQueries = comparisionResult.getAddedBooks().stream()
-                .map(b -> "-- " + b.getTitle() + "\n" + SiteDbUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(toList());
-        List<String> deleteQueries = comparisionResult.getDeletedBooks().stream()
-                .map(b -> "-- " + b.getTitle() + "\n" + "DELETE FROM `danny_media` WHERE downid=" + b.getId() + ";").collect(toList());
-        List<String> updateQueries = comparisionResult.getChangedBooks().entrySet().stream().filter(b -> !b.getValue().isEmpty())
-                .map(b -> "-- " + b.getKey().getTitle() + "\n" + SiteDbUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(toList());
+    public static List<String> syncDataWithSite(List<ComparisionResult<Video>> comparisionResults, boolean write) {
 
-        if (write) {
-            List<String> results = deleteQueries.stream().map(SiteDbUtils::queryRequest).collect(toList());
-            results.forEach(System.out::println);
-            results = insertQueries.stream().map(SiteDbUtils::queryRequest).collect(toList());
-            results.forEach(System.out::println);
-            results = updateQueries.stream().map(SiteDbUtils::queryRequest).collect(toList());
-            results.forEach(System.out::println);
-        }
+        List<String> lines = new ArrayList<>();
 
-        insertQueries.addAll(deleteQueries);
-        insertQueries.addAll(updateQueries);
+        comparisionResults.forEach(comparisionResult -> {
+            List<String> insertQueries = comparisionResult.getAddedBooks().stream()
+                    .map(b -> "-- " + b.getTitle() + "\n" + SiteDbUtils.objectToSqlInsertQuery(b, Video.class, "danny_media")).collect(toList());
+            List<String> deleteQueries = comparisionResult.getDeletedBooks().stream()
+                    .map(b -> "-- " + b.getTitle() + "\n" + "DELETE FROM `danny_media` WHERE downid=" + b.getId() + ";").collect(toList());
+            List<String> updateQueries = comparisionResult.getChangedBooks().entrySet().stream().filter(b -> !b.getValue().isEmpty())
+                    .map(b -> "-- " + b.getKey().getTitle() + "\n" + SiteDbUtils.comparisionResultToSqlUpdateQuery(b, "danny_media")).collect(toList());
 
-        if (!insertQueries.isEmpty()) {
-            insertQueries.add(0, "-- " + comparisionResult.getCategory());
-            insertQueries.add("");
-        }
-        return insertQueries;
+            if (write) {
+                List<String> results = deleteQueries.stream().map(SiteDbUtils::queryRequest).collect(toList());
+                results.forEach(System.out::println);
+                results = insertQueries.stream().map(SiteDbUtils::queryRequest).collect(toList());
+                results.forEach(System.out::println);
+                results = updateQueries.stream().map(SiteDbUtils::queryRequest).collect(toList());
+                results.forEach(System.out::println);
+            }
+
+            if ((insertQueries.size() + deleteQueries.size() + updateQueries.size() > 0)) {
+                String categoryName = getCategoryName(comparisionResult.getCategory());
+                lines.add("-- " + StringUtils.repeat('=', categoryName.length()));
+                lines.add("-- " + categoryName);
+                lines.add("-- " + StringUtils.repeat('=', categoryName.length()));
+                lines.add("");
+            }
+
+            lines.addAll(insertQueries);
+            lines.addAll(deleteQueries);
+            lines.addAll(updateQueries);
+        });
+
+        return lines;
     }
 
-    public static void loadTiviIds(List<CalibreBook> calibreBooks, ComparisionResult<Video> comparisionResult, String calibreDbDirectory, String cat) {
-        //TODO in this situation we will process books as magazines :(
-        //We don't need to use category at all
-        String category = cat == null ? "" : cat;
-
-        //TODO "IN" QUERY ??
+    public static void loadTiviIds(List<CalibreBook> calibreBooks, List<ComparisionResult<Video>> comparisionResults, String calibreDbDirectory) {
         CalibreUtils calibreUtils = new CalibreUtils(calibreDbDirectory);
-        //!!!
+        comparisionResults.forEach(comparisionResult -> {
+            String category = comparisionResult.getCategory();
+            //TODO "IN" QUERY ??
+            comparisionResult.getAddedBooks().forEach(b -> {
+                if (!category.equals("magazines") && !b.isGroup()) {
+                    //!!!
+                    if (!(b.getCpu().startsWith(category + "_"))
+                            && !(b.getCpu().endsWith("_manuals"))
+                            && !(b.getCpu().endsWith("_comics") && !BookUtils.getCategoryById(b.getCategoryId()).getCatcpu().equals("comics"))
+                            && !(b.getCpu().endsWith("_docs")
+                            && !(b.getCpu().endsWith("_guides")
+                            && !(b.getCpu().endsWith("_emulators"))))) {
+                        List<Video> videoList = SiteDbUtils.listBooks(b.getCpu(), b.getCategoryId());
+                        if (videoList.isEmpty()) {
+                            System.out.println(String.format("Empty. CPU: %s; CatId: %s", b.getCpu(), b.getCategoryId()));
+                        } else {
+                            Integer tiviId = videoList.get(0).getId();
+                            System.out.println(tiviId);
+                            System.out.println(b.getCpu());
+                            Long bookId = calibreBooks.stream().filter(cb -> cb.getSiteCpu() != null && cb.getSiteCpu().equals(b.getCpu()))
+                                    .min(Comparator.comparing(CalibreBook::getSort)).map(Book::getId).orElseThrow(() -> new RuntimeException("BookId is null"));
 
-        comparisionResult.getAddedBooks().forEach(b -> {
-            if (!category.equals("magazines") && !b.isGroup()) {
-                //!!!
-                if (!(b.getCpu().startsWith(category + "_"))
-                        && !(b.getCpu().endsWith("_manuals"))
-                        && !(b.getCpu().endsWith("_comics") && !BookUtils.getCategoryById(b.getCategoryId()).getCatcpu().equals("comics"))
-                        && !(b.getCpu().endsWith("_docs")
-                        && !(b.getCpu().endsWith("_guides")
-                        && !(b.getCpu().endsWith("_emulators"))))) {
-                    List<Video> videoList = SiteDbUtils.listBooks(b.getCpu(), b.getCategoryId());
-                    if (videoList.isEmpty()) {
-                        System.out.println(String.format("Empty. CPU: %s; CatId: %s", b.getCpu(), b.getCategoryId()));
-                    } else {
-                        Integer tiviId = videoList.get(0).getId();
-                        System.out.println(tiviId);
-                        System.out.println(b.getCpu());
-                        Long bookId = calibreBooks.stream().filter(cb -> cb.getSiteCpu() != null && cb.getSiteCpu().equals(b.getCpu()))
-                                .min(Comparator.comparing(CalibreBook::getSort)).map(Book::getId).orElseThrow(() -> new RuntimeException("BookId is null"));
+                            calibreUtils.upsertTiviId(bookId, tiviId);
+                        }
+                    }
+                } else { // magazines
+                    if (!b.getCpu().equals(MagazinesSearchPageRenderer.CPU) & !b.getCpu().equals(MagazinesSpecialPageRenderer.CPU)) {
+                        List<Video> videoList = SiteDbUtils.listBooks(b.getCpu(), b.getCategoryId());
+                        if (videoList.isEmpty()) {
+                            System.out.println(String.format("Empty. CPU: %s; CatId: %s" + b.getCpu(), b.getCategoryId()));
+                        } else {
+                            Integer tiviId = videoList.get(0).getId();
+                            System.out.println(tiviId);
+                            System.out.println(b.getCpu());
 
-                        calibreUtils.upsertTiviId(bookId, tiviId);
+                            Long bookId = calibreBooks.stream()
+                                    .filter(cb -> cb.getSeries() != null && generateCpu(cb.getSeries().getName()).equals(b.getCpu()))
+                                    .min(Comparator.comparing(Book::getSort)).map(Book::getId).orElseThrow(() -> new RuntimeException("BookId is null"));
+
+                            calibreUtils.upsertTiviId(bookId, tiviId);
+                        }
                     }
                 }
-            } else { // magazines
-                if (!b.getCpu().equals(MagazinesSearchPageRenderer.CPU) & !b.getCpu().equals(MagazinesSpecialPageRenderer.CPU)) {
-                    List<Video> videoList = SiteDbUtils.listBooks(b.getCpu(), b.getCategoryId());
-                    if (videoList.isEmpty()) {
-                        System.out.println(String.format("Empty. CPU: %s; CatId: %s" + b.getCpu(), b.getCategoryId()));
-                    } else {
-                        Integer tiviId = videoList.get(0).getId();
-                        System.out.println(tiviId);
-                        System.out.println(b.getCpu());
-
-                        Long bookId = calibreBooks.stream()
-                                .filter(cb -> cb.getSeries() != null && generateCpu(cb.getSeries().getName()).equals(b.getCpu()))
-                                .min(Comparator.comparing(Book::getSort)).map(Book::getId).orElseThrow(() -> new RuntimeException("BookId is null"));
-
-                        calibreUtils.upsertTiviId(bookId, tiviId);
-                    }
-                }
-            }
+            });
         });
     }
 
