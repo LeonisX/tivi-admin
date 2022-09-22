@@ -121,6 +121,9 @@ public class TextShortRenderer extends SiteRenderer {
         if (book.getFormat() != null) {
             sb.append(String.format("<li><span>Формат:</span> %s</li>\n", book.getFormat()));
         }
+        if (book.getScannedBy() == null && book.getPostprocessing() == null && book.getSource() != null) {
+            sb.append(String.format("<li><span><a rel=\"nofollow\" target=\"_blank\" href=\"%s\">Источник</a></span>\n", book.getSource()));
+        }
         if (book.getScannedBy() != null) {
             String scannedBy = book.getSource() == null ? book.getScannedBy()
                     : String.format("<a rel=\"nofollow\" target=\"_blank\" href=\"%s\">%s</a>", book.getSource(), book.getScannedBy());
