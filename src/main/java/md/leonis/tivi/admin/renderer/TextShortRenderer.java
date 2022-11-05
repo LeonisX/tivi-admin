@@ -122,16 +122,21 @@ public class TextShortRenderer extends SiteRenderer {
             sb.append(String.format("<li><span>Формат:</span> %s</li>\n", book.getFormat()));
         }
         if (book.getScannedBy() == null && book.getPostprocessing() == null && book.getSource() != null) {
-            sb.append(String.format("<li><span><a rel=\"nofollow\" target=\"_blank\" href=\"%s\">Источник</a></span>\n", book.getSource()));
+            sb.append(String.format("<li><span><a rel=\"nofollow\" target=\"_blank\" href=\"%s\">Источник</a></span></li>\n", book.getSource()));
         }
         if (book.getScannedBy() != null) {
             String scannedBy = book.getSource() == null ? book.getScannedBy()
                     : String.format("<a rel=\"nofollow\" target=\"_blank\" href=\"%s\">%s</a>", book.getSource(), book.getScannedBy());
             String word = book.getPostprocessing() == null ? "Сканирование и обработка" : "Сканирование";
-            sb.append(String.format("<li><span>%s:</span> %s\n", word, scannedBy));
+            sb.append(String.format("<li><span>%s:</span> %s</li>\n", word, scannedBy));
         }
         if (book.getPostprocessing() != null) {
-            sb.append(String.format("<li><span>Обработка:</span>%s\n", book.getPostprocessing()));
+            if (book.getScannedBy() == null && book.getSource() != null) {
+                String process = String.format("<a rel=\"nofollow\" target=\"_blank\" href=\"%s\">%s</a>", book.getSource(), book.getPostprocessing());
+                sb.append(String.format("<li><span>Обработка:</span> %s</li>\n", process));
+            } else {
+                sb.append(String.format("<li><span>Обработка:</span>%s</li>\n", book.getPostprocessing()));
+            }
         }
 
         if (book.getType().equals(Type.COMICS)) {
