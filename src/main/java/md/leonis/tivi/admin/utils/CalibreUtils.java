@@ -444,7 +444,7 @@ public class CalibreUtils {
                 ResultSetMetaData metaData = rs.getMetaData();
                 for (int i = 1; i <= metaData.getColumnCount(); i++) {
                     Object value;
-                    switch (metaData.getColumnType(i)) {
+                    switch (metaData.getColumnType(i)) { //TODO java.sql.Types values
                         case -7:
                         case 5:
                         case 4:

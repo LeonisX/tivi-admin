@@ -3,9 +3,13 @@ package md.leonis.tivi.admin.utils;
 import lombok.SneakyThrows;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.List;
 import java.util.Set;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
@@ -137,6 +141,26 @@ public class FileUtils {
                     return CONTINUE;
                 }
             });
+        }
+    }
+
+    public static List<String> loadTextFile(Path path) {
+        try {
+            return Files.readAllLines(path, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void saveToFile(Path path, List<String> list) {
+        saveToFile(path, String.join("\n", list));
+    }
+
+    public static void saveToFile(Path path, String text) {
+        try (PrintWriter out = new PrintWriter(path.toFile())) {
+            out.println(text);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 }
