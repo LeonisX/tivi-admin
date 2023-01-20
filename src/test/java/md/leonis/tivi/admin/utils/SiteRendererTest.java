@@ -1,11 +1,8 @@
 package md.leonis.tivi.admin.utils;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
 public class SiteRendererTest {
-
 
     @Test
     public void test() {

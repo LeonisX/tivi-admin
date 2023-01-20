@@ -2,11 +2,9 @@ package md.leonis.tivi.admin.model.template;
 
 import com.google.gson.JsonObject;
 import md.leonis.tivi.admin.utils.JsonUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.stream.Collectors;
-
-import static org.junit.Assert.*;
 
 public class ModelBookTest {
 

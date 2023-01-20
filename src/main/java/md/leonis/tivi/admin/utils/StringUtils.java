@@ -64,11 +64,22 @@ public class StringUtils {
                 .collect(Collectors.toMap(e -> (int) e.getKey(), Map.Entry::getValue));
     }
 
-    public static String generateCpu(String title) {
-        return Normalizer.normalize(StringUtils.toTranslit(title.toLowerCase()), Normalizer.Form.NFD)
-                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
-                .replaceAll("[^\\p{Alnum}]+", "_")
-                .replaceAll("_*$", "");
+    public static String generateCpu(String string) {
+        return cleanString((string)).toLowerCase();
+    }
+
+    public static String cleanString(String string) {
+        for (char c : " -_+~".toCharArray()) {
+            string = string.replace("" + c, " ");
+        }
+        for (char c : "`'’\"".toCharArray()) {
+            string = string.replace("" + c, "");
+        }
+
+        return Normalizer.normalize(StringUtils.toTranslit(string), Normalizer.Form.NFD) // repair aáeéiíoóöőuúüű AÁEÉIÍOÓÖŐUÚÜŰ
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "") // repair aáeéiíoóöőuúüű AÁEÉIÍOÓÖŐUÚÜŰ
+                .replaceAll("[^\\p{Alnum}]+", " ") // all, except [a-zA-Z0-9] convert to a single "_"
+                .trim().replace(" ", "_").replace("__", "_");
     }
 
     /**
@@ -236,6 +247,10 @@ public class StringUtils {
 
     public static boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();
+    }
+
+    public static boolean isNotBlank(String s) {
+        return s != null && !s.trim().isEmpty();
     }
 
     // JDK 11: "a".repeat(N);

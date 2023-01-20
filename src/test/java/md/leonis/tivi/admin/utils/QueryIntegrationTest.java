@@ -4,15 +4,12 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
 import javafx.util.Pair;
 import md.leonis.tivi.admin.model.danneo.Video;
+import org.junit.jupiter.api.Test;
 import unneeded.model.calibre.Sql;
 import md.leonis.tivi.admin.model.calibre.Book;
 import md.leonis.tivi.admin.model.calibre.CalibreBook;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.lang.reflect.Type;
@@ -25,13 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class QueryIntegrationTest {
-
-    @Rule
-    public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Test
     public void testText() {

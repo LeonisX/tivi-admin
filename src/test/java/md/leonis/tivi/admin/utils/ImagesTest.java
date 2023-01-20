@@ -2,7 +2,7 @@ package md.leonis.tivi.admin.utils;
 
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.resizers.configurations.Rendering;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;

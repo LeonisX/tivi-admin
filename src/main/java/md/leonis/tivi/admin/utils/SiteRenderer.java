@@ -313,8 +313,8 @@ public class SiteRenderer {
         sb.append("</table></p>\n");
         // save
         File file = new File(Config.calibreDbPath + NEWS_FILE);
-        FileUtils.backupFile(file);
         try (PrintWriter out = new PrintWriter(new FileWriter(file))) {
+            FileUtils.backupFile(file);
             out.println(sb);
         } catch (IOException e) {
             e.printStackTrace();
