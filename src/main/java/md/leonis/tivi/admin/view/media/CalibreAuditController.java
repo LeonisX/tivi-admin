@@ -360,7 +360,7 @@ public class CalibreAuditController extends SubPane implements CalibreInterface 
 
         getCpuOwn().forEach(calibreBook -> {
             String cpu = calibreBook.getFileName() == null ? calibreBook.getTitle() : calibreBook.getFileName();
-            cpu = StringUtils.generateCpu(cpu);
+            cpu = StringUtils.generateBooksCpu(cpu);
             if (isInvalidCpu(cpu)) {
                 System.out.println(cpu);
             }

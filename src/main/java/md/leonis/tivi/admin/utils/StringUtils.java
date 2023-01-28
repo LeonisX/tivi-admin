@@ -4,6 +4,7 @@ import md.leonis.tivi.admin.model.Declension;
 import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.PlatformsTranslation;
 import md.leonis.tivi.admin.model.calibre.TypeTranslation;
+import org.apache.commons.text.StringEscapeUtils;
 
 import java.text.Normalizer;
 import java.util.*;
@@ -14,72 +15,91 @@ import static md.leonis.tivi.admin.model.Type.*;
 
 /**
  * Класс переводит русский текст в транслит. Например, строка "Текст" будет преобразована в "Tekst".
- *
+ * <p>
  * Так же учится склонять и возвращать множественное число
  */
 public class StringUtils {
 
-    private static final Map<Integer, String> CHAR_MAP;
+    static List<String> tails = Arrays.asList("unl", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix");
+    static List<String> tailsReplacement = Arrays.asList("", "2", "3", "4", "5", "6", "7", "8", "9");
+    static List<String> mids = Arrays.asList("ii", "iii", "iv");
+    static List<String> midsReplacement = Arrays.asList("2", "3", "4");
 
-    static {
-        Map<Character, String> upperCharMap = new HashMap<>();
-        upperCharMap.put('А', "A");
-        upperCharMap.put('Б', "B");
-        upperCharMap.put('В', "V");
-        upperCharMap.put('Г', "G");
-        upperCharMap.put('Д', "D");
-        upperCharMap.put('Е', "E");
-        upperCharMap.put('Ё', "E");
-        upperCharMap.put('Ж', "ZH");
-        upperCharMap.put('З', "Z");
-        upperCharMap.put('И', "I");
-        upperCharMap.put('Й', "Y");
-        upperCharMap.put('К', "K");
-        upperCharMap.put('Л', "L");
-        upperCharMap.put('М', "M");
-        upperCharMap.put('Н', "N");
-        upperCharMap.put('О', "O");
-        upperCharMap.put('П', "P");
-        upperCharMap.put('Р', "R");
-        upperCharMap.put('С', "S");
-        upperCharMap.put('Т', "T");
-        upperCharMap.put('У', "U");
-        upperCharMap.put('Ф', "F");
-        upperCharMap.put('Х', "H");
-        upperCharMap.put('Ц', "C");
-        upperCharMap.put('Ч', "CH");
-        upperCharMap.put('Ш', "SH");
-        upperCharMap.put('Щ', "SH");
-        upperCharMap.put('Ъ', ""); // "
-        upperCharMap.put('Ы', "Y");
-        upperCharMap.put('Ь', ""); // '
-        upperCharMap.put('Э', "E");
-        upperCharMap.put('Ю', "U");
-        upperCharMap.put('Я', "YA");
-
-        Map<Character, String> lowerCharMap = upperCharMap.entrySet().stream()
-                .collect(Collectors.toMap(e -> Character.toLowerCase(e.getKey()), e -> e.getValue().toLowerCase()));
-
-        CHAR_MAP = Stream.concat(upperCharMap.entrySet().stream(), lowerCharMap.entrySet().stream())
-                .collect(Collectors.toMap(e -> (int) e.getKey(), Map.Entry::getValue));
+    // ЧПУ для страниц книг
+    public static String generateBooksCpu(String text) {
+        return Arrays.stream(generateCpu(text).split(" ")).filter(s -> !s.equals("a") && !s.equals("the")).collect(Collectors.joining("_"));
     }
 
-    public static String generateCpu(String string) {
-        return cleanString((string)).toLowerCase();
+    // ЧПУ, слова разделены пробелами
+    public static String generateCpu(String text) {
+        text = cleanString(text).toLowerCase();
+
+        for (int i = 0; i < tails.size(); i++) {
+            text = replaceFromTail(" " + tails.get(i), " " + tailsReplacement.get(i), text);
+        }
+
+        for (int i = 0; i < mids.size(); i++) {
+            text = replaceFromTail(" " + mids.get(i) + " ", " " + midsReplacement.get(i) + " ", text);
+        }
+
+        return text;
     }
 
     public static String cleanString(String string) {
         for (char c : " -_+~".toCharArray()) {
             string = string.replace("" + c, " ");
         }
-        for (char c : "`'’\"".toCharArray()) {
-            string = string.replace("" + c, "");
-        }
-
         return Normalizer.normalize(StringUtils.toTranslit(string), Normalizer.Form.NFD) // repair aáeéiíoóöőuúüű AÁEÉIÍOÓÖŐUÚÜŰ
                 .replaceAll("\\p{InCombiningDiacriticalMarks}+", "") // repair aáeéiíoóöőuúüű AÁEÉIÍOÓÖŐUÚÜŰ
-                .replaceAll("[^\\p{Alnum}]+", " ") // all, except [a-zA-Z0-9] convert to a single "_"
-                .trim().replace(" ", "_").replace("__", "_");
+                .replaceAll("[^\\p{Alnum}]+", " ") // all, except [a-zA-Z0-9] convert to a single " "
+                .trim().replace("  ", " ");
+    }
+
+    public static String replaceFromTail(String substr, String replace, String string) {
+        if (string.toLowerCase().endsWith(substr.toLowerCase())) {
+            return string.substring(0, string.length() - substr.length()) + replace;
+        } else {
+            return string;
+        }
+    }
+
+    public static String sid(String title) {
+        if (title.startsWith("Замечание")) {
+            return "1";
+        } else if (StringUtils.isNotBlank(title)) {
+            if (title.endsWith("(Hack)") || title.endsWith(" Hack)") || title.contains("(Hack ")) {
+                return "hak";
+            } else if (title.contains("(PD)")) {
+                return "pd";
+            } else if ("abcdefghijklmnopqrstuvwxyz".contains(title.substring(0, 1).toLowerCase())) {
+                return title.substring(0, 1).toLowerCase();
+            } else {
+                // todo russian
+                return "num";
+            }
+        } else {
+            throw new RuntimeException("Blank game title!");
+        }
+    }
+
+    // Транслитерация по правилам международных телеграмм
+    private static final List<Character> RUS = Arrays.asList(
+            'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й',
+            'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф',
+            'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я');
+
+    private static final List<String> LAT = Arrays.asList(
+            "a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "i",
+            "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f",
+            "h", "c", "ch", "sh", "sc", "", "y", "", "e", "iu", "ia");
+
+    private static final Map<Integer, String> TRANSLIT_MAP = new HashMap<>();
+
+    static {
+        for (int i = 0; i < RUS.size(); i++) {
+            TRANSLIT_MAP.put((int) RUS.get(i), LAT.get(i));
+            TRANSLIT_MAP.put((int) RUS.get(i).toString().toUpperCase().charAt(0), LAT.get(i).toUpperCase());
+        }
     }
 
     /**
@@ -90,9 +110,9 @@ public class StringUtils {
      * @param text исходный текст с русскими символами
      * @return результат
      */
-    static String toTranslit(String text) {
+    public static String toTranslit(String text) {
         return text.chars().mapToObj(c -> {
-            String replace = CHAR_MAP.get(c);
+            String replace = TRANSLIT_MAP.get(c);
             return (replace == null) ? Character.valueOf((char) c).toString() : replace;
         }).collect(Collectors.joining());
     }
