@@ -1,23 +1,8 @@
 package md.leonis.tivi.admin.utils;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import md.leonis.databaser.MigrateDataBaser;
-import md.leonis.databaser.TiviStructure;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Map;
-
-import static md.leonis.databaser.MigrateDataBaser.unescapeChars;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StringUtilsTest {
 
@@ -29,23 +14,45 @@ class StringUtilsTest {
     String cyrillic = "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя";
 
     @Test
+    void generateBooksCpu() {
+        assertEquals(" 0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ", ascii1.replaceAll("[^\\p{Alnum}]+", " ")); //  !"#$%&'()*+,-./_:;<=>?@_[\]^_`_{|}~
+        assertEquals(" ", ascii2.replaceAll("[^\\p{Alnum}]+", " ")); //  ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ
+        assertEquals(" ", cyrillic.replaceAll("[^\\p{Alnum}]+", " ")); // АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя
+
+        assertEquals("0123456789_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz", StringUtils.generateBooksCpu(ascii1));
+        assertEquals("aaaaaa_ceeeeiiii_nooooo_uuuuy_aaaaaa_ceeeeiiii_nooooo_uuuuy_y", StringUtils.generateBooksCpu(ascii2));
+        assertEquals("abvgdeejziiklmnoprstufhcchshscyeiuiaabvgdeejziiklmnoprstufhcchshscyeiuia", StringUtils.generateBooksCpu(cyrillic));
+
+        assertEquals("aaeeiioooouuuu_aaeeiioooouuuu", StringUtils.generateBooksCpu("aáeéiíoóöőuúüű AÁEÉIÍOÓÖŐUÚÜŰ"));
+        assertEquals("", StringUtils.generateBooksCpu("'\"().,&!?$@#%^*=/\\[];:|<>{}"));
+        assertEquals("", StringUtils.generateBooksCpu("-"));
+        assertEquals("", StringUtils.generateBooksCpu("_"));
+        assertEquals("an", StringUtils.generateBooksCpu("-AN"));
+        assertEquals("an", StringUtils.generateBooksCpu("_an"));
+        assertEquals("normal_text_123", StringUtils.generateBooksCpu("Normal  Text   123 "));
+        assertEquals("russkii_tekst", StringUtils.generateBooksCpu(" Русский     текст"));
+        assertEquals("bugs_life", StringUtils.generateBooksCpu("A Bugs Life, The"));
+        assertEquals("never_ending_story_end", StringUtils.generateBooksCpu("The Never Ending A Story The End"));
+    }
+
+    @Test
     void generateCpu() {
         assertEquals(" 0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz ", ascii1.replaceAll("[^\\p{Alnum}]+", " ")); //  !"#$%&'()*+,-./_:;<=>?@_[\]^_`_{|}~
         assertEquals(" ", ascii2.replaceAll("[^\\p{Alnum}]+", " ")); //  ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ
         assertEquals(" ", cyrillic.replaceAll("[^\\p{Alnum}]+", " ")); // АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя
 
-        assertEquals("0123456789_abcdefghijklmnopqrstuvwxyz_abcdefghijklmnopqrstuvwxyz", StringUtils.generateCpu(ascii1));
-        assertEquals("aaaaaa_ceeeeiiii_nooooo_uuuuy_aaaaaa_ceeeeiiii_nooooo_uuuuy_y", StringUtils.generateCpu(ascii2));
-        assertEquals("abvgdeezhziyklmnoprstufhcchshshyeuyaabvgdeezhziyklmnoprstufhcchshshyeuya", StringUtils.generateCpu(cyrillic));
+        assertEquals("0123456789 abcdefghijklmnopqrstuvwxyz abcdefghijklmnopqrstuvwxyz", StringUtils.generateCpu(ascii1));
+        assertEquals("aaaaaa ceeeeiiii nooooo uuuuy aaaaaa ceeeeiiii nooooo uuuuy y", StringUtils.generateCpu(ascii2));
+        assertEquals("abvgdeejziiklmnoprstufhcchshscyeiuiaabvgdeejziiklmnoprstufhcchshscyeiuia", StringUtils.generateCpu(cyrillic));
 
-        assertEquals("aaeeiioooouuuu_aaeeiioooouuuu", StringUtils.generateCpu("aáeéiíoóöőuúüű AÁEÉIÍOÓÖŐUÚÜŰ"));
+        assertEquals("aaeeiioooouuuu aaeeiioooouuuu", StringUtils.generateCpu("aáeéiíoóöőuúüű AÁEÉIÍOÓÖŐUÚÜŰ"));
         assertEquals("", StringUtils.generateCpu("'\"().,&!?$@#%^*=/\\[];:|<>{}"));
         assertEquals("", StringUtils.generateCpu("-"));
         assertEquals("", StringUtils.generateCpu("_"));
         assertEquals("a", StringUtils.generateCpu("-A"));
         assertEquals("a", StringUtils.generateCpu("_a"));
-        assertEquals("normal_text_123", StringUtils.generateCpu("Normal Text 123 "));
-        assertEquals("russkiy_tekst", StringUtils.generateCpu(" Русский текст"));
+        assertEquals("normal text 123", StringUtils.generateCpu("Normal  Text   123 "));
+        assertEquals("russkii tekst", StringUtils.generateCpu(" Русский   текст"));
     }
 
     @Test
@@ -54,17 +61,17 @@ class StringUtilsTest {
         assertEquals(" ", ascii2.replaceAll("[^\\p{Alnum}]+", " ")); //  ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ
         assertEquals(" ", cyrillic.replaceAll("[^\\p{Alnum}]+", " ")); // АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя
 
-        assertEquals("0123456789_ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz", StringUtils.cleanString(ascii1));
-        assertEquals("AAAAAA_CEEEEIIII_NOOOOO_UUUUY_aaaaaa_ceeeeiiii_nooooo_uuuuy_y", StringUtils.cleanString(ascii2));
-        assertEquals("ABVGDEEZHZIYKLMNOPRSTUFHCCHSHSHYEUYAabvgdeezhziyklmnoprstufhcchshshyeuya", StringUtils.cleanString(cyrillic));
+        assertEquals("0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz", StringUtils.cleanString(ascii1));
+        assertEquals("AAAAAA CEEEEIIII NOOOOO UUUUY aaaaaa ceeeeiiii nooooo uuuuy y", StringUtils.cleanString(ascii2));
+        assertEquals("ABVGDEEJZIIKLMNOPRSTUFHCCHSHSCYEIUIAabvgdeejziiklmnoprstufhcchshscyeiuia", StringUtils.cleanString(cyrillic));
 
-        assertEquals("aaeeiioooouuuu_AAEEIIOOOOUUUU", StringUtils.cleanString("aáeéiíoóöőuúüű AÁEÉIÍOÓÖŐUÚÜŰ"));
+        assertEquals("aaeeiioooouuuu AAEEIIOOOOUUUU", StringUtils.cleanString("aáeéiíoóöőuúüű AÁEÉIÍOÓÖŐUÚÜŰ"));
         assertEquals("", StringUtils.cleanString("'\"().,&!?$@#%^*=/\\[];:|<>{}"));
         assertEquals("", StringUtils.cleanString("-"));
         assertEquals("", StringUtils.cleanString("_"));
         assertEquals("A", StringUtils.cleanString("-A"));
         assertEquals("a", StringUtils.cleanString("_a"));
-        assertEquals("Normal_Text_123", StringUtils.cleanString("Normal Text 123 "));
-        assertEquals("Russkiy_tekst", StringUtils.cleanString(" Русский текст"));
+        assertEquals("Normal Text 123", StringUtils.cleanString("Normal Text 123 "));
+        assertEquals("Russkii tekst", StringUtils.cleanString(" Русский текст"));
     }
 }

@@ -351,11 +351,11 @@ public class CalibreUtils {
             return calibreBook.getCpu();
         } else {
             if (calibreBook.getGroup() != null) {
-                return generateCpu(calibreBook.getGroup());
+                return generateBooksCpu(calibreBook.getGroup());
             } else if (calibreBook.getSeries() != null) {
-                return generateCpu(calibreBook.getSeries().getName());
+                return generateBooksCpu(calibreBook.getSeries().getName());
             } else {
-                return generateCpu(calibreBook.getTitle());
+                return generateBooksCpu(calibreBook.getTitle());
             }
         }
     }

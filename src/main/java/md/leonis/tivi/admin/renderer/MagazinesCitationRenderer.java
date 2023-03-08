@@ -117,7 +117,7 @@ public class MagazinesCitationRenderer extends SiteRenderer {
 
     private List<String> getMagsHtml(boolean specific) {
         return getMags(groupedBooks, category, specific).entrySet().stream()
-                .map(e -> String.format("<li><a href=\"%s\">%s</a></li>\n", generateBookViewUri(StringUtils.generateCpu(e.getValue().get(0).getSeries().getName())), e.getKey()))
+                .map(e -> String.format("<li><a href=\"%s\">%s</a></li>\n", generateBookViewUri(StringUtils.generateBooksCpu(e.getValue().get(0).getSeries().getName())), e.getKey()))
                 .collect(Collectors.toList());
     }
 

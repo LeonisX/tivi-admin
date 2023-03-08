@@ -486,7 +486,7 @@ public class BookUtils {
                             System.out.println(b.getCpu());
 
                             Long bookId = calibreBooks.stream()
-                                    .filter(cb -> cb.getSeries() != null && generateCpu(cb.getSeries().getName()).equals(b.getCpu()))
+                                    .filter(cb -> cb.getSeries() != null && generateBooksCpu(cb.getSeries().getName()).equals(b.getCpu()))
                                     .min(Comparator.comparing(Book::getSort)).map(Book::getId).orElseThrow(() -> new RuntimeException("BookId is null"));
 
                             calibreUtils.upsertTiviId(bookId, tiviId);
