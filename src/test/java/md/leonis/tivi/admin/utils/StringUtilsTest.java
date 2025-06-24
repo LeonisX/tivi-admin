@@ -2,6 +2,8 @@ package md.leonis.tivi.admin.utils;
 
 import org.junit.jupiter.api.Test;
 
+import static md.leonis.tivi.admin.model.Type.*;
+import static md.leonis.tivi.admin.utils.StringUtils.typeTranslationMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class StringUtilsTest {
@@ -73,5 +75,16 @@ class StringUtilsTest {
         assertEquals("a", StringUtils.cleanString("_a"));
         assertEquals("Normal Text 123", StringUtils.cleanString("Normal Text 123 "));
         assertEquals("Russkii tekst", StringUtils.cleanString(" Русский текст"));
+    }
+
+    @Test
+    void typeTranslationMap_plural() {
+        assertEquals("books", typeTranslationMap.get(BOOK).getPlural());
+        assertEquals("magazines", typeTranslationMap.get(MAGAZINE).getPlural());
+        assertEquals("manuals", typeTranslationMap.get(MANUAL).getPlural());
+        assertEquals("comics", typeTranslationMap.get(COMICS).getPlural());
+        assertEquals("guides", typeTranslationMap.get(GUIDE).getPlural());
+        assertEquals("docs", typeTranslationMap.get(DOC).getPlural());
+        assertEquals("emulators", typeTranslationMap.get(EMULATOR).getPlural());
     }
 }

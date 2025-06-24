@@ -4,12 +4,10 @@ import md.leonis.tivi.admin.model.Declension;
 import md.leonis.tivi.admin.model.Type;
 import md.leonis.tivi.admin.model.calibre.PlatformsTranslation;
 import md.leonis.tivi.admin.model.calibre.TypeTranslation;
-import org.apache.commons.text.StringEscapeUtils;
 
 import java.text.Normalizer;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static md.leonis.tivi.admin.model.Type.*;
 

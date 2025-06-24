@@ -36,11 +36,11 @@ public class SiteRenderer {
     }
 
     public static String generateDownloadLink(Type type, String category, String fileName) {
-        return String.format("%s/up/media/%ss/%s/%s", sitePath, typeTranslationMap.get(type).getPlural(), category, fileName);
+        return String.format("%s/up/media/%s/%s/%s", sitePath, typeTranslationMap.get(type).getPlural(), category, fileName);
     }
 
     public static String generateDownloadLink(Type type, String category, String fileName, String ext) {
-        return String.format("%s/up/media/%ss/%s/%s.%s", sitePath, typeTranslationMap.get(type).getPlural(), category, fileName, ext);
+        return String.format("%s/up/media/%s/%s/%s.%s", sitePath, typeTranslationMap.get(type).getPlural(), category, fileName, ext);
     }
 
     public static String generateSiteUri(CalibreBook book) {

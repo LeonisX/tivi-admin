@@ -2,7 +2,7 @@ package md.leonis.tivi.admin.model;
 
 import java.util.Arrays;
 
-public enum  Type {
+public enum Type {
 
     BOOK("book"),
     MAGAZINE("magazine"),
