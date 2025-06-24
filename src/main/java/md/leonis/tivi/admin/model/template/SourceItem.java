@@ -34,8 +34,14 @@ public class SourceItem {
             return "Другие источники";
         }
         String domain = URI.create(uri).getHost();
-        if (domain.contains("vk.com")) {
+        if (domain == null) { // русские буквы в URI
+            return "Другие источники";
+        }
+        if (domain.contains("vk.com") || domain.contains("t.me")) {
             domain = uri;
+            if (domain.contains("?")) {
+                domain = domain.split("\\?")[0]; // https://vk.com/coeavg?w=wall-46576991_4815
+            }
         }
         return domain;
     }
