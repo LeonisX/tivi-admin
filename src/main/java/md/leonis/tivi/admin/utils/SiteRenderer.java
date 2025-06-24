@@ -67,7 +67,7 @@ public class SiteRenderer {
     }
 
     public static String generateBookGroupViewUri(String category, Type type) {
-        return String.format("%s/media/open/%s_%ss.html", sitePath, category, type);
+        return String.format("%s/media/open/%s_%ss.html", sitePath, category, type); //todo plural, убрать s, протестировать
     }
 
     public static String generateBookCategoryUri(String cpu) {
